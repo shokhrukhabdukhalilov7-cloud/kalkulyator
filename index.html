@@ -200,75 +200,56 @@
           </div>
 
           <div class="category-cards-grid">
-            <!-- Ovqatlanish -->
+            <!-- 1. I: Ijtimoiy tarmoq obunalari -->
+            <div class="category-card cat-social">
+              <div class="cat-top">
+                <div class="cat-badge">
+                  <div class="cat-icon">📱</div>
+                  <span>Ijtimoiy tarmoq obunalari</span>
+                </div>
+                <span class="pill-badge" id="pctSocial">15%</span>
+              </div>
+              <div class="cat-sum" id="sumSocial">400 000 so'm</div>
+              <div class="cat-progress-bg">
+                <div class="cat-progress-bar" id="barSocial" style="width: 15%;"></div>
+              </div>
+              <div class="cat-foot">
+                <span>Telegram, YouTube, obunalar</span>
+                <span>3 ta to'lov</span>
+              </div>
+            </div>
+
+            <!-- 2. O: Ovqatlanish -->
             <div class="category-card cat-food">
               <div class="cat-top">
                 <div class="cat-badge">
                   <div class="cat-icon">🍔</div>
                   <span>Ovqatlanish</span>
                 </div>
-                <span class="pill-badge">42%</span>
+                <span class="pill-badge" id="pctFood">35%</span>
               </div>
-              <div class="cat-sum" id="sumFood">1 120 000 so'm</div>
+              <div class="cat-sum" id="sumFood">920 000 so'm</div>
               <div class="cat-progress-bg">
-                <div class="cat-progress-bar" style="width: 42%;"></div>
+                <div class="cat-progress-bar" id="barFood" style="width: 35%;"></div>
               </div>
               <div class="cat-foot">
                 <span>Tushlik, kofe, bozor</span>
-                <span>18 ta xarid</span>
+                <span>15 ta xarid</span>
               </div>
             </div>
 
-            <!-- Taksi -->
-            <div class="category-card cat-taxi">
-              <div class="cat-top">
-                <div class="cat-badge">
-                  <div class="cat-icon">🚕</div>
-                  <span>Taksi xizmati</span>
-                </div>
-                <span class="pill-badge">24%</span>
-              </div>
-              <div class="cat-sum" id="sumTaxi">640 000 so'm</div>
-              <div class="cat-progress-bg">
-                <div class="cat-progress-bar" style="width: 24%;"></div>
-              </div>
-              <div class="cat-foot">
-                <span>Yandex, shahar ichi</span>
-                <span>14 ta safar</span>
-              </div>
-            </div>
-
-            <!-- Yo'l haqi (Jamoat transporti) -->
-            <div class="category-card cat-transport">
-              <div class="cat-top">
-                <div class="cat-badge">
-                  <div class="cat-icon">🚌</div>
-                  <span>Yo'l haqi (Jamoat)</span>
-                </div>
-                <span class="pill-badge">11%</span>
-              </div>
-              <div class="cat-sum" id="sumTransport">300 000 so'm</div>
-              <div class="cat-progress-bg">
-                <div class="cat-progress-bar" style="width: 11%;"></div>
-              </div>
-              <div class="cat-foot">
-                <span>Metro, avtobus kartasi</span>
-                <span>22 ta qatnov</span>
-              </div>
-            </div>
-
-            <!-- Mikro qarz to'lovlari (Xarajat sifatida hisoblangan) -->
+            <!-- 3. Q: Qarz to'lovlari -->
             <div class="category-card cat-debt">
               <div class="cat-top">
                 <div class="cat-badge">
                   <div class="cat-icon">💳</div>
                   <span>Qarz to'lovlari</span>
                 </div>
-                <span class="pill-badge">15%</span>
+                <span class="pill-badge" id="pctDebt">15%</span>
               </div>
               <div class="cat-sum" id="sumDebtPaid">400 000 so'm</div>
               <div class="cat-progress-bg">
-                <div class="cat-progress-bar" style="width: 15%;"></div>
+                <div class="cat-progress-bar" id="barDebt" style="width: 15%;"></div>
               </div>
               <div class="cat-foot">
                 <span>To'lab yopilgan qarzlar</span>
@@ -276,22 +257,61 @@
               </div>
             </div>
 
-            <!-- Boshqa xarajatlar -->
-            <div class="category-card cat-other">
+            <!-- 4. T: Taxi xizmati -->
+            <div class="category-card cat-taxi">
               <div class="cat-top">
                 <div class="cat-badge">
-                  <div class="cat-icon">🛍️</div>
-                  <span>Boshqa xarajatlar</span>
+                  <div class="cat-icon">🚕</div>
+                  <span>Taxi xizmati</span>
                 </div>
-                <span class="pill-badge">8%</span>
+                <span class="pill-badge" id="pctTaxi">20%</span>
               </div>
-              <div class="cat-sum" id="sumOther">200 000 so'm</div>
+              <div class="cat-sum" id="sumTaxi">540 000 so'm</div>
               <div class="cat-progress-bg">
-                <div class="cat-progress-bar" style="width: 8%;"></div>
+                <div class="cat-progress-bar" id="barTaxi" style="width: 20%;"></div>
               </div>
               <div class="cat-foot">
-                <span>Internet, aloqa, xarid</span>
-                <span>5 ta operatsiya</span>
+                <span>Yandex, shahar ichi</span>
+                <span>12 ta safar</span>
+              </div>
+            </div>
+
+            <!-- 5. Y: Yo'l haqi (Jamoat) -->
+            <div class="category-card cat-transport">
+              <div class="cat-top">
+                <div class="cat-badge">
+                  <div class="cat-icon">🚌</div>
+                  <span>Yo'l haqi (Jamoat)</span>
+                </div>
+                <span class="pill-badge" id="pctTransport">8%</span>
+              </div>
+              <div class="cat-sum" id="sumTransport">200 000 so'm</div>
+              <div class="cat-progress-bg">
+                <div class="cat-progress-bar" id="barTransport" style="width: 8%;"></div>
+              </div>
+              <div class="cat-foot">
+                <span>Metro, avtobus, ATTO</span>
+                <span>16 ta qatnov</span>
+              </div>
+            </div>
+
+            <!-- 6. Oxiri: Nomsiz (Nomini o'zingiz qo'yasiz va xarajat yozasiz) -->
+            <div class="category-card cat-custom">
+              <div class="cat-top">
+                <div class="cat-badge">
+                  <div class="cat-icon">✏️</div>
+                  <span id="customCatTitle">Nomsiz xarajat</span>
+                  <button class="cat-edit-btn" id="renameCustomCatBtn" title="Nomini o'zgartirish">✏️</button>
+                </div>
+                <span class="pill-badge" id="pctCustom">7%</span>
+              </div>
+              <div class="cat-sum" id="sumCustom">200 000 so'm</div>
+              <div class="cat-progress-bg">
+                <div class="cat-progress-bar" id="barCustom" style="width: 7%;"></div>
+              </div>
+              <div class="cat-foot">
+                <span id="customCatSubtitle">O'zingiz nomlaysiz</span>
+                <button class="btn-sm" style="padding: 2px 8px; font-size: 0.72rem; color: #14b8a6; border-color: rgba(20,184,166,0.3);" onclick="openExpenseForCustom()">+ Xarajat yozish</button>
               </div>
             </div>
           </div>
@@ -481,18 +501,18 @@
           <div class="legend-list">
             <div class="legend-item">
               <div class="legend-info">
-                <span class="legend-dot" style="background: var(--color-food);"></span>
-                <span>Ovqatlanish</span>
+                <span class="legend-dot" style="background: #a855f7;"></span>
+                <span>Ijtimoiy tarmoq</span>
               </div>
-              <span class="legend-pct">42%</span>
+              <span class="legend-pct" id="legendPctSocial">15%</span>
             </div>
 
             <div class="legend-item">
               <div class="legend-info">
-                <span class="legend-dot" style="background: var(--color-taxi);"></span>
-                <span>Taksi xizmati</span>
+                <span class="legend-dot" style="background: var(--color-food);"></span>
+                <span>Ovqatlanish</span>
               </div>
-              <span class="legend-pct">24%</span>
+              <span class="legend-pct" id="legendPctFood">35%</span>
             </div>
 
             <div class="legend-item">
@@ -500,7 +520,15 @@
                 <span class="legend-dot" style="background: var(--color-debt);"></span>
                 <span>Qarz to'lovlari</span>
               </div>
-              <span class="legend-pct">15%</span>
+              <span class="legend-pct" id="legendPctDebt">15%</span>
+            </div>
+
+            <div class="legend-item">
+              <div class="legend-info">
+                <span class="legend-dot" style="background: var(--color-taxi);"></span>
+                <span>Taxi xizmati</span>
+              </div>
+              <span class="legend-pct" id="legendPctTaxi">20%</span>
             </div>
 
             <div class="legend-item">
@@ -508,15 +536,15 @@
                 <span class="legend-dot" style="background: var(--color-transport);"></span>
                 <span>Yo'l haqi</span>
               </div>
-              <span class="legend-pct">11%</span>
+              <span class="legend-pct" id="legendPctTransport">8%</span>
             </div>
 
             <div class="legend-item">
               <div class="legend-info">
-                <span class="legend-dot" style="background: var(--color-other);"></span>
-                <span>Boshqa xarajatlar</span>
+                <span class="legend-dot" style="background: #14b8a6;"></span>
+                <span id="legendCustomLabel">Nomsiz xarajat</span>
               </div>
-              <span class="legend-pct">8%</span>
+              <span class="legend-pct" id="legendPctCustom">7%</span>
             </div>
           </div>
         </section>
@@ -594,13 +622,19 @@
       </div>
       <form class="modal-form" id="expenseForm">
         <div class="form-group">
-          <label>Xarajat yo'nalishi (Kategoriya):</label>
+          <label>Xarajat yo'nalishi (Alifbo bo'yicha):</label>
           <select class="form-select" id="expCategory" required>
+            <option value="social">📱 Ijtimoiy tarmoq obunalari (Telegram, YouTube, obunalar)</option>
             <option value="food">🍔 Ovqatlanish (Tushlik, kofe, bozor)</option>
-            <option value="taxi">🚕 Taksi (Yandex, mashina yo'l haqi)</option>
+            <option value="debt">💳 Qarz to'lovlari (Mikro qarz to'lovi)</option>
+            <option value="taxi">🚕 Taxi xizmati (Yandex, mashina yo'l haqi)</option>
             <option value="transport">🚌 Yo'l haqi (Avtobus, metro, ATTO)</option>
-            <option value="other">🛍️ Boshqa kundalik xarajatlar</option>
+            <option value="custom">✏️ Nomsiz (O'zingiz nomlaysiz va yozasiz)</option>
           </select>
+        </div>
+        <div class="form-group" id="customCatGroup" style="display: none;">
+          <label>Maxsus kategoriya nomi:</label>
+          <input type="text" class="form-input" id="customCatNameInput" placeholder="Masalan: Sportzal, Kiyim, Kitob...">
         </div>
         <div class="form-group">
           <label>Summa (so'mda):</label>
@@ -727,6 +761,28 @@
           Korzinani to'liq tozalash
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: Nomsiz kategoriyani qayta nomlash -->
+  <div class="modal-overlay" id="renameCatModal">
+    <div class="modal-window" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: #14b8a6;">
+          ✏️ Kategoriya nomini o'zgartirish
+        </h3>
+        <button class="modal-close" onclick="closeAllModals()">&times;</button>
+      </div>
+      <form class="modal-form" id="renameCatForm">
+        <div class="form-group">
+          <label>Yangi nom kiriting:</label>
+          <input type="text" class="form-input" id="renameInput" placeholder="Masalan: Sportzal, Kiyim, Kitob..." required>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeAllModals()">Bekor qilish</button>
+          <button type="submit" class="btn" style="background: #14b8a6; color: #0b0f19; font-weight: 700;">Saqlash</button>
+        </div>
+      </form>
     </div>
   </div>
 

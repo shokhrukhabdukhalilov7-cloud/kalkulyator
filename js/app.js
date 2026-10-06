@@ -9,12 +9,14 @@ const defaultState = {
   monthlyIncome: 6500000,
   monthlyExpense: 2660000,
   activeDebtTotal: 450000,
+  customCategoryName: "Nomsiz xarajat",
   categories: {
-    food: 1120000,
-    taxi: 640000,
-    transport: 300000,
-    debt: 400000,
-    other: 200000
+    social: 400000,     // 1. Ijtimoiy tarmoq obunalari (I)
+    food: 920000,       // 2. Ovqatlanish (O)
+    debt: 400000,       // 3. Qarz to'lovlari (Q)
+    taxi: 540000,       // 4. Taxi xizmati (T)
+    transport: 200000,  // 5. Yo'l haqi (Y)
+    custom: 200000      // 6. Nomsiz / Maxsus (Ohirida)
   },
   debts: [
     {
@@ -53,8 +55,19 @@ const defaultState = {
     {
       id: 102,
       type: "expense",
+      title: "Telegram Premium & YouTube",
+      tag: "Ijtimoiy tarmoq",
+      time: "Bugun, 10:15 • Kartadan to'landi",
+      amount: -120000,
+      icon: "📱",
+      color: "#a855f7",
+      bg: "rgba(168, 85, 247, 0.15)"
+    },
+    {
+      id: 103,
+      type: "expense",
       title: "Yandex Go (Ishdan uyga)",
-      tag: "Taksi",
+      tag: "Taxi xizmati",
       time: "Bugun, 09:15 • Naqd",
       amount: -35000,
       icon: "🚕",
@@ -62,7 +75,7 @@ const defaultState = {
       bg: "rgba(6, 182, 212, 0.15)"
     },
     {
-      id: 103,
+      id: 104,
       type: "expense",
       title: "Tushlik (Milliy taomlar)",
       tag: "Ovqatlanish",
@@ -73,7 +86,7 @@ const defaultState = {
       bg: "rgba(249, 115, 22, 0.15)"
     },
     {
-      id: 104,
+      id: 105,
       type: "income",
       title: "Oylik asosiy maosh",
       tag: "Oylik tushum",
@@ -84,7 +97,7 @@ const defaultState = {
       bg: "rgba(16, 185, 129, 0.15)"
     },
     {
-      id: 105,
+      id: 106,
       type: "expense",
       title: "ATTO karta to'ldirish",
       tag: "Yo'l haqi",
@@ -111,7 +124,15 @@ function loadState() {
   const saved = localStorage.getItem('finance_app_state');
   if (saved) {
     try {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      // Agar yangi kategoriyalar bo'lmasa, andozadan to'ldirish
+      if (!parsed.categories || !parsed.categories.social) {
+        parsed.categories = { ...defaultState.categories, ...parsed.categories };
+      }
+      if (!parsed.customCategoryName) {
+        parsed.customCategoryName = defaultState.customCategoryName;
+      }
+      return parsed;
     } catch (e) {
       console.error("Local storage load error:", e);
     }
@@ -155,7 +176,6 @@ function updateTrashBadge() {
   }
 }
 
-// 7 kun qolgan vaqtni hisoblash
 function getRemainingDaysStr(expiresAt) {
   const diff = expiresAt - Date.now();
   if (diff <= 0) return "Muddati tugagan";
@@ -172,7 +192,7 @@ function getRemainingDaysStr(expiresAt) {
 // ==========================================
 
 function formatSom(amount) {
-  return new Intl.NumberFormat('uz-UZ').format(amount) + " so'm";
+  return new Intl.NumberFormat('uz-UZ').format(amount || 0) + " so'm";
 }
 
 function showToast(message, type = 'success') {
@@ -222,8 +242,12 @@ function initModals() {
   const debtModal = document.getElementById('debtModal');
   const resetConfirmModal = document.getElementById('resetConfirmModal');
   const trashModal = document.getElementById('trashModal');
+  const renameCatModal = document.getElementById('renameCatModal');
 
-  document.getElementById('openExpenseModalBtn').addEventListener('click', () => openModal(expenseModal));
+  document.getElementById('openExpenseModalBtn').addEventListener('click', () => {
+    document.getElementById('customCatGroup').style.display = 'none';
+    openModal(expenseModal);
+  });
   document.getElementById('openIncomeModalBtn').addEventListener('click', () => openModal(incomeModal));
   document.getElementById('openDebtModalBtn').addEventListener('click', () => openModal(debtModal));
   document.getElementById('bannerAddDebtBtn').addEventListener('click', () => openModal(debtModal));
@@ -236,6 +260,16 @@ function initModals() {
     renderTrash();
     openModal(trashModal);
   });
+
+  // Nomsiz kategoriyani qayta nomlash tugmasi
+  const renameBtn = document.getElementById('renameCustomCatBtn');
+  if (renameBtn) {
+    renameBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('renameInput').value = appState.customCategoryName || "Nomsiz xarajat";
+      openModal(renameCatModal);
+    });
+  }
 
   // Korzinani tozalash tugmasi
   document.getElementById('emptyTrashBtn').addEventListener('click', () => {
@@ -253,7 +287,7 @@ function initModals() {
   document.getElementById('confirmResetBtn').addEventListener('click', handleResetStatistics);
 
   // Tashqariga bosilganda yopish
-  [expenseModal, incomeModal, debtModal, resetConfirmModal, trashModal].forEach(modal => {
+  [expenseModal, incomeModal, debtModal, resetConfirmModal, trashModal, renameCatModal].forEach(modal => {
     if (modal) {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) closeAllModals();
@@ -281,7 +315,6 @@ function closeAllModals() {
 // ==========================================
 
 function handleResetStatistics() {
-  // 1. Mavjud ma'lumotlar to'plami nusxasini (Snapshot) Chiqindi qutisiga saqlash
   const snapshot = {
     id: Date.now(),
     type: 'session_reset',
@@ -294,6 +327,7 @@ function handleResetStatistics() {
       monthlyIncome: appState.monthlyIncome,
       monthlyExpense: appState.monthlyExpense,
       activeDebtTotal: appState.activeDebtTotal,
+      customCategoryName: appState.customCategoryName,
       categories: { ...appState.categories },
       debts: [...appState.debts],
       transactions: [...appState.transactions]
@@ -303,17 +337,18 @@ function handleResetStatistics() {
   appTrash.unshift(snapshot);
   saveTrash();
 
-  // 2. Barcha statistikalarni 0 ga tushirish
+  // Barcha statistikalarni 0 ga tushirish
   appState.balance = 0;
   appState.monthlyIncome = 0;
   appState.monthlyExpense = 0;
   appState.activeDebtTotal = 0;
   appState.categories = {
+    social: 0,
     food: 0,
+    debt: 0,
     taxi: 0,
     transport: 0,
-    debt: 0,
-    other: 0
+    custom: 0
   };
   appState.debts = [];
   appState.transactions = [];
@@ -333,7 +368,6 @@ function renderTrash() {
   const container = document.getElementById('trashListContainer');
   updateTrashBadge();
 
-  // Eskirganlarni tozalash
   const now = Date.now();
   appTrash = appTrash.filter(item => item.expiresAt > now);
   saveTrash();
@@ -427,7 +461,6 @@ function renderTrash() {
   }).join('');
 }
 
-// Qayta tiklash (Restore)
 window.restoreTrashItem = function(id) {
   const index = appTrash.findIndex(item => item.id === id);
   if (index === -1) return;
@@ -454,7 +487,6 @@ window.restoreTrashItem = function(id) {
   showToast("Ma'lumotlar muvaffaqiyatli qayta tiklandi!", 'success');
 };
 
-// Butunlay o'chirish (Delete Permanently)
 window.deleteTrashPerm = function(id) {
   appTrash = appTrash.filter(item => item.id !== id);
   saveTrash();
@@ -462,7 +494,6 @@ window.deleteTrashPerm = function(id) {
   showToast("Ma'lumot butunlay o'chirildi!");
 };
 
-// Qarzni alohida Chiqindiga o'chirish
 window.deleteSingleDebt = function(debtId) {
   const index = appState.debts.findIndex(d => d.id === debtId);
   if (index === -1) return;
@@ -470,7 +501,6 @@ window.deleteSingleDebt = function(debtId) {
   const debt = appState.debts[index];
   const remaining = debt.totalAmount - debt.paidAmount;
 
-  // Korzinaga ko'chirish
   appTrash.unshift({
     id: Date.now(),
     type: 'debt',
@@ -496,10 +526,25 @@ window.deleteSingleDebt = function(debtId) {
 // ==========================================
 
 function initForms() {
+  const expCategorySelect = document.getElementById('expCategory');
+  const customCatGroup = document.getElementById('customCatGroup');
+  const customCatNameInput = document.getElementById('customCatNameInput');
+
+  // Kategoriya o'zgarganda Nomsiz maydonini ko'rsatish
+  expCategorySelect.addEventListener('change', () => {
+    if (expCategorySelect.value === 'custom') {
+      customCatGroup.style.display = 'flex';
+      customCatNameInput.value = appState.customCategoryName || '';
+      customCatNameInput.focus();
+    } else {
+      customCatGroup.style.display = 'none';
+    }
+  });
+
   // 1. Yangi xarajat kiritish
   document.getElementById('expenseForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    const category = document.getElementById('expCategory').value;
+    const category = expCategorySelect.value;
     const amount = parseInt(document.getElementById('expAmount').value, 10);
     const note = document.getElementById('expNote').value.trim();
 
@@ -509,32 +554,66 @@ function initForms() {
     appState.balance -= amount;
     appState.categories[category] = (appState.categories[category] || 0) + amount;
 
-    const catMap = {
-      food: { tag: "Ovqatlanish", icon: "🍔", color: "var(--color-food)", bg: "rgba(249, 115, 22, 0.15)" },
-      taxi: { tag: "Taksi", icon: "🚕", color: "var(--color-taxi)", bg: "rgba(6, 182, 212, 0.15)" },
-      transport: { tag: "Yo'l haqi", icon: "🚌", color: "var(--color-transport)", bg: "rgba(59, 130, 246, 0.15)" },
-      other: { tag: "Boshqa", icon: "🛍️", color: "var(--color-other)", bg: "rgba(168, 85, 247, 0.15)" }
-    };
+    // Kategoriya konfiguratsiyasi (Alifbo bo'yicha)
+    let catTag = "Xarajat";
+    let catIcon = "🛍️";
+    let catColor = "var(--brand-primary)";
+    let catBg = "rgba(99, 102, 241, 0.15)";
 
-    const catData = catMap[category] || catMap.other;
+    if (category === 'social') {
+      catTag = "Ijtimoiy tarmoq";
+      catIcon = "📱";
+      catColor = "#a855f7";
+      catBg = "rgba(168, 85, 247, 0.15)";
+    } else if (category === 'food') {
+      catTag = "Ovqatlanish";
+      catIcon = "🍔";
+      catColor = "var(--color-food)";
+      catBg = "rgba(249, 115, 22, 0.15)";
+    } else if (category === 'debt') {
+      catTag = "Qarz to'lovi";
+      catIcon = "💳";
+      catColor = "var(--color-debt)";
+      catBg = "rgba(245, 158, 11, 0.15)";
+    } else if (category === 'taxi') {
+      catTag = "Taxi xizmati";
+      catIcon = "🚕";
+      catColor = "var(--color-taxi)";
+      catBg = "rgba(6, 182, 212, 0.15)";
+    } else if (category === 'transport') {
+      catTag = "Yo'l haqi";
+      catIcon = "🚌";
+      catColor = "var(--color-transport)";
+      catBg = "rgba(59, 130, 246, 0.15)";
+    } else if (category === 'custom') {
+      const userCustomName = customCatNameInput.value.trim();
+      if (userCustomName) {
+        appState.customCategoryName = userCustomName;
+      }
+      catTag = appState.customCategoryName || "Nomsiz xarajat";
+      catIcon = "✏️";
+      catColor = "#14b8a6";
+      catBg = "rgba(20, 184, 166, 0.15)";
+    }
 
     appState.transactions.unshift({
       id: Date.now(),
       type: "expense",
       title: note,
-      tag: catData.tag,
+      tag: catTag,
       time: "Hozir • Naqd/Karta",
       amount: -amount,
-      icon: catData.icon,
-      color: catData.color,
-      bg: catData.bg
+      icon: catIcon,
+      color: catColor,
+      bg: catBg
     });
 
     saveState();
     closeAllModals();
     document.getElementById('expenseForm').reset();
+    customCatGroup.style.display = 'none';
     renderAll();
-    showToast(`${formatSom(amount)} ${catData.tag} xarajatiga saqlandi!`);
+    showToast(`${formatSom(amount)} ${catTag} xarajatiga saqlandi!`);
   });
 
   // 2. Oylik tushum qo'shish
@@ -597,11 +676,39 @@ function initForms() {
     renderAll();
     showToast(`${person} dan ${formatSom(amount)} mikro qarz ro'yxatga olindi!`, 'debt');
   });
+
+  // 4. Nomsiz kategoriyani qayta nomlash
+  const renameForm = document.getElementById('renameCatForm');
+  if (renameForm) {
+    renameForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newName = document.getElementById('renameInput').value.trim();
+      if (!newName) return;
+      appState.customCategoryName = newName;
+      saveState();
+      closeAllModals();
+      renderAll();
+      showToast(`Kategoriya nomi "${newName}" ga o'zgartirildi!`);
+    });
+  }
 }
+
+// Nomsiz xarajatga tezkor o'tish
+window.openExpenseForCustom = function() {
+  const expModal = document.getElementById('expenseModal');
+  const expCategorySelect = document.getElementById('expCategory');
+  const customCatGroup = document.getElementById('customCatGroup');
+  const customCatNameInput = document.getElementById('customCatNameInput');
+
+  expCategorySelect.value = 'custom';
+  customCatGroup.style.display = 'flex';
+  customCatNameInput.value = appState.customCategoryName || '';
+  openModal(expModal);
+  document.getElementById('expAmount').focus();
+};
 
 // ==========================================
 // ASOSIY FUNKSIYA: "TO'LOV QILDIM" BOSILGANDA
-// Qarz xarajatlarga to'lov bo'lib chiqadi!
 // ==========================================
 
 window.handleQuickPay = function(personName, amount) {
@@ -616,7 +723,6 @@ window.handleQuickPay = function(personName, amount) {
     return;
   }
 
-  // 1. Qarz qoldig'ini kamaytirish
   debt.paidAmount += payAmount;
   appState.activeDebtTotal -= payAmount;
   if (appState.activeDebtTotal < 0) appState.activeDebtTotal = 0;
@@ -627,12 +733,10 @@ window.handleQuickPay = function(personName, amount) {
     debt.status = "Qisman to'langan";
   }
 
-  // 2. Balansdan ayirish va umumiy xarajatga qo'shish
   appState.balance -= payAmount;
   appState.monthlyExpense += payAmount;
   appState.categories.debt = (appState.categories.debt || 0) + payAmount;
 
-  // 3. Xarajatlar ro'yxatiga mikro qarz to'lovi sifatida yangi tranzaksiya yozish!
   appState.transactions.unshift({
     id: Date.now(),
     type: "debt",
@@ -661,47 +765,47 @@ function renderAll() {
   document.getElementById('totalExpenseDisplay').textContent = formatSom(appState.monthlyExpense);
   document.getElementById('totalDebtDisplay').textContent = formatSom(appState.activeDebtTotal);
 
-  // 2. Kategoriya kartochkalari
+  // 2. Kategoriya kartochkalari (Alifbo bo'yicha)
+  document.getElementById('sumSocial').textContent = formatSom(appState.categories.social);
   document.getElementById('sumFood').textContent = formatSom(appState.categories.food);
+  document.getElementById('sumDebtPaid').textContent = formatSom(appState.categories.debt);
   document.getElementById('sumTaxi').textContent = formatSom(appState.categories.taxi);
   document.getElementById('sumTransport').textContent = formatSom(appState.categories.transport);
-  document.getElementById('sumDebtPaid').textContent = formatSom(appState.categories.debt);
-  document.getElementById('sumOther').textContent = formatSom(appState.categories.other);
+  document.getElementById('sumCustom').textContent = formatSom(appState.categories.custom);
+
+  // Nomsiz kategoriya nomini ko'rsatish
+  const customName = appState.customCategoryName || "Nomsiz xarajat";
+  document.getElementById('customCatTitle').textContent = customName;
+  const legendLabel = document.getElementById('legendCustomLabel');
+  if (legendLabel) legendLabel.textContent = customName;
 
   // Foizlarni hisoblash
   const totalExp = appState.monthlyExpense || 1;
-  const foodPct = Math.round((appState.categories.food / totalExp) * 100) || 0;
-  const taxiPct = Math.round((appState.categories.taxi / totalExp) * 100) || 0;
-  const transportPct = Math.round((appState.categories.transport / totalExp) * 100) || 0;
-  const debtPct = Math.round((appState.categories.debt / totalExp) * 100) || 0;
-  const otherPct = Math.round((appState.categories.other / totalExp) * 100) || 0;
+  const socialPct = Math.round(((appState.categories.social || 0) / totalExp) * 100) || 0;
+  const foodPct = Math.round(((appState.categories.food || 0) / totalExp) * 100) || 0;
+  const debtPct = Math.round(((appState.categories.debt || 0) / totalExp) * 100) || 0;
+  const taxiPct = Math.round(((appState.categories.taxi || 0) / totalExp) * 100) || 0;
+  const transportPct = Math.round(((appState.categories.transport || 0) / totalExp) * 100) || 0;
+  const customPct = Math.round(((appState.categories.custom || 0) / totalExp) * 100) || 0;
 
-  // Kategoriya progress barlarini dinamik yangilash
-  const foodCard = document.querySelector('.category-card.cat-food');
-  if (foodCard) {
-    foodCard.querySelector('.pill-badge').textContent = `${foodPct}%`;
-    foodCard.querySelector('.cat-progress-bar').style.width = `${foodPct}%`;
-  }
-  const taxiCard = document.querySelector('.category-card.cat-taxi');
-  if (taxiCard) {
-    taxiCard.querySelector('.pill-badge').textContent = `${taxiPct}%`;
-    taxiCard.querySelector('.cat-progress-bar').style.width = `${taxiPct}%`;
-  }
-  const transportCard = document.querySelector('.category-card.cat-transport');
-  if (transportCard) {
-    transportCard.querySelector('.pill-badge').textContent = `${transportPct}%`;
-    transportCard.querySelector('.cat-progress-bar').style.width = `${transportPct}%`;
-  }
-  const debtCard = document.querySelector('.category-card.cat-debt');
-  if (debtCard) {
-    debtCard.querySelector('.pill-badge').textContent = `${debtPct}%`;
-    debtCard.querySelector('.cat-progress-bar').style.width = `${debtPct}%`;
-  }
-  const otherCard = document.querySelector('.category-card.cat-other');
-  if (otherCard) {
-    otherCard.querySelector('.pill-badge').textContent = `${otherPct}%`;
-    otherCard.querySelector('.cat-progress-bar').style.width = `${otherPct}%`;
-  }
+  // Progress barlar va foizlarni yangilash
+  updateCatUI('pctSocial', 'barSocial', socialPct);
+  updateCatUI('pctFood', 'barFood', foodPct);
+  updateCatUI('pctDebt', 'barDebt', debtPct);
+  updateCatUI('pctTaxi', 'barTaxi', taxiPct);
+  updateCatUI('pctTransport', 'barTransport', transportPct);
+  updateCatUI('pctCustom', 'barCustom', customPct);
+
+  // Donut diagramma foizlari
+  setElText('legendPctSocial', `${socialPct}%`);
+  setElText('legendPctFood', `${foodPct}%`);
+  setElText('legendPctDebt', `${debtPct}%`);
+  setElText('legendPctTaxi', `${taxiPct}%`);
+  setElText('legendPctTransport', `${transportPct}%`);
+  setElText('legendPctCustom', `${customPct}%`);
+
+  // Donut doiraviy vizualini yangilash
+  updateDonutVisual(socialPct, foodPct, debtPct, taxiPct, transportPct, customPct);
 
   // 3. Mikro qarzlar ro'yxati
   renderDebts();
@@ -711,6 +815,46 @@ function renderAll() {
 
   // 5. Korzina badge
   updateTrashBadge();
+}
+
+function updateCatUI(pctId, barId, pct) {
+  const pctEl = document.getElementById(pctId);
+  if (pctEl) pctEl.textContent = `${pct}%`;
+  const barEl = document.getElementById(barId);
+  if (barEl) barEl.style.width = `${pct}%`;
+}
+
+function setElText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function updateDonutVisual(sPct, fPct, dPct, txPct, trPct, cPct) {
+  const donut = document.querySelector('.donut-visual');
+  if (!donut) return;
+
+  let acc = 0;
+  const sEnd = acc + sPct; acc = sEnd;
+  const fEnd = acc + fPct; acc = fEnd;
+  const dEnd = acc + dPct; acc = dEnd;
+  const txEnd = acc + txPct; acc = txEnd;
+  const trEnd = acc + trPct; acc = trEnd;
+  const cEnd = 100;
+
+  donut.style.background = `conic-gradient(
+    #a855f7 0% ${sEnd}%,
+    var(--color-food) ${sEnd}% ${fEnd}%,
+    var(--color-debt) ${fEnd}% ${dEnd}%,
+    var(--color-taxi) ${dEnd}% ${txEnd}%,
+    var(--color-transport) ${txEnd}% ${trEnd}%,
+    #14b8a6 ${trEnd}% ${cEnd}%
+  )`;
+
+  const totalLabel = document.querySelector('.donut-total-val');
+  if (totalLabel) {
+    const mln = (appState.monthlyExpense / 1000000).toFixed(2);
+    totalLabel.textContent = `${mln} mln`;
+  }
 }
 
 function renderDebts() {
