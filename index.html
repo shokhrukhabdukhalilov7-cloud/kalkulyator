@@ -42,6 +42,14 @@
           <span id="dateText">Bugun, 6-Oktabr</span>
         </div>
 
+        <button class="btn btn-trash" id="openTrashModalBtn" title="Chiqindi qutisi (Korzina)">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          Korzina <span class="trash-badge" id="trashCountBadge">0</span>
+        </button>
+
         <button class="icon-btn" id="themeToggleBtn" title="Mavzuni almashtirish">
           <svg id="themeIcon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
             <circle cx="12" cy="12" r="5"/>
@@ -84,6 +92,14 @@
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
           Mikro qarz qo'shish
+        </button>
+
+        <button class="btn btn-reset" id="openResetModalBtn" title="Barcha statistikalarni 0 ga tushirish">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <polyline points="3 3 3 8 8 8"/>
+          </svg>
+          Statistikani 0 ga tushirish
         </button>
       </div>
 
@@ -667,6 +683,50 @@
           <button type="submit" class="btn btn-debt">Qarzni saqlash</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Statistikani 0 ga tushirishni tasdiqlash -->
+  <div class="modal-overlay" id="resetConfirmModal">
+    <div class="modal-window confirm-modal">
+      <div class="confirm-icon-wrap">⚠️</div>
+      <h3 class="confirm-title">Statistikalarni 0 ga tushirasizmi?</h3>
+      <p class="confirm-desc">
+        Rostdan ham barcha statistika, xarajatlar va qarzlarni 0 ga tushirmoqchimisiz?<br><br>
+        Mavjud barcha ma'lumotlar <strong>Chiqindi qutisiga (Korzina)</strong> o'tkaziladi va u yerda <strong>1 hafta (7 kun)</strong> saqlanib, so'ng avtomatik o'chib ketadi.
+      </p>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeAllModals()">Yo'q, bekor qilish</button>
+        <button type="button" class="btn btn-danger" id="confirmResetBtn">Ha, 0 ga tushirish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Chiqindi qutisi (Korzina) -->
+  <div class="modal-overlay" id="trashModal">
+    <div class="modal-window trash-window">
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: var(--brand-primary);">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          Chiqindi Qutisi (Korzina)
+        </h3>
+        <button class="modal-close" onclick="closeAllModals()">&times;</button>
+      </div>
+      <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 12px;">
+        O'chirilgan ma'lumotlar 1 hafta saqlanadi va muddat o'tgach avtomatik tozalanadi. Istalgan vaqtda qayta tiklashingiz mumkin.
+      </p>
+      <div class="trash-list" id="trashListContainer">
+        <!-- Dynamic trash items -->
+      </div>
+      <div class="form-actions" style="margin-top: 18px;">
+        <button type="button" class="btn btn-secondary" onclick="closeAllModals()">Yopish</button>
+        <button type="button" class="btn btn-delete-perm" id="emptyTrashBtn" style="flex: initial; padding: 10px 18px;">
+          Korzinani to'liq tozalash
+        </button>
+      </div>
     </div>
   </div>
 

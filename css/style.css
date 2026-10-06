@@ -291,6 +291,43 @@ body {
   color: #a5b4fc;
 }
 
+.btn-reset {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.btn-reset:hover {
+  background: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-trash {
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+  border-color: var(--border-subtle);
+  padding: 8px 14px;
+  font-size: 0.85rem;
+}
+
+.btn-trash:hover {
+  color: var(--text-main);
+  border-color: var(--brand-primary);
+  transform: translateY(-2px);
+}
+
+.trash-badge {
+  background: var(--brand-primary);
+  color: #ffffff;
+  font-size: 0.72rem;
+  padding: 2px 7px;
+  border-radius: 12px;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
 /* Top Metrics Cards Grid */
 .metrics-grid {
   display: grid;
@@ -1112,6 +1149,175 @@ body {
 .form-actions .btn {
   flex: 1;
   justify-content: center;
+}
+
+/* Confirm Modal */
+.modal-window.confirm-modal {
+  max-width: 440px;
+  text-align: center;
+}
+
+.confirm-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 1.8rem;
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.25);
+}
+
+.confirm-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--text-main);
+}
+
+.confirm-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 22px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.confirm-actions .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: var(--bg-surface-elevated);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn-secondary:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Trash Window & List */
+.modal-window.trash-window {
+  max-width: 680px;
+}
+
+.trash-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-top: 14px;
+}
+
+.trash-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: var(--transition);
+}
+
+.trash-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.trash-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.trash-card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trash-timer {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.trash-details {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  background: var(--bg-input);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.trash-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-restore {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.btn-restore:hover {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.btn-delete-perm {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.btn-delete-perm:hover {
+  background: #f43f5e;
+  color: #ffffff;
+}
+
+.empty-trash-box {
+  text-align: center;
+  padding: 36px 20px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
 /* Toast Notifications */
