@@ -3,11 +3,13 @@
 Zamonaviy va qulay moliya tahlilchisi hamda kalkulyator veb-ilovasi.
 
 ## 🚀 Asosiy imkoniyatlar:
-1. **Kundalik xarajatlar tahlili**:
-   - 🍔 Ovqatlanish (tushlik, kofe, bozor)
-   - 🚕 Taksi (Yandex, mashina yo'l haqi)
-   - 🚌 Yo'l haqi (avtobus, metro, ATTO kartasi)
-   - 🛍️ Boshqa kundalik xarajatlar
+1. **Kundalik xarajatlar tahlili (Alifbo bo'yicha tartiblangan)**:
+   - 📱 **Ijtimoiy tarmoq obunalari** (Telegram Premium, YouTube, ChatGPT, Netflix...)
+   - 🍔 **Ovqatlanish** (tushlik, kofe, bozor)
+   - 💳 **Qarz to'lovlari** (to'langan mikro qarzlar)
+   - 🚕 **Taxi xizmati** (Yandex, mashina yo'l haqi)
+   - 🚌 **Yo'l haqi** (avtobus, metro, ATTO kartasi)
+   - ✏️ **Nomsiz / Maxsus kategoriya** (nomini foydalanuvchi o'zi qo'yadi va xarajatni yozadi!)
 2. **Oylik tushumlar**:
    - Asosiy oylik maosh, avans va qo'shimcha daromadlarni hisobga olish.
 3. **Mikro qarzlar moduli**:
