@@ -31,6 +31,21 @@ Zamonaviy va qulay moliya tahlilchisi hamda kalkulyator veb-ilovasi.
    - Glassmorphism effekti, zamonaviy shriftlar va moslashuvchan (responsive) dizayn.
    - Ma'lumotlar brauzer xotirasida (`localStorage`) saqlanadi.
 
+## 📱 Universal qurilmalar va platformalar qo'llab-quvvatlashi:
+1. **Apple iPhone (iPhone 11 dan 18 Pro Max gacha, iOS Safari & PWA)**:
+   - `viewport-fit=cover` va CSS `env(safe-area-inset-*)` yordamida Dynamic Island va Notch uchun to'liq moslashuvchanlik.
+   - iOS Safari'dagi avto-masshtablash (auto-zoom) xatosini bartaraf qilish uchun barcha forma maydonlari 16px shrift bilan sozlangan.
+   - Mobil qurilmalarda zamonaviy **Bottom Sheet** modal oynalar va pastki tezkor navigatsiya paneli (**Quick Dock**).
+   - Taktil his tuyg'usi (Haptic feedback) qo'shilgan.
+2. **Samsung & zamonaviy Android 14+ qurilmalar**:
+   - `inputmode="numeric"` orqali summa kiritishda avtomatik to'g'ridan-to'g'ri raqamli klaviatura ochiladi.
+   - `100dvh` (Dynamic Viewport Height) orqali klaviatura ochilganda yoki brauzer manzillar paneli siljiganda ekran buzilmaydi.
+   - Android navigatsiya paneli va status bari ranglarini sinxronlashtirish (`theme-color`).
+3. **Kompyuter va Noutbuklar (Windows, macOS, Linux)**:
+   - Jismoniy klaviatura va Numpad yordamida kalkulyatorni boshqarish (`0-9`, `+`, `-`, `*`, `/`, `Enter`, `Backspace`, `Escape` / `C`).
+   - Bosilgan tugma vizual yonib turuvchi micro-animatsiyaga ega.
+   - Katta ekranlarda yon panel (Sticky Sidebar) va zamonaviy skroll panel.
+
 ## 💻 Qanday ochish mumkin:
 Brauzeringizda to'g'ridan-to'g'ri `index.html` faylini oching yoki mahalliy server orqali kiring:
 ```bash

@@ -211,6 +211,41 @@ function showToast(message, type = 'success') {
   }, 3500);
 }
 
+// Vibratsiya / Haptic feedback (iPhone Safari WebKit & Android)
+function triggerHaptic(type = 'light') {
+  if (!navigator.vibrate) return;
+  try {
+    if (type === 'light') navigator.vibrate(12);
+    else if (type === 'success') navigator.vibrate([15, 60, 15]);
+    else if (type === 'warning') navigator.vibrate([30, 80, 40]);
+  } catch (e) {
+    // navigator.vibrate ruxsatsiz yoki mavjud emas bo'lsa xatolik chiqarmaydi
+  }
+}
+
+// Brauzer va PWA tema rangini yangilash (iOS Status Bar & Android Navigation Bar)
+function updateThemeMeta(theme) {
+  const meta = document.getElementById('metaThemeColor');
+  if (meta) {
+    meta.setAttribute('content', theme === 'dark' ? '#090d16' : '#f1f5f9');
+  }
+}
+
+// Joriy sanani chiroyli ko'rsatish
+function initCurrentDate() {
+  const dateEl = document.getElementById('dateText');
+  if (!dateEl) return;
+  const now = new Date();
+  const monthsUz = [
+    'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun',
+    'Iyul', 'Avgust', 'Sentyabr', 'Oktabr', 'Noyabr', 'Dekabr'
+  ];
+  const day = now.getDate();
+  const month = monthsUz[now.getMonth()];
+  const year = now.getFullYear();
+  dateEl.textContent = `${day}-${month}, ${year}`;
+}
+
 // ==========================================
 // MAVZU (DARK / LIGHT)
 // ==========================================
@@ -221,15 +256,20 @@ function initTheme() {
   const savedTheme = localStorage.getItem('theme') || appState.theme || 'dark';
   
   root.setAttribute('data-theme', savedTheme);
+  updateThemeMeta(savedTheme);
 
-  themeToggleBtn.addEventListener('click', () => {
-    const current = root.getAttribute('data-theme');
-    const newTheme = current === 'dark' ? 'light' : 'dark';
-    root.setAttribute('data-theme', newTheme);
-    appState.theme = newTheme;
-    localStorage.setItem('theme', newTheme);
-    saveState();
-  });
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const current = root.getAttribute('data-theme');
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', newTheme);
+      appState.theme = newTheme;
+      localStorage.setItem('theme', newTheme);
+      updateThemeMeta(newTheme);
+      triggerHaptic('light');
+      saveState();
+    });
+  }
 }
 
 // ==========================================
@@ -357,6 +397,7 @@ function handleResetStatistics() {
   closeAllModals();
   renderAll();
 
+  triggerHaptic('warning');
   showToast("Barcha statistika 0 ga tushirildi va Chiqindi qutisiga ko'chirildi (1 hafta saqlanadi)!", 'danger');
 }
 
@@ -484,6 +525,7 @@ window.restoreTrashItem = function(id) {
   saveTrash();
   renderTrash();
   renderAll();
+  triggerHaptic('success');
   showToast("Ma'lumotlar muvaffaqiyatli qayta tiklandi!", 'success');
 };
 
@@ -491,6 +533,7 @@ window.deleteTrashPerm = function(id) {
   appTrash = appTrash.filter(item => item.id !== id);
   saveTrash();
   renderTrash();
+  triggerHaptic('warning');
   showToast("Ma'lumot butunlay o'chirildi!");
 };
 
@@ -518,6 +561,7 @@ window.deleteSingleDebt = function(debtId) {
   appState.debts.splice(index, 1);
   saveState();
   renderAll();
+  triggerHaptic('warning');
   showToast(`${debt.person} qarzi Chiqindi qutisiga ko'chirildi (1 hafta saqlanadi)!`, 'danger');
 };
 
@@ -613,6 +657,7 @@ function initForms() {
     document.getElementById('expenseForm').reset();
     customCatGroup.style.display = 'none';
     renderAll();
+    triggerHaptic('success');
     showToast(`${formatSom(amount)} ${catTag} xarajatiga saqlandi!`);
   });
 
@@ -643,6 +688,7 @@ function initForms() {
     closeAllModals();
     document.getElementById('incomeForm').reset();
     renderAll();
+    triggerHaptic('success');
     showToast(`${formatSom(amount)} tushum hisobingizga qo'shildi!`);
   });
 
@@ -674,6 +720,7 @@ function initForms() {
     closeAllModals();
     document.getElementById('debtForm').reset();
     renderAll();
+    triggerHaptic('success');
     showToast(`${person} dan ${formatSom(amount)} mikro qarz ro'yxatga olindi!`, 'debt');
   });
 
@@ -688,6 +735,7 @@ function initForms() {
       saveState();
       closeAllModals();
       renderAll();
+      triggerHaptic('success');
       showToast(`Kategoriya nomi "${newName}" ga o'zgartirildi!`);
     });
   }
@@ -751,6 +799,7 @@ window.handleQuickPay = function(personName, amount) {
 
   saveState();
   renderAll();
+  triggerHaptic('success');
   showToast(`${debt.person} uchun ${formatSom(payAmount)} to'landi va xarajatlarga kiritildi!`, 'debt');
 };
 
@@ -964,17 +1013,29 @@ let calcMemory = '';
 let calcCurrentVal = '0';
 let calcWaitingForOperand = false;
 
+function flashCalcKey(key) {
+  const btn = document.querySelector(`.calc-btn[data-key="${key}"]`);
+  if (btn) {
+    btn.classList.add('key-pressed');
+    setTimeout(() => btn.classList.remove('key-pressed'), 140);
+  }
+}
+
 window.calcNum = function(num) {
+  triggerHaptic('light');
+  flashCalcKey(String(num));
   if (calcWaitingForOperand) {
-    calcCurrentVal = num;
+    calcCurrentVal = String(num);
     calcWaitingForOperand = false;
   } else {
-    calcCurrentVal = calcCurrentVal === '0' ? num : calcCurrentVal + num;
+    calcCurrentVal = calcCurrentVal === '0' ? String(num) : calcCurrentVal + String(num);
   }
   updateCalcDisplay();
 };
 
 window.calcDot = function() {
+  triggerHaptic('light');
+  flashCalcKey('.');
   if (calcWaitingForOperand) {
     calcCurrentVal = '0.';
     calcWaitingForOperand = false;
@@ -985,12 +1046,16 @@ window.calcDot = function() {
 };
 
 window.calcOp = function(op) {
+  triggerHaptic('light');
+  flashCalcKey(op);
   calcMemory = `${calcCurrentVal} ${op}`;
   calcWaitingForOperand = true;
   updateCalcDisplay();
 };
 
 window.calcEquals = function() {
+  triggerHaptic('light');
+  flashCalcKey('Enter');
   if (!calcMemory) return;
   try {
     const expression = `${calcMemory} ${calcCurrentVal}`.replace(/×/g, '*').replace(/÷/g, '/');
@@ -1005,6 +1070,8 @@ window.calcEquals = function() {
 };
 
 window.calcClear = function() {
+  triggerHaptic('light');
+  flashCalcKey('Escape');
   calcCurrentVal = '0';
   calcMemory = '';
   calcWaitingForOperand = false;
@@ -1012,6 +1079,8 @@ window.calcClear = function() {
 };
 
 window.calcBackspace = function() {
+  triggerHaptic('light');
+  flashCalcKey('Backspace');
   if (calcCurrentVal.length > 1) {
     calcCurrentVal = calcCurrentVal.slice(0, -1);
   } else {
@@ -1026,6 +1095,7 @@ function updateCalcDisplay() {
 }
 
 window.applyCalcToExpense = function(category) {
+  triggerHaptic('light');
   const val = parseInt(calcCurrentVal, 10);
   if (!val || isNaN(val) || val <= 0) {
     showToast("Kalkulyatorda to'g'ri summa hisoblang!", 'debt');
@@ -1041,9 +1111,97 @@ window.applyCalcToExpense = function(category) {
 };
 
 // Scroll to calculator
-document.getElementById('scrollToCalcBtn').addEventListener('click', () => {
-  document.getElementById('calculatorWidget').scrollIntoView({ behavior: 'smooth' });
-});
+const scrollToCalcBtn = document.getElementById('scrollToCalcBtn');
+if (scrollToCalcBtn) {
+  scrollToCalcBtn.addEventListener('click', () => {
+    triggerHaptic('light');
+    document.getElementById('calculatorWidget')?.scrollIntoView({ behavior: 'smooth' });
+  });
+}
+
+// Kompyuter va noutbuk jismoniy klaviaturasi (Numpad) qo'llab-quvvatlash
+function initKeyboardSupport() {
+  window.addEventListener('keydown', (e) => {
+    // Foydalanuvchi matn yoki summa kiritayotgan bo'lsa, xalaqit bermaymiz
+    const tag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+    // Faol modal bo'lsa, Esc bosilganda uni yopamiz
+    const activeModal = document.querySelector('.modal-overlay.active');
+    if (activeModal) {
+      if (e.key === 'Escape') closeAllModals();
+      return;
+    }
+
+    if (e.key >= '0' && e.key <= '9') {
+      window.calcNum(e.key);
+    } else if (e.key === '.') {
+      window.calcDot();
+    } else if (e.key === '+' || e.key === '-') {
+      window.calcOp(e.key);
+    } else if (e.key === '*') {
+      window.calcOp('*');
+    } else if (e.key === '/') {
+      e.preventDefault();
+      window.calcOp('/');
+    } else if (e.key === '%') {
+      e.preventDefault();
+      window.calcOp('%');
+    } else if (e.key === 'Enter' || e.key === '=') {
+      e.preventDefault();
+      window.calcEquals();
+    } else if (e.key === 'Backspace') {
+      window.calcBackspace();
+    } else if (e.key === 'Escape' || e.key.toLowerCase() === 'c') {
+      window.calcClear();
+    }
+  });
+}
+
+// Mobil qurilmalar uchun pastki tezkor navigatsiya paneli (Bottom Dock)
+function initMobileBottomBar() {
+  const expenseModal = document.getElementById('expenseModal');
+  const incomeModal = document.getElementById('incomeModal');
+  const debtModal = document.getElementById('debtModal');
+
+  const mobileExpBtn = document.getElementById('mobileExpBtn');
+  const mobileIncBtn = document.getElementById('mobileIncBtn');
+  const mobileDebtBtn = document.getElementById('mobileDebtBtn');
+  const mobileCalcBtn = document.getElementById('mobileCalcBtn');
+  const mobileTopBtn = document.getElementById('mobileTopBtn');
+
+  if (mobileExpBtn) {
+    mobileExpBtn.addEventListener('click', () => {
+      triggerHaptic('light');
+      document.getElementById('customCatGroup').style.display = 'none';
+      openModal(expenseModal);
+    });
+  }
+  if (mobileIncBtn) {
+    mobileIncBtn.addEventListener('click', () => {
+      triggerHaptic('light');
+      openModal(incomeModal);
+    });
+  }
+  if (mobileDebtBtn) {
+    mobileDebtBtn.addEventListener('click', () => {
+      triggerHaptic('light');
+      openModal(debtModal);
+    });
+  }
+  if (mobileCalcBtn) {
+    mobileCalcBtn.addEventListener('click', () => {
+      triggerHaptic('light');
+      document.getElementById('calculatorWidget')?.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+  if (mobileTopBtn) {
+    mobileTopBtn.addEventListener('click', () => {
+      triggerHaptic('light');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+}
 
 // ==========================================
 // ILOVANI ISHGA TUSHIRISH
@@ -1051,8 +1209,11 @@ document.getElementById('scrollToCalcBtn').addEventListener('click', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  initCurrentDate();
   initModals();
   initForms();
   initFilters();
+  initKeyboardSupport();
+  initMobileBottomBar();
   renderAll();
 });

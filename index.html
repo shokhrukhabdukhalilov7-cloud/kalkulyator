@@ -2,9 +2,18 @@
 <html lang="uz" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Moliya & Qarz Menejeri | Kundalik Xarajatlar va Mikro Qarzlar</title>
   <meta name="description" content="Kundalik xarajatlar, ovqatlanish, transport, taksi, oylik tushumlar va mikro qarzlarni aqlli tahlil qiluvchi kalkulyator veb-ilovasi">
+  
+  <!-- Universal Mobile, PWA & Cross-Device Meta Tags -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Moliya">
+  <meta name="theme-color" content="#0a0d14" id="themeColorMeta">
+  <meta name="format-detection" content="telephone=no">
+  
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><path d='M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/></svg>">
 </head>
@@ -561,7 +570,7 @@
               </svg>
               Tezkor Kalkulyator
             </div>
-            <span class="pill-badge">Hisoblagich</span>
+            <span class="pill-badge calc-badge" id="calcModeBadge" title="Numpad va kompyuter klaviaturasi (0-9, +, -, *, /, Enter, Backspace, Esc) qo'llab-quvvatlanadi">⌨️ Numpad faol</span>
           </div>
 
           <div class="calc-display">
@@ -570,30 +579,30 @@
           </div>
 
           <div class="calc-keys">
-            <button class="calc-btn clear" onclick="calcClear()">C</button>
-            <button class="calc-btn" onclick="calcBackspace()">⌫</button>
-            <button class="calc-btn op" onclick="calcOp('%')">%</button>
-            <button class="calc-btn op" onclick="calcOp('/')">÷</button>
+            <button class="calc-btn clear" data-key="Escape" onclick="calcClear()">C</button>
+            <button class="calc-btn" data-key="Backspace" onclick="calcBackspace()">⌫</button>
+            <button class="calc-btn op" data-key="%" onclick="calcOp('%')">%</button>
+            <button class="calc-btn op" data-key="/" onclick="calcOp('/')">÷</button>
 
-            <button class="calc-btn" onclick="calcNum('7')">7</button>
-            <button class="calc-btn" onclick="calcNum('8')">8</button>
-            <button class="calc-btn" onclick="calcNum('9')">9</button>
-            <button class="calc-btn op" onclick="calcOp('*')">×</button>
+            <button class="calc-btn" data-key="7" onclick="calcNum('7')">7</button>
+            <button class="calc-btn" data-key="8" onclick="calcNum('8')">8</button>
+            <button class="calc-btn" data-key="9" onclick="calcNum('9')">9</button>
+            <button class="calc-btn op" data-key="*" onclick="calcOp('*')">×</button>
 
-            <button class="calc-btn" onclick="calcNum('4')">4</button>
-            <button class="calc-btn" onclick="calcNum('5')">5</button>
-            <button class="calc-btn" onclick="calcNum('6')">6</button>
-            <button class="calc-btn op" onclick="calcOp('-')">−</button>
+            <button class="calc-btn" data-key="4" onclick="calcNum('4')">4</button>
+            <button class="calc-btn" data-key="5" onclick="calcNum('5')">5</button>
+            <button class="calc-btn" data-key="6" onclick="calcNum('6')">6</button>
+            <button class="calc-btn op" data-key="-" onclick="calcOp('-')">−</button>
 
-            <button class="calc-btn" onclick="calcNum('1')">1</button>
-            <button class="calc-btn" onclick="calcNum('2')">2</button>
-            <button class="calc-btn" onclick="calcNum('3')">3</button>
-            <button class="calc-btn op" onclick="calcOp('+')">+</button>
+            <button class="calc-btn" data-key="1" onclick="calcNum('1')">1</button>
+            <button class="calc-btn" data-key="2" onclick="calcNum('2')">2</button>
+            <button class="calc-btn" data-key="3" onclick="calcNum('3')">3</button>
+            <button class="calc-btn op" data-key="+" onclick="calcOp('+')">+</button>
 
-            <button class="calc-btn" onclick="calcNum('0')">0</button>
-            <button class="calc-btn" onclick="calcNum('000')">000</button>
-            <button class="calc-btn" onclick="calcDot()">.</button>
-            <button class="calc-btn equal" onclick="calcEquals()">=</button>
+            <button class="calc-btn" data-key="0" onclick="calcNum('0')">0</button>
+            <button class="calc-btn" data-key="000" onclick="calcNum('000')">000</button>
+            <button class="calc-btn" data-key="." onclick="calcDot()">.</button>
+            <button class="calc-btn equal" data-key="Enter" onclick="calcEquals()">=</button>
           </div>
 
           <div class="calc-quick-apply">
@@ -610,6 +619,7 @@
   <!-- Modal 1: Xarajat qo'shish -->
   <div class="modal-overlay" id="expenseModal">
     <div class="modal-window">
+      <div class="modal-handle-bar"></div>
       <div class="modal-header">
         <h3 class="modal-title" style="color: var(--color-expense);">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
@@ -638,7 +648,7 @@
         </div>
         <div class="form-group">
           <label>Summa (so'mda):</label>
-          <input type="number" class="form-input" id="expAmount" placeholder="Masalan: 35000" min="100" required>
+          <input type="number" class="form-input" id="expAmount" inputmode="numeric" placeholder="Masalan: 35000" min="100" required>
         </div>
         <div class="form-group">
           <label>Izoh yoki joy nomi:</label>
@@ -655,6 +665,7 @@
   <!-- Modal 2: Oylik Tushum qo'shish -->
   <div class="modal-overlay" id="incomeModal">
     <div class="modal-window">
+      <div class="modal-handle-bar"></div>
       <div class="modal-header">
         <h3 class="modal-title" style="color: var(--color-income);">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
@@ -668,7 +679,7 @@
       <form class="modal-form" id="incomeForm">
         <div class="form-group">
           <label>Tushum summasi (so'mda):</label>
-          <input type="number" class="form-input" id="incAmount" placeholder="Masalan: 5000000" min="1000" required>
+          <input type="number" class="form-input" id="incAmount" inputmode="numeric" placeholder="Masalan: 5000000" min="1000" required>
         </div>
         <div class="form-group">
           <label>Manba yoki izoh:</label>
@@ -685,6 +696,7 @@
   <!-- Modal 3: Yangi Mikro Qarz yozish -->
   <div class="modal-overlay" id="debtModal">
     <div class="modal-window">
+      <div class="modal-handle-bar"></div>
       <div class="modal-header">
         <h3 class="modal-title" style="color: var(--color-debt);">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
@@ -702,7 +714,7 @@
         </div>
         <div class="form-group">
           <label>Qarz summasi (so'mda):</label>
-          <input type="number" class="form-input" id="debtAmount" placeholder="Masalan: 120000" min="1000" required>
+          <input type="number" class="form-input" id="debtAmount" inputmode="numeric" placeholder="Masalan: 120000" min="1000" required>
         </div>
         <div class="form-group">
           <label>Qarz sababi / izoh:</label>
@@ -723,6 +735,7 @@
   <!-- Modal 4: Statistikani 0 ga tushirishni tasdiqlash -->
   <div class="modal-overlay" id="resetConfirmModal">
     <div class="modal-window confirm-modal">
+      <div class="modal-handle-bar"></div>
       <div class="confirm-icon-wrap">⚠️</div>
       <h3 class="confirm-title">Statistikalarni 0 ga tushirasizmi?</h3>
       <p class="confirm-desc">
@@ -739,6 +752,7 @@
   <!-- Modal 5: Chiqindi qutisi (Korzina) -->
   <div class="modal-overlay" id="trashModal">
     <div class="modal-window trash-window">
+      <div class="modal-handle-bar"></div>
       <div class="modal-header">
         <h3 class="modal-title" style="color: var(--brand-primary);">
           <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none">
@@ -767,6 +781,7 @@
   <!-- Modal 6: Nomsiz kategoriyani qayta nomlash -->
   <div class="modal-overlay" id="renameCatModal">
     <div class="modal-window" style="max-width: 440px;">
+      <div class="modal-handle-bar"></div>
       <div class="modal-header">
         <h3 class="modal-title" style="color: #14b8a6;">
           ✏️ Kategoriya nomini o'zgartirish
@@ -785,6 +800,46 @@
       </form>
     </div>
   </div>
+
+  <!-- Mobile Floating Quick-Action Bar (iPhone 11-18 & Android 14) -->
+  <nav class="mobile-bottom-bar" id="mobileBottomBar" aria-label="Mobil tezkor harakatlar">
+    <button class="mobile-nav-btn mobile-nav-exp" id="mobileExpBtn" title="Xarajat qo'shish">
+      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      <span>+ Xarajat</span>
+    </button>
+    <button class="mobile-nav-btn mobile-nav-inc" id="mobileIncBtn" title="Tushum qo'shish">
+      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+        <polyline points="17 6 23 6 23 12"/>
+      </svg>
+      <span>+ Tushum</span>
+    </button>
+    <button class="mobile-nav-btn mobile-nav-debt" id="mobileDebtBtn" title="Qarz yozish">
+      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span>+ Qarz</span>
+    </button>
+    <button class="mobile-nav-btn mobile-nav-calc" id="mobileCalcBtn" title="Kalkulyatorga o'tish">
+      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
+        <rect x="4" y="2" width="16" height="20" rx="2"/>
+        <line x1="8" y1="6" x2="16" y2="6"/>
+        <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>
+      </svg>
+      <span>Kalkulyator</span>
+    </button>
+    <button class="mobile-nav-btn mobile-nav-top" id="mobileTopBtn" title="Sahifa boshiga chiqish">
+      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
+        <polyline points="18 15 12 9 6 15"/>
+      </svg>
+      <span>Tepaga</span>
+    </button>
+  </nav>
 
   <!-- Toast Container -->
   <div class="toast-container" id="toastContainer"></div>
