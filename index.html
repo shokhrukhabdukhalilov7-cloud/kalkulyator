@@ -103,6 +103,16 @@
           Mikro qarz qo'shish
         </button>
 
+        <button class="btn btn-calc" id="scrollToCalcBtn">
+          <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+            <rect x="4" y="2" width="16" height="20" rx="2"/>
+            <line x1="8" y1="6" x2="16" y2="6"/>
+            <line x1="16" y1="14" x2="16" y2="18"/>
+            <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>
+          </svg>
+          Kalkulyator
+        </button>
+
         <button class="btn btn-reset" id="openResetModalBtn" title="Barcha statistikalarni 0 ga tushirish">
           <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
@@ -111,16 +121,6 @@
           Statistikani 0 ga tushirish
         </button>
       </div>
-
-      <button class="btn btn-calc" id="scrollToCalcBtn">
-        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-          <rect x="4" y="2" width="16" height="20" rx="2"/>
-          <line x1="8" y1="6" x2="16" y2="6"/>
-          <line x1="16" y1="14" x2="16" y2="18"/>
-          <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>
-        </svg>
-        Kalkulyator
-      </button>
     </div>
 
     <!-- Overview Metrics Cards -->
@@ -137,7 +137,7 @@
         </div>
         <div class="metric-amount" id="balanceDisplay">3 840 000 so'm</div>
         <div class="metric-sub">
-          <span class="positive">Erkin qoldiq:</span> barcha xarajat va to'lovlardan so'ng
+          <span class="positive">Erkin qoldiq:</span> barcha to'lovlardan so'ng
         </div>
       </div>
 
@@ -153,7 +153,7 @@
         </div>
         <div class="metric-amount" id="totalIncomeDisplay">6 500 000 so'm</div>
         <div class="metric-sub">
-          <span class="positive">+100%</span> oylik asosiy maosh & bonuslar
+          <span class="positive">+100%</span> oylik maosh va daromad
         </div>
       </div>
 
@@ -169,13 +169,13 @@
         </div>
         <div class="metric-amount" id="totalExpenseDisplay">2 660 000 so'm</div>
         <div class="metric-sub">
-          <span class="negative">41%</span> oylik byudjetdan sarflandi
+          <span class="negative">41%</span> byudjetdan sarflandi
         </div>
       </div>
 
       <div class="metric-card debt">
         <div class="metric-header">
-          <span class="metric-title">Mikro Qarzlar Qoldig'i</span>
+          <span class="metric-title">Qarzlar Qoldig'i</span>
           <div class="metric-icon-wrap">
             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
               <circle cx="12" cy="12" r="10"/>
@@ -186,17 +186,25 @@
         </div>
         <div class="metric-amount" id="totalDebtDisplay">450 000 so'm</div>
         <div class="metric-sub">
-          <span class="warning">2 ta faol</span> qaytarilishi kerak bo'lgan qarz
+          <span class="warning">2 ta faol</span> qaytarilishi kerak qarz
         </div>
       </div>
     </section>
+
+    <!-- Mobile Quick Section Jumper (Tahlil, Qarzlar, Kalkulyator, Tarix) -->
+    <nav class="mobile-section-nav" aria-label="Bo'limlarga tezkor o'tish">
+      <button class="sec-nav-pill active" onclick="scrollToSection('analysisSection')">📊 Tahlil</button>
+      <button class="sec-nav-pill" onclick="scrollToSection('debtSection')">💳 Qarzlar</button>
+      <button class="sec-nav-pill" onclick="scrollToSection('historySection')">📜 Tarix</button>
+      <button class="sec-nav-pill" onclick="scrollToSection('calculatorWidget')">🧮 Kalkulyator</button>
+    </nav>
 
     <!-- Main Dashboard Section -->
     <main class="dashboard-grid">
       <!-- Main Left Column -->
       <div class="main-column">
         <!-- Category Breakdown Card -->
-        <section class="content-card">
+        <section class="content-card" id="analysisSection">
           <div class="card-title-bar">
             <div class="card-heading">
               <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
@@ -401,7 +409,7 @@
         </section>
 
         <!-- Transaction History -->
-        <section class="content-card">
+        <section class="content-card" id="historySection">
           <div class="card-title-bar">
             <div class="card-heading">
               <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
@@ -780,7 +788,7 @@
 
   <!-- Modal 6: Nomsiz kategoriyani qayta nomlash -->
   <div class="modal-overlay" id="renameCatModal">
-    <div class="modal-window" style="max-width: 440px;">
+    <div class="modal-window modal-window-sm">
       <div class="modal-handle-bar"></div>
       <div class="modal-header">
         <h3 class="modal-title" style="color: #14b8a6;">

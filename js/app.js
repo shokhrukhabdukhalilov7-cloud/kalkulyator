@@ -225,9 +225,9 @@ function triggerHaptic(type = 'light') {
 
 // Brauzer va PWA tema rangini yangilash (iOS Status Bar & Android Navigation Bar)
 function updateThemeMeta(theme) {
-  const meta = document.getElementById('metaThemeColor');
+  const meta = document.getElementById('themeColorMeta') || document.querySelector('meta[name="theme-color"]');
   if (meta) {
-    meta.setAttribute('content', theme === 'dark' ? '#090d16' : '#f1f5f9');
+    meta.setAttribute('content', theme === 'dark' ? '#0a0d14' : '#f8fafc');
   }
 }
 
@@ -237,8 +237,8 @@ function initCurrentDate() {
   if (!dateEl) return;
   const now = new Date();
   const monthsUz = [
-    'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun',
-    'Iyul', 'Avgust', 'Sentyabr', 'Oktabr', 'Noyabr', 'Dekabr'
+    'Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun',
+    'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'
   ];
   const day = now.getDate();
   const month = monthsUz[now.getMonth()];
@@ -1111,13 +1111,41 @@ window.applyCalcToExpense = function(category) {
 };
 
 // Scroll to calculator
-const scrollToCalcBtn = document.getElementById('scrollToCalcBtn');
-if (scrollToCalcBtn) {
-  scrollToCalcBtn.addEventListener('click', () => {
-    triggerHaptic('light');
-    document.getElementById('calculatorWidget')?.scrollIntoView({ behavior: 'smooth' });
+function scrollToCalculator() {
+  triggerHaptic('light');
+  const calc = document.getElementById('calculatorWidget');
+  if (calc) {
+    calc.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    calc.classList.remove('highlight-pulse');
+    void calc.offsetWidth;
+    calc.classList.add('highlight-pulse');
+    setTimeout(() => calc.classList.remove('highlight-pulse'), 1800);
+  }
+  document.querySelectorAll('.sec-nav-pill').forEach(pill => {
+    pill.classList.toggle('active', pill.getAttribute('onclick')?.includes('calculatorWidget'));
   });
 }
+
+const scrollToCalcBtn = document.getElementById('scrollToCalcBtn');
+if (scrollToCalcBtn) {
+  scrollToCalcBtn.addEventListener('click', scrollToCalculator);
+}
+
+// Bo'limlarga silliq o'tish (Tahlil, Qarzlar, Tarix, Kalkulyator)
+window.scrollToSection = function(sectionId) {
+  triggerHaptic('light');
+  const target = document.getElementById(sectionId);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    target.classList.remove('highlight-pulse');
+    void target.offsetWidth;
+    target.classList.add('highlight-pulse');
+    setTimeout(() => target.classList.remove('highlight-pulse'), 1800);
+  }
+  document.querySelectorAll('.sec-nav-pill').forEach(pill => {
+    pill.classList.toggle('active', pill.getAttribute('onclick')?.includes(sectionId));
+  });
+};
 
 // Kompyuter va noutbuk jismoniy klaviaturasi (Numpad) qo'llab-quvvatlash
 function initKeyboardSupport() {
@@ -1191,8 +1219,7 @@ function initMobileBottomBar() {
   }
   if (mobileCalcBtn) {
     mobileCalcBtn.addEventListener('click', () => {
-      triggerHaptic('light');
-      document.getElementById('calculatorWidget')?.scrollIntoView({ behavior: 'smooth' });
+      scrollToCalculator();
     });
   }
   if (mobileTopBtn) {
