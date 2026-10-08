@@ -379,15 +379,53 @@ function initModals() {
   const openIncBtn = document.getElementById('openIncomeModalBtn');
   if (openIncBtn) openIncBtn.addEventListener('click', () => openModal(incomeModal));
 
+  // 3. Qarz berish tugmasi
+  const openLendBtn = document.getElementById('openLendModalBtn');
+  if (openLendBtn) {
+    openLendBtn.addEventListener('click', () => {
+      prepareDebtModal('lent');
+      openModal(debtModal);
+    });
+  }
+
+  // 4. Qarz olish tugmasi
+  const openBorrowBtn = document.getElementById('openBorrowModalBtn');
+  if (openBorrowBtn) {
+    openBorrowBtn.addEventListener('click', () => {
+      prepareDebtModal('borrowed');
+      openModal(debtModal);
+    });
+  }
+
+  // Bannerdagi qarz berish va olish tugmalari
+  const bannerLendBtn = document.getElementById('bannerLendBtn');
+  if (bannerLendBtn) {
+    bannerLendBtn.addEventListener('click', () => {
+      prepareDebtModal('lent');
+      openModal(debtModal);
+    });
+  }
+
+  const bannerBorrowBtn = document.getElementById('bannerBorrowBtn');
+  if (bannerBorrowBtn) {
+    bannerBorrowBtn.addEventListener('click', () => {
+      prepareDebtModal('borrowed');
+      openModal(debtModal);
+    });
+  }
+
+  // Moslik uchun eski tugmalar
   const openDebtBtn = document.getElementById('openDebtModalBtn');
-  if (openDebtBtn) openDebtBtn.addEventListener('click', () => {
-    prepareDebtModal();
-    openModal(debtModal);
-  });
+  if (openDebtBtn) {
+    openDebtBtn.addEventListener('click', () => {
+      prepareDebtModal('lent');
+      openModal(debtModal);
+    });
+  }
 
   const bannerDebtBtn = document.getElementById('bannerAddDebtBtn');
   if (bannerDebtBtn) bannerDebtBtn.addEventListener('click', () => {
-    prepareDebtModal();
+    prepareDebtModal('lent');
     openModal(debtModal);
   });
   
@@ -950,8 +988,10 @@ function updateDebtModalType(type) {
   const balanceLabel = document.getElementById('debtAffectBalanceLabel');
   const personInput = document.getElementById('debtPerson');
   const submitBtn = document.getElementById('debtSubmitBtn');
+  const modalTitle = document.getElementById('debtModalTitleText');
 
   if (type === 'lent') {
+    if (modalTitle) modalTitle.textContent = "🤝 Yaqinimga Qarz Berish";
     if (lentOption) lentOption.classList.add('active');
     if (borrowedOption) borrowedOption.classList.remove('active');
     const radio = document.querySelector('input[name="debtDirection"][value="lent"]');
@@ -962,6 +1002,7 @@ function updateDebtModalType(type) {
     if (balanceLabel) balanceLabel.textContent = "Joriy balansdan yechilsin (pul berildi)";
     if (submitBtn) submitBtn.textContent = "Yozib qo'yish";
   } else {
+    if (modalTitle) modalTitle.textContent = "📥 Qarz Olish";
     if (borrowedOption) borrowedOption.classList.add('active');
     if (lentOption) lentOption.classList.remove('active');
     const radio = document.querySelector('input[name="debtDirection"][value="borrowed"]');
@@ -1864,26 +1905,32 @@ function initKeyboardSupport() {
   });
 }
 
-// Mobil qurilmalar uchun pastki tezkor navigatsiya paneli (Bottom Dock)
+// Mobil qurilmalar uchun pastki tezkor navigatsiya paneli (Bottom Dock - 6 ta asosiy funksiya)
 function initMobileBottomBar() {
   const expenseModal = document.getElementById('expenseModal');
-  const incomeModal = document.getElementById('incomeModal');
   const debtModal = document.getElementById('debtModal');
+  const resetConfirmModal = document.getElementById('resetConfirmModal');
+  const workIncomeModal = document.getElementById('workIncomeModal');
 
-  const mobileExpBtn = document.getElementById('mobileExpBtn');
   const mobileIncomeBtn = document.getElementById('mobileIncomeBtn') || document.getElementById('mobileIncBtn');
-  const mobileDebtBtn = document.getElementById('mobileDebtBtn');
+  const mobileExpBtn = document.getElementById('mobileExpBtn');
+  const mobileLendBtn = document.getElementById('mobileLendBtn');
+  const mobileBorrowBtn = document.getElementById('mobileBorrowBtn');
   const mobileCalcBtn = document.getElementById('mobileCalcBtn');
+  const mobileResetBtn = document.getElementById('mobileResetBtn');
+  const mobileDebtBtn = document.getElementById('mobileDebtBtn');
   const mobileTopBtn = document.getElementById('mobileTopBtn');
 
+  // 1. Daromadlarim
   if (mobileIncomeBtn) {
     mobileIncomeBtn.addEventListener('click', () => {
       triggerHaptic('light');
       resetWorkIncomeModal();
-      openModal(document.getElementById('workIncomeModal'));
+      openModal(workIncomeModal);
     });
   }
 
+  // 2. Xarajatlarim
   if (mobileExpBtn) {
     mobileExpBtn.addEventListener('click', () => {
       triggerHaptic('light');
@@ -1892,15 +1939,46 @@ function initMobileBottomBar() {
       openModal(expenseModal);
     });
   }
-  if (mobileDebtBtn) {
-    mobileDebtBtn.addEventListener('click', () => {
+
+  // 3. Qarz berish
+  if (mobileLendBtn) {
+    mobileLendBtn.addEventListener('click', () => {
       triggerHaptic('light');
+      prepareDebtModal('lent');
       openModal(debtModal);
     });
   }
+
+  // 4. Qarz olish
+  if (mobileBorrowBtn) {
+    mobileBorrowBtn.addEventListener('click', () => {
+      triggerHaptic('light');
+      prepareDebtModal('borrowed');
+      openModal(debtModal);
+    });
+  }
+
+  // 5. Kalkulyator
   if (mobileCalcBtn) {
     mobileCalcBtn.addEventListener('click', () => {
       scrollToCalculator();
+    });
+  }
+
+  // 6. Statistikani 0 ga tushirish
+  if (mobileResetBtn) {
+    mobileResetBtn.addEventListener('click', () => {
+      triggerHaptic('warning');
+      openModal(resetConfirmModal);
+    });
+  }
+
+  // Moslik uchun eski tugmalar
+  if (mobileDebtBtn) {
+    mobileDebtBtn.addEventListener('click', () => {
+      triggerHaptic('light');
+      prepareDebtModal('lent');
+      openModal(debtModal);
     });
   }
   if (mobileTopBtn) {

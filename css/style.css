@@ -217,16 +217,18 @@ body {
 }
 
 .action-buttons-group {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   gap: 10px;
+  width: 100%;
 }
 
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 11px 18px;
+  padding: 11px 14px;
   font-size: 0.88rem;
   font-weight: 600;
   font-family: var(--font-main);
@@ -289,16 +291,31 @@ body {
   transform: translateY(-2px);
 }
 
-.btn-debt {
+.btn-debt,
+.btn-lend {
   background: rgba(245, 158, 11, 0.15);
   color: #fbbf24;
   border-color: rgba(245, 158, 11, 0.3);
 }
 
-.btn-debt:hover {
+.btn-debt:hover,
+.btn-lend:hover {
   background: #f59e0b;
   color: #0f172a;
   box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-borrow {
+  background: rgba(6, 182, 212, 0.15);
+  color: #38bdf8;
+  border-color: rgba(6, 182, 212, 0.35);
+}
+
+.btn-borrow:hover {
+  background: #06b6d4;
+  color: #0f172a;
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
   transform: translateY(-2px);
 }
 
@@ -1993,6 +2010,11 @@ body {
 
 /* 2. Tablets & Medium Screens (768px - 1080px) */
 @media (max-width: 1080px) {
+  .action-buttons-group {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
   .metrics-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;
@@ -2054,11 +2076,11 @@ body {
     font-weight: 700;
   }
 
-  /* Mobile Floating Bottom Bar */
+  /* Mobile Floating Bottom Bar - 6 ta asosiy funksiya */
   .mobile-bottom-bar {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
     align-items: center;
-    justify-content: space-around;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -2067,7 +2089,7 @@ body {
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border-top: 1px solid var(--border-subtle);
-    padding: 6px 8px max(14px, calc(8px + var(--sab)));
+    padding: 6px 4px max(14px, calc(8px + var(--sab)));
     z-index: 999;
     box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.45);
   }
@@ -2087,11 +2109,12 @@ body {
     border: none;
     color: var(--text-secondary);
     font-family: var(--font-main);
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     font-weight: 600;
     cursor: pointer;
-    padding: 6px 8px;
-    min-width: 52px;
+    padding: 5px 2px;
+    min-width: 0;
+    width: 100%;
     border-radius: var(--radius-sm);
     transition: var(--transition);
     touch-action: manipulation;
@@ -2099,8 +2122,8 @@ body {
   }
 
   .mobile-nav-btn svg {
-    width: 20px;
-    height: 20px;
+    width: 19px;
+    height: 19px;
   }
 
   .mobile-nav-btn:active {
@@ -2109,8 +2132,11 @@ body {
 
   .mobile-nav-exp { color: #fb7185; }
   .mobile-nav-inc { color: #34d399; }
-  .mobile-nav-debt { color: #fbbf24; }
+  .mobile-nav-lend { color: #fbbf24; }
+  .mobile-nav-borrow { color: #38bdf8; }
   .mobile-nav-calc { color: #818cf8; }
+  .mobile-nav-reset { color: #f87171; }
+  .mobile-nav-debt { color: #fbbf24; }
   .mobile-nav-top { color: var(--text-muted); }
 
   /* App container bottom spacing for fixed nav */
@@ -2195,7 +2221,7 @@ body {
     flex-shrink: 0;
   }
 
-  /* Quick Actions Symmetrical 2x2 + Full Width Reset */
+  /* Quick Actions Symmetrical 2x3 Grid (6 ta teng o'lchamli funksiyalar) */
   .action-bar {
     padding: 0;
   }
@@ -2213,10 +2239,6 @@ body {
     font-size: 0.82rem;
     white-space: normal;
     text-align: center;
-  }
-
-  .btn-reset {
-    grid-column: span 2;
   }
 
   /* 2x2 Compact Metrics Grid so all 4 balances fit symmetrically */
