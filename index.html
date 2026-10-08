@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-  <title>Moliya & Qarz Menejeri | Kundalik Xarajatlar va Mikro Qarzlar</title>
-  <meta name="description" content="Kundalik xarajatlar, ovqatlanish, transport, taksi, oylik tushumlar va mikro qarzlarni aqlli tahlil qiluvchi kalkulyator veb-ilovasi">
+  <title>Kuryerlik & Moliya Menejeri | Kunlik Smenalar, Chorshanba To'lovlari va Qarzlar</title>
+  <meta name="description" content="Kuryerlik kunlik smenalari, buyurtmalar, km masofa, tungi smenalar, haftalik Chorshanba to'lovlari va moliyaviy hisob-kitob ilovasi">
   
   <!-- Universal Mobile, PWA & Cross-Device Meta Tags -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Moliya">
+  <meta name="apple-mobile-web-app-title" content="KuryerMoliya">
   <meta name="theme-color" content="#0a0d14" id="themeColorMeta">
   <meta name="format-detection" content="telephone=no">
   
   <link rel="stylesheet" href="css/style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><path d='M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230ea5e9'><rect x='1' y='3' width='15' height='13' rx='1'/><polygon points='16 8 20 8 23 11 23 16 16 16 16 8'/><circle cx='5.5' cy='18.5' r='2.5'/><circle cx='18.5' cy='18.5' r='2.5'/></svg>">
 </head>
 <body>
   <div class="app-layout">
@@ -23,36 +23,32 @@
     <header class="app-header">
       <div class="brand-section">
         <div class="brand-logo-icon">
-          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="4" width="20" height="16" rx="2"/>
-            <line x1="6" y1="8" x2="6" y2="8"/>
-            <line x1="10" y1="8" x2="10" y2="8"/>
-            <line x1="14" y1="8" x2="14" y2="8"/>
-            <line x1="18" y1="8" x2="18" y2="8"/>
-            <line x1="6" y1="12" x2="18" y2="12"/>
-            <line x1="6" y1="16" x2="10" y2="16"/>
-            <line x1="14" y1="16" x2="18" y2="16"/>
+          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.2" fill="none">
+            <rect x="1" y="3" width="15" height="13" rx="1"/>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
+            <circle cx="5.5" cy="18.5" r="2.5"/>
+            <circle cx="18.5" cy="18.5" r="2.5"/>
           </svg>
         </div>
         <div class="brand-info">
-          <h1>Hisob-Kitob & Qarzlar</h1>
-          <p>Kundalik xarajatlar va mikro-qarzlar balansi</p>
+          <h1>Kuryer & Moliya Menejeri</h1>
+          <p>Kunlik smenalar, chorshanba to'lovlari va xarajatlar</p>
         </div>
       </div>
 
       <div class="header-controls">
         <div class="date-badge" id="currentDateDisplay">
-          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+          <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
             <line x1="16" y1="2" x2="16" y2="6"/>
             <line x1="8" y1="2" x2="8" y2="6"/>
             <line x1="3" y1="10" x2="21" y2="10"/>
           </svg>
-          <span id="dateText">Bugun, 6-Oktabr</span>
+          <span id="dateText">Bugun, 8-Oktabr</span>
         </div>
 
         <button class="btn btn-trash" id="openTrashModalBtn" title="Chiqindi qutisi (Korzina)">
-          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+          <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none">
             <polyline points="3 6 5 6 21 6"/>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
           </svg>
@@ -78,6 +74,16 @@
     <!-- Quick Action Bar -->
     <div class="action-bar">
       <div class="action-buttons-group">
+        <button class="btn btn-shift" id="openShiftModalBtn" title="Yangi kunlik kuryerlik smenasini kiritish">
+          <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3" fill="none">
+            <rect x="1" y="3" width="15" height="13" rx="1"/>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
+            <circle cx="5.5" cy="18.5" r="2.5"/>
+            <circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+          + Smena / Daromad
+        </button>
+
         <button class="btn btn-expense" id="openExpenseModalBtn">
           <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" fill="none">
             <line x1="12" y1="5" x2="12" y2="19"/>
@@ -123,8 +129,9 @@
       </div>
     </div>
 
-    <!-- Overview Metrics Cards -->
+    <!-- Overview Metrics Cards (4 Symmetric Balanced Cards) -->
     <section class="metrics-grid">
+      <!-- 1. Mavjud Balans -->
       <div class="metric-card balance">
         <div class="metric-header">
           <span class="metric-title">Mavjud Balans</span>
@@ -137,26 +144,28 @@
         </div>
         <div class="metric-amount" id="balanceDisplay">3 840 000 so'm</div>
         <div class="metric-sub">
-          <span class="positive">Erkin qoldiq:</span> barcha to'lovlardan so'ng
+          <span class="positive">Erkin qoldiq:</span> sof mablag'
         </div>
       </div>
 
-      <div class="metric-card income">
+      <!-- 2. Chorshanba To'lovi (Kuryerlik Joriy Hafta) -->
+      <div class="metric-card courier-payout-metric">
         <div class="metric-header">
-          <span class="metric-title">Oylik Tushumlar</span>
-          <div class="metric-icon-wrap">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-              <polyline points="17 6 23 6 23 12"/>
+          <span class="metric-title">Chorshanba To'lovi</span>
+          <div class="metric-icon-wrap" style="background: rgba(14, 165, 233, 0.18); color: #0ea5e9;">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <line x1="2" y1="10" x2="22" y2="10"/>
             </svg>
           </div>
         </div>
-        <div class="metric-amount" id="totalIncomeDisplay">6 500 000 so'm</div>
+        <div class="metric-amount" id="pendingPayoutHeaderDisplay">1 085 000 so'm</div>
         <div class="metric-sub">
-          <span class="positive">+100%</span> oylik maosh va daromad
+          <span class="positive" id="headerPayoutCountdown">⏳ 6 kun qoldi</span> • <span id="headerPayoutDate">14-Oktabr</span>
         </div>
       </div>
 
+      <!-- 3. Oylik Xarajatlar -->
       <div class="metric-card expense">
         <div class="metric-header">
           <span class="metric-title">Oylik Xarajatlar</span>
@@ -173,6 +182,7 @@
         </div>
       </div>
 
+      <!-- 4. Qarzlar Qoldig'i -->
       <div class="metric-card debt">
         <div class="metric-header">
           <span class="metric-title">Qarzlar Qoldig'i</span>
@@ -186,14 +196,15 @@
         </div>
         <div class="metric-amount" id="totalDebtDisplay">450 000 so'm</div>
         <div class="metric-sub">
-          <span class="warning">2 ta faol</span> qaytarilishi kerak qarz
+          <span class="warning" id="activeDebtSubText">2 ta faol</span> qaytarilishi kerak qarz
         </div>
       </div>
     </section>
 
-    <!-- Mobile Quick Section Jumper (Tahlil, Qarzlar, Kalkulyator, Tarix) -->
+    <!-- Mobile Quick Section Jumper (Kuryerlik, Xarajatlar, Qarzlar, Tarix, Kalkulyator) -->
     <nav class="mobile-section-nav" aria-label="Bo'limlarga tezkor o'tish">
-      <button class="sec-nav-pill active" onclick="scrollToSection('analysisSection')">📊 Tahlil</button>
+      <button class="sec-nav-pill active" onclick="scrollToSection('courierSection')">🛵 Kuryerlik</button>
+      <button class="sec-nav-pill" onclick="scrollToSection('analysisSection')">📊 Xarajatlar</button>
       <button class="sec-nav-pill" onclick="scrollToSection('debtSection')">💳 Qarzlar</button>
       <button class="sec-nav-pill" onclick="scrollToSection('historySection')">📜 Tarix</button>
       <button class="sec-nav-pill" onclick="scrollToSection('calculatorWidget')">🧮 Kalkulyator</button>
@@ -203,6 +214,145 @@
     <main class="dashboard-grid">
       <!-- Main Left Column -->
       <div class="main-column">
+        <!-- 0. Courier Delivery & Wednesday Payout Hero Section -->
+        <section class="content-card courier-hero-card" id="courierSection">
+          <div class="card-title-bar">
+            <div class="card-heading">
+              <div class="heading-icon-badge courier-badge">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.2" fill="none">
+                  <rect x="1" y="3" width="15" height="13" rx="1"/>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
+                  <circle cx="5.5" cy="18.5" r="2.5"/>
+                  <circle cx="18.5" cy="18.5" r="2.5"/>
+                </svg>
+              </div>
+              <div>
+                <span>Kuryerlik Daromadi & Haftalik To'lov</span>
+                <div class="card-subheading">Ish haftasi: Dushanba — Yakshanba • To'lov: Har Chorshanba</div>
+              </div>
+            </div>
+            <button class="btn btn-shift btn-sm" id="courierQuickShiftBtn">
+              + Smena kiritish
+            </button>
+          </div>
+
+          <!-- Wednesday Payout Hero Banner -->
+          <div class="courier-payout-box">
+            <div class="payout-box-header">
+              <div class="payout-cycle-tag">
+                <span class="cycle-dot"></span>
+                <span>Joriy ish haftasi: <strong id="currentWeekRange">5-Oktabr — 11-Oktabr, 2026</strong></span>
+              </div>
+              <span class="payout-badge" id="payoutCountdownBadge">⏳ 6 kun qoldi</span>
+            </div>
+
+            <div class="payout-main-row">
+              <div class="payout-sum-col">
+                <span class="payout-label">Kutilayotgan Chorshanba to'lovi (Joriy hafta):</span>
+                <div class="payout-big-sum" id="pendingPayoutAmount">1 085 000 so'm</div>
+                <div class="payout-meta-info">
+                  <span>To'lov sanasi: <strong id="nextPayoutDateStr">14-Oktabr, Chorshanba</strong></span>
+                  <span class="meta-divider">•</span>
+                  <span>Status: <span class="status-pill status-calculating" id="payoutStatusPill">Hisoblanmoqda</span></span>
+                </div>
+              </div>
+
+              <div class="payout-actions-col">
+                <button class="btn btn-payout-collect" id="confirmWeeklyPayoutBtn" title="Chorshanba kuni pul hisobingizga tushganda bosing">
+                  <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  <span>To'lov tushdi (Balansga qo'shish)</span>
+                </button>
+                <button class="btn btn-secondary btn-sm" id="openPayoutsArchiveBtn">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  <span>Haftalar arxivi</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Weekly Summary Indicators -->
+            <div class="payout-week-summary">
+              <div class="week-stat-item">
+                <span class="stat-lbl">Smenalar</span>
+                <span class="stat-val" id="weekShiftsCount">3 ta</span>
+              </div>
+              <div class="week-stat-item">
+                <span class="stat-lbl">Buyurtmalar</span>
+                <span class="stat-val" id="weekOrdersCount">53 ta</span>
+              </div>
+              <div class="week-stat-item">
+                <span class="stat-lbl">Masofa</span>
+                <span class="stat-val" id="weekDistanceKm">214.5 km</span>
+              </div>
+              <div class="week-stat-item">
+                <span class="stat-lbl">Ish vaqti</span>
+                <span class="stat-val" id="weekHoursTotal">24.0 soat</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Courier Efficiency KPI Grid -->
+          <div class="courier-kpi-grid">
+            <div class="courier-kpi-tile">
+              <div class="kpi-icon-wrap" style="background: rgba(14, 165, 233, 0.15); color: #0ea5e9;">⚡</div>
+              <div class="kpi-info">
+                <div class="kpi-val" id="kpiHourlyRate">45 208 so'm</div>
+                <div class="kpi-lbl">Soatiga o'rtacha</div>
+              </div>
+            </div>
+
+            <div class="courier-kpi-tile">
+              <div class="kpi-icon-wrap" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">📦</div>
+              <div class="kpi-info">
+                <div class="kpi-val" id="kpiOrderRate">20 471 so'm</div>
+                <div class="kpi-lbl">1 buyurtma narxi</div>
+              </div>
+            </div>
+
+            <div class="courier-kpi-tile">
+              <div class="kpi-icon-wrap" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">📍</div>
+              <div class="kpi-info">
+                <div class="kpi-val" id="kpiKmRate">5 058 so'm</div>
+                <div class="kpi-lbl">1 km daromadi</div>
+              </div>
+            </div>
+
+            <div class="courier-kpi-tile">
+              <div class="kpi-icon-wrap" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">⏱️</div>
+              <div class="kpi-info">
+                <div class="kpi-val" id="kpiEfficiency">2.2 ta/soat</div>
+                <div class="kpi-lbl">Samaradorlik tezligi</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shifts Stream / History -->
+          <div class="shifts-stream-wrapper">
+            <div class="shifts-stream-header">
+              <div class="shifts-stream-title">
+                <span>Kunlik Smenalar Ro'yxati</span>
+                <span class="shifts-note-badge" title="Tungi smenalar boshlangan sana uchun yoziladi">
+                  🌙 Daromad boshlangan kunga yoziladi
+                </span>
+              </div>
+              <div class="shifts-filter-wrap">
+                <select class="form-select shifts-filter-select" id="shiftsWeekFilter">
+                  <option value="all">Barcha smenalar</option>
+                  <option value="current" selected>Joriy hafta (Dush - Yaksh)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="shifts-items-list" id="shiftsListContainer">
+              <!-- Rendered dynamically via JS -->
+            </div>
+          </div>
+        </section>
+
         <!-- Category Breakdown Card -->
         <section class="content-card" id="analysisSection">
           <div class="card-title-bar">
@@ -624,6 +774,149 @@
 
   <!-- MODALS FOR QUICK ACTIONS -->
 
+  <!-- Modal 0: Kunlik Kuryerlik Smenasi va Daromadi -->
+  <div class="modal-overlay" id="shiftModal">
+    <div class="modal-window shift-modal-window">
+      <div class="modal-handle-bar"></div>
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: #0ea5e9;">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.3" fill="none">
+            <rect x="1" y="3" width="15" height="13" rx="1"/>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
+            <circle cx="5.5" cy="18.5" r="2.5"/>
+            <circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+          <span id="shiftModalTitleText">Kunlik Smena va Daromad Kiritish</span>
+        </h3>
+        <button class="modal-close" onclick="closeAllModals()">&times;</button>
+      </div>
+      <form class="modal-form" id="shiftForm">
+        <input type="hidden" id="editShiftId" value="">
+
+        <!-- Sana va Tungi smena qoidasi -->
+        <div class="form-group">
+          <label for="shiftDate">Ish boshlangan sana:</label>
+          <input type="date" class="form-input" id="shiftDate" required>
+          <span class="input-hint">ℹ️ Tungi smena bo'lsa ham (masalan 19:00 dan 03:00 gacha), daromad to'liq boshlangan sana uchun yoziladi!</span>
+        </div>
+
+        <!-- Vaqtlar: Boshlanish va Tugash -->
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="shiftStartTime">Ish boshlangan vaqt:</label>
+            <input type="time" class="form-input" id="shiftStartTime" value="18:00" required>
+          </div>
+          <div class="form-group">
+            <label for="shiftEndTime">Ish tugagan vaqt:</label>
+            <input type="time" class="form-input" id="shiftEndTime" value="02:00" required>
+          </div>
+        </div>
+
+        <!-- Avtomatik hisoblangan davomiylik va Tungi smena burchagi -->
+        <div class="shift-duration-indicator" id="shiftDurationBanner">
+          <div class="indicator-icon" id="shiftDurationIcon">🌙</div>
+          <div class="indicator-text">
+            <div class="indicator-duration" id="shiftDurationText">8 soat 00 daqiqa smena</div>
+            <div class="indicator-rule" id="shiftRuleText">Tungi smena: Ertasi kunga o'tadi, lekin daromad faqat boshlangan sana uchun hisoblanadi!</div>
+          </div>
+        </div>
+
+        <!-- Buyurtmalar soni va Masofa -->
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="shiftOrders">Nechta buyurtma bajarildi:</label>
+            <input type="number" class="form-input" id="shiftOrders" min="0" placeholder="Masalan: 18" required>
+          </div>
+          <div class="form-group">
+            <label for="shiftDistance">Yurilgan masofa (km):</label>
+            <input type="number" step="0.1" class="form-input" id="shiftDistance" min="0" placeholder="Masalan: 72.5" required>
+          </div>
+        </div>
+
+        <!-- Daromad va Choypuli -->
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="shiftIncome">Kunlik daromad (so'mda):</label>
+            <input type="number" class="form-input" id="shiftIncome" min="0" placeholder="Masalan: 340000" required>
+          </div>
+          <div class="form-group">
+            <label for="shiftTips">Choypuli / Bonus (so'mda):</label>
+            <input type="number" class="form-input" id="shiftTips" min="0" value="0" placeholder="Masalan: 25000">
+          </div>
+        </div>
+
+        <!-- Xizmat turi va Izoh -->
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="shiftService">Yetkazib berish xizmati:</label>
+            <select class="form-select" id="shiftService">
+              <option value="Yandex Eats / Express">Yandex Eats / Express</option>
+              <option value="Uzum Tezkor">Uzum Tezkor</option>
+              <option value="Wolt Delivery">Wolt Delivery</option>
+              <option value="Taxi & Dostavka">Taxi & Dostavka</option>
+              <option value="Mustaqil Kuryer">Mustaqil Kuryer / Boshqa</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="shiftNote">Izoh / Hudud:</label>
+            <input type="text" class="form-input" id="shiftNote" placeholder="Masalan: Kechki smena, yomg'ir bonusi">
+          </div>
+        </div>
+
+        <!-- Real-time Live Calculation Preview -->
+        <div class="shift-live-preview">
+          <div class="live-pill">
+            <span>Jami daromad:</span>
+            <strong id="liveTotalSum">0 so'm</strong>
+          </div>
+          <div class="live-pill">
+            <span>Soatiga:</span>
+            <strong id="liveHourlyRate">0 so'm/s</strong>
+          </div>
+          <div class="live-pill">
+            <span>1 buyurtmaga:</span>
+            <strong id="liveOrderRate">0 so'm/ta</strong>
+          </div>
+          <div class="live-pill">
+            <span>1 km ga:</span>
+            <strong id="liveKmRate">0 so'm/km</strong>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn" style="background: var(--bg-surface-elevated);" onclick="closeAllModals()">Bekor qilish</button>
+          <button type="submit" class="btn btn-shift" id="shiftSubmitBtn">💾 Smenani saqlash</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Haftalik Chorshanba To'lovlari Arxivi -->
+  <div class="modal-overlay" id="payoutsModal">
+    <div class="modal-window payouts-window">
+      <div class="modal-handle-bar"></div>
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: #10b981;">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.3" fill="none">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <line x1="2" y1="10" x2="22" y2="10"/>
+          </svg>
+          Haftalik Chorshanba To'lovlari Arxivi
+        </h3>
+        <button class="modal-close" onclick="closeAllModals()">&times;</button>
+      </div>
+      <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 14px;">
+        Har haftaning Dushanba — Yakshanba kunlari ishlangan kuryerlik daromadi keyingi Chorshanba kuni hisobga tushadi.
+      </p>
+      <div class="payouts-archive-list" id="payoutsArchiveContainer">
+        <!-- Rendered dynamically via JS -->
+      </div>
+      <div class="form-actions" style="margin-top: 18px;">
+        <button type="button" class="btn btn-secondary" onclick="closeAllModals()">Yopish</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal 1: Xarajat qo'shish -->
   <div class="modal-overlay" id="expenseModal">
     <div class="modal-window">
@@ -809,8 +1102,17 @@
     </div>
   </div>
 
-  <!-- Mobile Floating Quick-Action Bar (iPhone 11-18 & Android 14) -->
+  <!-- Mobile Floating Quick-Action Bar (iPhone 11-18 & Android 14 - 5 Perfect Symmetric Buttons) -->
   <nav class="mobile-bottom-bar" id="mobileBottomBar" aria-label="Mobil tezkor harakatlar">
+    <button class="mobile-nav-btn mobile-nav-shift" id="mobileShiftBtn" title="Smena kiritish">
+      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.3" fill="none">
+        <rect x="1" y="3" width="15" height="13" rx="1"/>
+        <polygon points="16 8 20 8 23 11 23 16 16 16 8"/>
+        <circle cx="5.5" cy="18.5" r="2.5"/>
+        <circle cx="18.5" cy="18.5" r="2.5"/>
+      </svg>
+      <span>+ Smena</span>
+    </button>
     <button class="mobile-nav-btn mobile-nav-exp" id="mobileExpBtn" title="Xarajat qo'shish">
       <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
         <line x1="12" y1="5" x2="12" y2="19"/>
@@ -818,20 +1120,12 @@
       </svg>
       <span>+ Xarajat</span>
     </button>
-    <button class="mobile-nav-btn mobile-nav-inc" id="mobileIncBtn" title="Tushum qo'shish">
-      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
-        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-        <polyline points="17 6 23 6 23 12"/>
-      </svg>
-      <span>+ Tushum</span>
-    </button>
     <button class="mobile-nav-btn mobile-nav-debt" id="mobileDebtBtn" title="Qarz yozish">
       <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
         <circle cx="12" cy="12" r="10"/>
         <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
       </svg>
-      <span>+ Qarz</span>
+      <span>Qarz</span>
     </button>
     <button class="mobile-nav-btn mobile-nav-calc" id="mobileCalcBtn" title="Kalkulyatorga o'tish">
       <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
