@@ -81,6 +81,12 @@
   padding: 0;
 }
 
+html {
+  overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
+}
+
 body {
   font-family: var(--font-main);
   background-color: var(--bg-body);
@@ -94,6 +100,8 @@ body {
     radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.06) 0px, transparent 50%);
   background-attachment: fixed;
   overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
   padding-top: var(--sat);
   padding-left: var(--sal);
   padding-right: var(--sar);
@@ -106,12 +114,15 @@ body {
 
 /* App Container */
 .app-layout {
+  width: 100%;
   max-width: 1400px;
   margin: 0 auto;
   padding: 24px 20px 48px;
   display: flex;
   flex-direction: column;
   gap: 28px;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 /* Header */
@@ -493,20 +504,29 @@ body {
 /* Main Dashboard Body Layout */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: minmax(0, 1fr) 380px;
   gap: 24px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .main-column {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .sidebar-column {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 /* Glass Card */
@@ -518,6 +538,10 @@ body {
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-sm);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .card-title-bar {
@@ -1703,10 +1727,12 @@ body {
 
 .income-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   padding-top: 16px;
   border-top: 1px solid var(--border-subtle);
+  width: 100%;
+  min-width: 0;
 }
 
 .income-kpi-tile {
@@ -2023,10 +2049,17 @@ body {
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: 20px;
+    width: 100%;
+    min-width: 0;
   }
   
   .category-cards-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .income-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 }
 
@@ -2148,6 +2181,183 @@ body {
     left: max(16px, var(--sal));
     right: max(16px, var(--sar));
     bottom: max(90px, calc(80px + var(--sab)));
+  }
+
+  /* Dashboard Single Column on Mobiles */
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .content-card {
+    padding: 16px 14px;
+    border-radius: var(--radius-md);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .card-title-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .card-title-bar .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .card-heading {
+    font-size: 1.05rem;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .card-subheading {
+    font-size: 0.74rem;
+    word-break: break-word;
+  }
+
+  /* Income Hero Card Mobile Adjustments */
+  .income-hero-card {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .income-hero-box {
+    padding: 14px 12px;
+    margin-bottom: 16px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .income-box-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .income-main-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin-bottom: 16px;
+    width: 100%;
+  }
+
+  .income-big-sum {
+    font-size: clamp(1.4rem, 6vw, 1.85rem);
+    line-height: 1.15;
+    word-break: break-all;
+  }
+
+  .income-meta-info {
+    font-size: 0.76rem;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .income-actions-col {
+    width: 100%;
+  }
+
+  .income-actions-col .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* 2-column KPI Grid on Mobile (har bir ko'rsatkich ekranga teng va aniq sig'adi) */
+  .income-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px;
+    padding-top: 14px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .income-kpi-tile {
+    padding: 10px 8px;
+    gap: 8px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .income-kpi-tile .kpi-icon-wrap {
+    width: 32px;
+    height: 32px;
+  }
+
+  .income-kpi-tile .kpi-icon-wrap svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .income-kpi-tile .kpi-val {
+    font-size: clamp(0.82rem, 3vw, 0.96rem);
+  }
+
+  .income-kpi-tile .kpi-lbl {
+    font-size: 0.65rem;
+  }
+
+  /* Income Stream Cards - Stack vertically on mobile so it fits the screen perfectly */
+  .income-work-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px;
+    padding: 12px 14px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .income-card-left {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .income-card-date {
+    font-size: 0.88rem;
+  }
+
+  .income-card-time {
+    font-size: 0.74rem;
+  }
+
+  .income-card-center {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .income-pill-badge {
+    font-size: 0.72rem;
+    padding: 3px 8px;
+  }
+
+  .income-card-right {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px dashed var(--border-subtle);
+    padding-top: 8px;
+    margin-top: 2px;
+  }
+
+  .income-card-amount {
+    font-size: 1.05rem;
   }
 }
 
@@ -2438,8 +2648,13 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .btn-reset {
-    grid-column: auto;
+  .income-kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .income-card-left {
+    flex-direction: column !important;
+    align-items: flex-start !important;
   }
 
   .calc-keys {
