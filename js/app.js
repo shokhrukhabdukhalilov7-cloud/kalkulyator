@@ -23,10 +23,6 @@ const defaultState = {
       id: 1,
       date: "2026-10-08",
       startTime: "09:00",
-      endTime: "18:00",
-      durationHours: 9,
-      durationMinutes: 0,
-      durationText: "9 soat 00 daqiqa",
       ordersCount: 16,
       amount: 380000,
       note: "Kunduzgi faoliyat"
@@ -35,10 +31,6 @@ const defaultState = {
       id: 2,
       date: "2026-10-07",
       startTime: "10:00",
-      endTime: "19:30",
-      durationHours: 9.5,
-      durationMinutes: 30,
-      durationText: "9 soat 30 daqiqa",
       ordersCount: 18,
       amount: 420000,
       note: "Faol kun"
@@ -47,10 +39,6 @@ const defaultState = {
       id: 3,
       date: "2026-10-06",
       startTime: "12:00",
-      endTime: "20:00",
-      durationHours: 8,
-      durationMinutes: 0,
-      durationText: "8 soat 00 daqiqa",
       ordersCount: 14,
       amount: 320000,
       note: "Standart ish kuni"
@@ -634,7 +622,7 @@ function renderTrash() {
             <span class="trash-timer">⏳ ${timeLeft}</span>
           </div>
           <div class="trash-details">
-            <div><strong>Sana:</strong> ${d.date} • <strong>Vaqt:</strong> ${d.startTime}—${d.endTime} (${d.durationText})</div>
+            <div><strong>Sana:</strong> ${d.date} • <strong>Boshlanish vaqti:</strong> ${d.startTime || '--:--'}</div>
             <div><strong>Buyurtmalar:</strong> ${d.ordersCount} ta • <strong>Daromad:</strong> +${formatSom(d.amount)}</div>
           </div>
           <div class="trash-card-footer">
@@ -1136,54 +1124,18 @@ window.handleQuickPay = function(identifier, amount) {
 // DAROMADLAR VA BAJARILGAN BUYURTMALAR LOGIKASI
 // ==========================================
 
-function calculateWorkDuration(startTime, endTime) {
-  if (!startTime || !endTime) {
-    return { hours: 0, minutes: 0, decimalHours: 0, text: "0 soat" };
-  }
-  const [sh, sm] = startTime.split(':').map(Number);
-  const [eh, em] = endTime.split(':').map(Number);
-  let startMin = sh * 60 + sm;
-  let endMin = eh * 60 + em;
-  if (endMin < startMin) {
-    // Ertasi kunga o'tgan ish (tungi)
-    endMin += 24 * 60;
-  }
-  const diff = endMin - startMin;
-  const hours = Math.floor(diff / 60);
-  const minutes = diff % 60;
-  const decimalHours = +(diff / 60).toFixed(2);
-  const text = `${hours} soat ${minutes > 0 ? minutes + " daqiqa" : "00 daqiqa"}`;
-  return { hours, minutes, decimalHours, text };
-}
-
 function updateWorkIncomeLivePreview() {
-  const startEl = document.getElementById('workIncomeStartTime');
-  const endEl = document.getElementById('workIncomeEndTime');
   const ordersEl = document.getElementById('workIncomeOrders');
   const amountEl = document.getElementById('workIncomeAmount');
 
-  if (!startEl || !endEl) return;
-
-  const startTime = startEl.value || "09:00";
-  const endTime = endEl.value || "18:00";
   const orders = Number(ordersEl ? ordersEl.value : 0) || 0;
   const amount = Number(amountEl ? amountEl.value : 0) || 0;
 
-  const duration = calculateWorkDuration(startTime, endTime);
-
-  const durationBanner = document.getElementById('workDurationText');
-  if (durationBanner) {
-    durationBanner.textContent = `${duration.text} ishlangan`;
-  }
-
   setElText('liveIncomeTotalSum', formatSom(amount));
-  setElText('liveIncomeDuration', duration.text);
+  setElText('liveIncomeOrdersCount', `${orders} ta`);
 
   const perOrder = orders > 0 ? Math.round(amount / orders) : 0;
-  const perHour = duration.decimalHours > 0 ? Math.round(amount / duration.decimalHours) : 0;
-
   setElText('liveIncomeOrderRate', formatSom(perOrder) + "/ta");
-  setElText('liveIncomeHourlyRate', formatSom(perHour) + "/s");
 }
 
 function resetWorkIncomeModal() {
@@ -1199,11 +1151,9 @@ function resetWorkIncomeModal() {
   }
   const startInput = document.getElementById('workIncomeStartTime');
   if (startInput) startInput.value = "09:00";
-  const endInput = document.getElementById('workIncomeEndTime');
-  if (endInput) endInput.value = "18:00";
 
   const titleEl = document.getElementById('workIncomeModalTitleText');
-  if (titleEl) titleEl.textContent = "Ish Vaqti va Daromad Kiritish";
+  if (titleEl) titleEl.textContent = "Daromad va Buyurtmalar Kiritish";
   const submitBtn = document.getElementById('workIncomeSubmitBtn');
   if (submitBtn) submitBtn.textContent = "💾 Daromadni saqlash";
 
@@ -1216,7 +1166,6 @@ function initWorkIncomeForm() {
 
   const dateInput = document.getElementById('workIncomeDate');
   const startInput = document.getElementById('workIncomeStartTime');
-  const endInput = document.getElementById('workIncomeEndTime');
   const ordersInput = document.getElementById('workIncomeOrders');
   const amountInput = document.getElementById('workIncomeAmount');
 
@@ -1225,7 +1174,7 @@ function initWorkIncomeForm() {
     dateInput.value = today;
   }
 
-  [startInput, endInput, ordersInput, amountInput].forEach(inp => {
+  [ordersInput, amountInput].forEach(inp => {
     if (inp) {
       inp.addEventListener('input', updateWorkIncomeLivePreview);
       inp.addEventListener('change', updateWorkIncomeLivePreview);
@@ -1236,8 +1185,7 @@ function initWorkIncomeForm() {
     e.preventDefault();
     const editId = document.getElementById('editWorkIncomeId').value;
     const date = dateInput.value;
-    const startTime = startInput.value;
-    const endTime = endInput.value;
+    const startTime = (startInput && startInput.value) ? startInput.value : "09:00";
     const orders = Number(ordersInput.value) || 0;
     const amount = Number(amountInput.value) || 0;
     const note = document.getElementById('workIncomeNote').value.trim();
@@ -1247,18 +1195,12 @@ function initWorkIncomeForm() {
       return;
     }
 
-    const duration = calculateWorkDuration(startTime, endTime);
-
     if (editId) {
       const item = (appState.workIncomes || []).find(i => i.id === Number(editId));
       if (item) {
         const diffAmount = amount - item.amount;
         item.date = date;
         item.startTime = startTime;
-        item.endTime = endTime;
-        item.durationHours = duration.decimalHours;
-        item.durationMinutes = duration.minutes;
-        item.durationText = duration.text;
         item.ordersCount = orders;
         item.amount = amount;
         item.note = note;
@@ -1272,10 +1214,6 @@ function initWorkIncomeForm() {
         id: Date.now(),
         date,
         startTime,
-        endTime,
-        durationHours: duration.decimalHours,
-        durationMinutes: duration.minutes,
-        durationText: duration.text,
         ordersCount: orders,
         amount,
         note,
@@ -1293,7 +1231,7 @@ function initWorkIncomeForm() {
         type: 'income',
         title: `Ish daromadi (${orders} ta buyurtma)`,
         tag: 'Ish daromadi',
-        time: `Bugun, ${startTime}—${endTime} • Qo'shildi`,
+        time: `Bugun, ${startTime} da boshlangan • Qo'shildi`,
         amount: amount,
         icon: '💰',
         color: 'var(--color-income)',
@@ -1319,19 +1257,18 @@ function renderWorkIncomes() {
 
   const totalAmount = incomes.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
   const totalOrders = incomes.reduce((sum, item) => sum + (Number(item.ordersCount) || 0), 0);
-  const totalHours = incomes.reduce((sum, item) => sum + (Number(item.durationHours) || 0), 0);
-  const avgPerHour = totalHours > 0 ? Math.round(totalAmount / totalHours) : 0;
+  const totalDays = incomes.length;
   const avgPerOrder = totalOrders > 0 ? Math.round(totalAmount / totalOrders) : 0;
 
   setElText('heroTotalIncomeAmount', formatSom(totalAmount));
+  setElText('heroTotalOrdersCount', `${totalOrders} ta`);
   setElText('heroAvgPerOrder', formatSom(avgPerOrder));
-  setElText('heroAvgPerHour', formatSom(avgPerHour) + "/s");
-  setElText('incomeSessionsCount', `${incomes.length} ta ish kuni`);
+  setElText('incomeSessionsCount', `${totalDays} ta ish kuni`);
 
   setElText('kpiTotalIncome', formatSom(totalAmount));
   setElText('kpiTotalOrders', `${totalOrders} ta`);
-  setElText('kpiTotalHours', `${totalHours.toFixed(1)} soat`);
-  setElText('kpiAvgHourlyRate', formatSom(avgPerHour) + "/s");
+  setElText('kpiAvgPerOrder', formatSom(avgPerOrder));
+  setElText('kpiTotalDays', `${totalDays} kun`);
   setElText('incomesStreamCountBadge', `${incomes.length} ta yozuv`);
 
   if (incomes.length === 0) {
@@ -1339,14 +1276,13 @@ function renderWorkIncomes() {
       <div class="empty-incomes-box">
         <div style="font-size: 2rem; margin-bottom: 8px;">💰</div>
         Hozircha kiritilgan ish daromadlari yo'q.<br>
-        <strong>"+ Daromad kiritish"</strong> tugmasini bosib birinchi daromadni kiriting!
+        <strong>"+ Yangi daromad kiritish"</strong> tugmasini bosib birinchi daromadni kiriting!
       </div>
     `;
     return;
   }
 
   container.innerHTML = incomes.map(item => {
-    const rateHour = item.durationHours > 0 ? Math.round(item.amount / item.durationHours) : 0;
     const rateOrder = item.ordersCount > 0 ? Math.round(item.amount / item.ordersCount) : 0;
 
     return `
@@ -1366,13 +1302,12 @@ function renderWorkIncomes() {
               <circle cx="12" cy="12" r="10"/>
               <polyline points="12 6 12 12 16 14"/>
             </svg>
-            <span>${item.startTime} — ${item.endTime} (${item.durationText || (item.durationHours + ' soat')})</span>
+            <span>Boshlanish: ${item.startTime || '--:--'}</span>
           </div>
         </div>
 
         <div class="income-card-center">
-          <span class="income-pill-badge income-pill-orders">📦 ${item.ordersCount} ta buyurtma</span>
-          ${rateHour > 0 ? `<span class="income-pill-badge income-pill-rate">⚡ ${formatSom(rateHour)}/s</span>` : ''}
+          <span class="income-pill-badge income-pill-orders">📦 ${item.ordersCount || 0} ta buyurtma</span>
           ${rateOrder > 0 ? `<span class="income-pill-badge income-pill-rate">🎯 ${formatSom(rateOrder)}/ta</span>` : ''}
           ${item.note ? `<span class="income-pill-badge" style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">💬 ${item.note}</span>` : ''}
         </div>
@@ -1406,7 +1341,6 @@ window.editWorkIncome = function(id) {
   document.getElementById('editWorkIncomeId').value = item.id;
   document.getElementById('workIncomeDate').value = item.date;
   document.getElementById('workIncomeStartTime').value = item.startTime;
-  document.getElementById('workIncomeEndTime').value = item.endTime;
   document.getElementById('workIncomeOrders').value = item.ordersCount;
   document.getElementById('workIncomeAmount').value = item.amount;
   document.getElementById('workIncomeNote').value = item.note || '';

@@ -1976,15 +1976,21 @@ body {
   color: var(--text-secondary);
 }
 
-/* Modal Live Preview Pills */
+/* Modal Live Preview Pills (3 ta ko'rsatkich: Jami, Buyurtmalar, 1 buyurtmaga) */
 .income-live-preview {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   padding: 12px;
   background: var(--bg-input);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 480px) {
+  .income-live-preview {
+    grid-template-columns: 1fr;
+  }
 }
 
 .income-live-preview .live-pill {

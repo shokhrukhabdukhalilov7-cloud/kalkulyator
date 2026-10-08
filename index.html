@@ -228,7 +228,7 @@
               </div>
               <div>
                 <span>Daromadlar & Bajarilgan Buyurtmalar</span>
-                <div class="card-subheading">Ish vaqti oralig'i, buyurtmalar hisobi va topilgan sof daromad</div>
+                <div class="card-subheading">Ish boshlanish vaqti, sana, buyurtmalar hisobi va sof daromad</div>
               </div>
             </div>
             <button class="btn btn-income btn-sm" id="quickAddIncomeBtn">
@@ -251,9 +251,9 @@
                 <span class="income-label">Jami topilgan sof daromad:</span>
                 <div class="income-big-sum" id="heroTotalIncomeAmount">1 120 000 so'm</div>
                 <div class="income-meta-info">
-                  <span>O'rtacha 1 buyurtmaga: <strong id="heroAvgPerOrder">23 333 so'm</strong></span>
+                  <span>Jami buyurtmalar: <strong id="heroTotalOrdersCount">48 ta</strong></span>
                   <span class="meta-divider">•</span>
-                  <span>Soatiga: <strong id="heroAvgPerHour">42 222 so'm/s</strong></span>
+                  <span>1 buyurtmaga o'rtacha: <strong id="heroAvgPerOrder">23 333 so'm</strong></span>
                 </div>
               </div>
 
@@ -298,25 +298,29 @@
               <div class="income-kpi-tile">
                 <div class="kpi-icon-wrap" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
                   <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
+                    <circle cx="9" cy="21" r="1"/>
+                    <circle cx="20" cy="21" r="1"/>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                   </svg>
                 </div>
                 <div class="kpi-info">
-                  <div class="kpi-val" id="kpiTotalHours">26.5 soat</div>
-                  <div class="kpi-lbl">Jami ishlangan vaqt</div>
+                  <div class="kpi-val" id="kpiAvgPerOrder">23 333 so'm</div>
+                  <div class="kpi-lbl">1 buyurtmaga o'rtacha</div>
                 </div>
               </div>
 
               <div class="income-kpi-tile">
                 <div class="kpi-icon-wrap" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
                   <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
                   </svg>
                 </div>
                 <div class="kpi-info">
-                  <div class="kpi-val" id="kpiAvgHourlyRate">42 264 so'm</div>
-                  <div class="kpi-lbl">Soatlik o'rtacha tushum</div>
+                  <div class="kpi-val" id="kpiTotalDays">3 kun</div>
+                  <div class="kpi-lbl">Qayd etilgan ish kunlari</div>
                 </div>
               </div>
             </div>
@@ -741,42 +745,22 @@
           <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.3" fill="none">
             <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
           </svg>
-          <span id="workIncomeModalTitleText">Ish Vaqti va Daromad Kiritish</span>
+          <span id="workIncomeModalTitleText">Daromad va Buyurtmalar Kiritish</span>
         </h3>
         <button class="modal-close" onclick="closeAllModals()">&times;</button>
       </div>
       <form class="modal-form" id="workIncomeForm">
         <input type="hidden" id="editWorkIncomeId" value="">
 
-        <!-- Sana -->
-        <div class="form-group">
-          <label for="workIncomeDate">Ish sanasi:</label>
-          <input type="date" class="form-input" id="workIncomeDate" required>
-        </div>
-
-        <!-- Vaqtlar: Boshlanish va Tugash -->
+        <!-- Sana va Ish boshlanish vaqti -->
         <div class="form-row-2">
+          <div class="form-group">
+            <label for="workIncomeDate">Ish sanasi va oyi:</label>
+            <input type="date" class="form-input" id="workIncomeDate" required>
+          </div>
           <div class="form-group">
             <label for="workIncomeStartTime">Ish boshlangan vaqt:</label>
             <input type="time" class="form-input" id="workIncomeStartTime" value="09:00" required>
-          </div>
-          <div class="form-group">
-            <label for="workIncomeEndTime">Ish tugagan vaqt:</label>
-            <input type="time" class="form-input" id="workIncomeEndTime" value="18:00" required>
-          </div>
-        </div>
-
-        <!-- Avtomatik hisoblangan davomiylik indikatori -->
-        <div class="work-duration-indicator" id="workDurationBanner">
-          <div class="indicator-icon">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-          </div>
-          <div class="indicator-text">
-            <div class="indicator-duration" id="workDurationText">9 soat 00 daqiqa ishlangan</div>
-            <div class="indicator-rule" id="workRuleText">Boshlanish va tugash vaqti asosida avtomatik hisoblandi</div>
           </div>
         </div>
 
@@ -795,7 +779,7 @@
         <!-- Izoh -->
         <div class="form-group">
           <label for="workIncomeNote">Izoh (ixtiyoriy):</label>
-          <input type="text" class="form-input" id="workIncomeNote" placeholder="Masalan: Kunduzgi ish, bonus qo'shildi">
+          <input type="text" class="form-input" id="workIncomeNote" placeholder="Masalan: Kunduzgi smena, buyurtmalar">
         </div>
 
         <!-- Real-time Live Calculation Preview -->
@@ -805,16 +789,12 @@
             <strong id="liveIncomeTotalSum">0 so'm</strong>
           </div>
           <div class="live-pill">
-            <span>Ish vaqti:</span>
-            <strong id="liveIncomeDuration">0 soat</strong>
+            <span>Bajarilgan buyurtmalar:</span>
+            <strong id="liveIncomeOrdersCount">0 ta</strong>
           </div>
           <div class="live-pill">
-            <span>1 buyurtmaga:</span>
+            <span>1 buyurtmaga o'rtacha:</span>
             <strong id="liveIncomeOrderRate">0 so'm/ta</strong>
-          </div>
-          <div class="live-pill">
-            <span>Soatiga:</span>
-            <strong id="liveIncomeHourlyRate">0 so'm/s</strong>
           </div>
         </div>
 
