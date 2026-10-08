@@ -18,22 +18,76 @@ const defaultState = {
     transport: 200000,  // 5. Yo'l haqi (Y)
     custom: 200000      // 6. Nomsiz / Maxsus (Ohirida)
   },
+  workIncomes: [
+    {
+      id: 1,
+      date: "2026-10-08",
+      startTime: "09:00",
+      endTime: "18:00",
+      durationHours: 9,
+      durationMinutes: 0,
+      durationText: "9 soat 00 daqiqa",
+      ordersCount: 16,
+      amount: 380000,
+      note: "Kunduzgi faoliyat"
+    },
+    {
+      id: 2,
+      date: "2026-10-07",
+      startTime: "10:00",
+      endTime: "19:30",
+      durationHours: 9.5,
+      durationMinutes: 30,
+      durationText: "9 soat 30 daqiqa",
+      ordersCount: 18,
+      amount: 420000,
+      note: "Faol kun"
+    },
+    {
+      id: 3,
+      date: "2026-10-06",
+      startTime: "12:00",
+      endTime: "20:00",
+      durationHours: 8,
+      durationMinutes: 0,
+      durationText: "8 soat 00 daqiqa",
+      ordersCount: 14,
+      amount: 320000,
+      note: "Standart ish kuni"
+    }
+  ],
   debts: [
     {
       id: 1,
+      direction: 'lent',
       person: "Akmalbek (Do'stim)",
       avatar: "A",
-      note: "Tushlik uchun olingan mikro qarz",
-      dueDate: "10-Oktabr",
+      date: "2026-10-06",
+      note: "Tushlik va yo'l kira uchun",
+      dueDate: "12-Oktabr",
       totalAmount: 150000,
       paidAmount: 0,
       status: "Kutilmoqda"
     },
     {
       id: 2,
+      direction: 'lent',
+      person: "Anvar aka (Qarindosh)",
+      avatar: "A",
+      date: "2026-10-05",
+      note: "",
+      dueDate: "15-Oktabr",
+      totalAmount: 300000,
+      paidAmount: 0,
+      status: "Kutilmoqda"
+    },
+    {
+      id: 3,
+      direction: 'borrowed',
       person: "Mahalla do'koni",
       avatar: "M",
-      note: "Oziq-ovqat mahsulotlari uchun",
+      date: "2026-10-04",
+      note: "Oziq-ovqat mahsulotlari",
       dueDate: "15-Oktabr",
       totalAmount: 500000,
       paidAmount: 200000,
@@ -131,6 +185,9 @@ function loadState() {
       }
       if (!parsed.customCategoryName) {
         parsed.customCategoryName = defaultState.customCategoryName;
+      }
+      if (!parsed.workIncomes) {
+        parsed.workIncomes = JSON.parse(JSON.stringify(defaultState.workIncomes));
       }
       return parsed;
     } catch (e) {
@@ -279,27 +336,73 @@ function initTheme() {
 function initModals() {
   const expenseModal = document.getElementById('expenseModal');
   const incomeModal = document.getElementById('incomeModal');
+  const workIncomeModal = document.getElementById('workIncomeModal');
   const debtModal = document.getElementById('debtModal');
   const resetConfirmModal = document.getElementById('resetConfirmModal');
   const trashModal = document.getElementById('trashModal');
   const renameCatModal = document.getElementById('renameCatModal');
 
-  document.getElementById('openExpenseModalBtn').addEventListener('click', () => {
-    document.getElementById('customCatGroup').style.display = 'none';
-    openModal(expenseModal);
+  const openExpBtn = document.getElementById('openExpenseModalBtn');
+  if (openExpBtn) {
+    openExpBtn.addEventListener('click', () => {
+      const customGroup = document.getElementById('customCatGroup');
+      if (customGroup) customGroup.style.display = 'none';
+      openModal(expenseModal);
+    });
+  }
+
+  // Daromadlar modalini ochish tugmalari
+  const openWorkIncomeBtn = document.getElementById('openWorkIncomeModalBtn');
+  if (openWorkIncomeBtn) {
+    openWorkIncomeBtn.addEventListener('click', () => {
+      resetWorkIncomeModal();
+      openModal(workIncomeModal);
+    });
+  }
+
+  const quickAddIncomeBtn = document.getElementById('quickAddIncomeBtn');
+  if (quickAddIncomeBtn) {
+    quickAddIncomeBtn.addEventListener('click', () => {
+      resetWorkIncomeModal();
+      openModal(workIncomeModal);
+    });
+  }
+
+  const heroAddIncomeBtn = document.getElementById('heroAddIncomeBtn');
+  if (heroAddIncomeBtn) {
+    heroAddIncomeBtn.addEventListener('click', () => {
+      resetWorkIncomeModal();
+      openModal(workIncomeModal);
+    });
+  }
+
+  const openIncBtn = document.getElementById('openIncomeModalBtn');
+  if (openIncBtn) openIncBtn.addEventListener('click', () => openModal(incomeModal));
+
+  const openDebtBtn = document.getElementById('openDebtModalBtn');
+  if (openDebtBtn) openDebtBtn.addEventListener('click', () => {
+    prepareDebtModal();
+    openModal(debtModal);
   });
-  document.getElementById('openIncomeModalBtn').addEventListener('click', () => openModal(incomeModal));
-  document.getElementById('openDebtModalBtn').addEventListener('click', () => openModal(debtModal));
-  document.getElementById('bannerAddDebtBtn').addEventListener('click', () => openModal(debtModal));
+
+  const bannerDebtBtn = document.getElementById('bannerAddDebtBtn');
+  if (bannerDebtBtn) bannerDebtBtn.addEventListener('click', () => {
+    prepareDebtModal();
+    openModal(debtModal);
+  });
   
   // Statistikani 0 ga tushirish tugmasi
-  document.getElementById('openResetModalBtn').addEventListener('click', () => openModal(resetConfirmModal));
+  const openResetBtn = document.getElementById('openResetModalBtn');
+  if (openResetBtn) openResetBtn.addEventListener('click', () => openModal(resetConfirmModal));
 
   // Korzina tugmasi
-  document.getElementById('openTrashModalBtn').addEventListener('click', () => {
-    renderTrash();
-    openModal(trashModal);
-  });
+  const openTrashBtn = document.getElementById('openTrashModalBtn');
+  if (openTrashBtn) {
+    openTrashBtn.addEventListener('click', () => {
+      renderTrash();
+      openModal(trashModal);
+    });
+  }
 
   // Nomsiz kategoriyani qayta nomlash tugmasi
   const renameBtn = document.getElementById('renameCustomCatBtn');
@@ -312,22 +415,26 @@ function initModals() {
   }
 
   // Korzinani tozalash tugmasi
-  document.getElementById('emptyTrashBtn').addEventListener('click', () => {
-    if (appTrash.length === 0) {
-      showToast("Chiqindi qutisi allaqachon bo'sh!");
-      return;
-    }
-    appTrash = [];
-    saveTrash();
-    renderTrash();
-    showToast("Chiqindi qutisi butunlay tozalandi!");
-  });
+  const emptyTrashBtn = document.getElementById('emptyTrashBtn');
+  if (emptyTrashBtn) {
+    emptyTrashBtn.addEventListener('click', () => {
+      if (appTrash.length === 0) {
+        showToast("Chiqindi qutisi allaqachon bo'sh!");
+        return;
+      }
+      appTrash = [];
+      saveTrash();
+      renderTrash();
+      showToast("Chiqindi qutisi butunlay tozalandi!");
+    });
+  }
 
   // 0 ga tushirishni tasdiqlash
-  document.getElementById('confirmResetBtn').addEventListener('click', handleResetStatistics);
+  const confirmResetBtn = document.getElementById('confirmResetBtn');
+  if (confirmResetBtn) confirmResetBtn.addEventListener('click', handleResetStatistics);
 
   // Tashqariga bosilganda yopish
-  [expenseModal, incomeModal, debtModal, resetConfirmModal, trashModal, renameCatModal].forEach(modal => {
+  [expenseModal, incomeModal, workIncomeModal, debtModal, resetConfirmModal, trashModal, renameCatModal].forEach(modal => {
     if (modal) {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) closeAllModals();
@@ -370,7 +477,8 @@ function handleResetStatistics() {
       customCategoryName: appState.customCategoryName,
       categories: { ...appState.categories },
       debts: [...appState.debts],
-      transactions: [...appState.transactions]
+      transactions: [...appState.transactions],
+      workIncomes: [...(appState.workIncomes || [])]
     }
   };
 
@@ -392,6 +500,7 @@ function handleResetStatistics() {
   };
   appState.debts = [];
   appState.transactions = [];
+  appState.workIncomes = [];
 
   saveState();
   closeAllModals();
@@ -475,6 +584,31 @@ function renderTrash() {
           </div>
         </div>
       `;
+    } else if (item.type === 'work_income') {
+      const d = item.data;
+      return `
+        <div class="trash-card">
+          <div class="trash-card-header">
+            <div class="trash-card-title">
+              <span>💰</span>
+              <span>${item.title}</span>
+            </div>
+            <span class="trash-timer">⏳ ${timeLeft}</span>
+          </div>
+          <div class="trash-details">
+            <div><strong>Sana:</strong> ${d.date} • <strong>Vaqt:</strong> ${d.startTime}—${d.endTime} (${d.durationText})</div>
+            <div><strong>Buyurtmalar:</strong> ${d.ordersCount} ta • <strong>Daromad:</strong> +${formatSom(d.amount)}</div>
+          </div>
+          <div class="trash-card-footer">
+            <button class="btn btn-sm btn-restore" onclick="restoreTrashItem(${item.id})">
+              ↩️ Qayta tiklash
+            </button>
+            <button class="btn btn-sm btn-delete-perm" onclick="deleteTrashPerm(${item.id})">
+              🗑️ Butunlay o'chirish
+            </button>
+          </div>
+        </div>
+      `;
     } else if (item.type === 'transaction') {
       return `
         <div class="trash-card">
@@ -516,6 +650,12 @@ window.restoreTrashItem = function(id) {
     const rem = item.data.totalAmount - item.data.paidAmount;
     if (rem > 0) appState.activeDebtTotal += rem;
     saveState();
+  } else if (item.type === 'work_income') {
+    if (!appState.workIncomes) appState.workIncomes = [];
+    appState.workIncomes.unshift(item.data);
+    appState.balance += item.data.amount;
+    appState.monthlyIncome += item.data.amount;
+    saveState();
   } else if (item.type === 'transaction') {
     appState.transactions.unshift(item.data);
     saveState();
@@ -547,7 +687,7 @@ window.deleteSingleDebt = function(debtId) {
   appTrash.unshift({
     id: Date.now(),
     type: 'debt',
-    title: `Mikro qarz: ${debt.person}`,
+    title: `${debt.direction === 'lent' ? 'Yaqinga berilgan pul' : 'Qarz'}: ${debt.person}`,
     deletedAt: Date.now(),
     expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000),
     data: debt
@@ -562,7 +702,7 @@ window.deleteSingleDebt = function(debtId) {
   saveState();
   renderAll();
   triggerHaptic('warning');
-  showToast(`${debt.person} qarzi Chiqindi qutisiga ko'chirildi (1 hafta saqlanadi)!`, 'danger');
+  showToast(`${debt.person} yozuvi Chiqindi qutisiga ko'chirildi (1 hafta saqlanadi)!`, 'danger');
 };
 
 // ==========================================
@@ -692,25 +832,72 @@ function initForms() {
     showToast(`${formatSom(amount)} tushum hisobingizga qo'shildi!`);
   });
 
-  // 3. Mikro qarz qo'shish
+  // 3. Mikro qarz / Yaqinga berilgan pul qo'shish
+  setupDebtModalControls();
+
   document.getElementById('debtForm').addEventListener('submit', (e) => {
     e.preventDefault();
+    const direction = document.querySelector('input[name="debtDirection"]:checked')?.value || 'lent';
+    const isLent = direction === 'lent';
     const person = document.getElementById('debtPerson').value.trim();
+    const dateVal = document.getElementById('debtDate').value || new Date().toISOString().split('T')[0];
     const amount = parseInt(document.getElementById('debtAmount').value, 10);
-    const reason = document.getElementById('debtReason').value.trim();
+    const reason = document.getElementById('debtReason').value.trim(); // Izoh (majburiy emas)
     const dueDateVal = document.getElementById('debtDueDate').value;
+    const affectBalance = document.getElementById('debtAffectBalance')?.checked ?? true;
 
-    if (!amount || amount <= 0) return;
+    if (!person) {
+      showToast("Iltimos, ismni kiriting!", 'warning');
+      return;
+    }
 
-    const formattedDate = dueDateVal ? dueDateVal : "Muddatsiz";
+    if (!amount || amount <= 0) {
+      showToast("Iltimos, to'g'ri summani kiriting!", 'warning');
+      return;
+    }
 
-    appState.activeDebtTotal += amount;
+    const formattedDueDate = dueDateVal ? dueDateVal : "Muddatsiz";
+
+    if (affectBalance) {
+      if (isLent) {
+        // Yaqinga pul berildi - balansdan chiqadi
+        appState.balance -= amount;
+        appState.transactions.unshift({
+          id: Date.now(),
+          type: "expense",
+          title: `Yaqinga pul berildi: ${person}`,
+          tag: "Berilgan pul",
+          time: `Bugun • Pul berildi`,
+          amount: -amount,
+          icon: "🤝",
+          color: "var(--color-debt)",
+          bg: "rgba(245, 158, 11, 0.15)"
+        });
+      } else {
+        // Qarz olindi - balansga qo'shiladi
+        appState.balance += amount;
+        appState.transactions.unshift({
+          id: Date.now(),
+          type: "income",
+          title: `Qarz olindi: ${person}`,
+          tag: "Olingan qarz",
+          time: `Bugun • Qarz olindi`,
+          amount: amount,
+          icon: "📥",
+          color: "var(--color-income)",
+          bg: "rgba(16, 185, 129, 0.15)"
+        });
+      }
+    }
+
     appState.debts.unshift({
       id: Date.now(),
+      direction: direction,
       person: person,
-      avatar: person.charAt(0).toUpperCase() || "Q",
-      note: reason,
-      dueDate: formattedDate,
+      avatar: person.charAt(0).toUpperCase() || (isLent ? "Y" : "Q"),
+      date: dateVal,
+      note: reason, // Izoh ixtiyoriy
+      dueDate: formattedDueDate,
       totalAmount: amount,
       paidAmount: 0,
       status: "Kutilmoqda"
@@ -719,9 +906,14 @@ function initForms() {
     saveState();
     closeAllModals();
     document.getElementById('debtForm').reset();
+    prepareDebtModal('lent');
     renderAll();
     triggerHaptic('success');
-    showToast(`${person} dan ${formatSom(amount)} mikro qarz ro'yxatga olindi!`, 'debt');
+    if (isLent) {
+      showToast(`${person} ga ${formatSom(amount)} berilgan pul ro'yxatga olindi!`, 'success');
+    } else {
+      showToast(`${person} dan ${formatSom(amount)} qarz ro'yxatga olindi!`, 'debt');
+    }
   });
 
   // 4. Nomsiz kategoriyani qayta nomlash
@@ -739,6 +931,67 @@ function initForms() {
       showToast(`Kategoriya nomi "${newName}" ga o'zgartirildi!`);
     });
   }
+
+  // 5. Ish faoliyati va daromad formasi
+  initWorkIncomeForm();
+}
+
+// ==========================================
+// QARZ & YAQINLARGA BERILGAN PULLAR BOSHQARUVI
+// ==========================================
+
+let currentDebtFilter = 'all';
+
+function updateDebtModalType(type) {
+  const lentOption = document.getElementById('debtTypeLentOption');
+  const borrowedOption = document.getElementById('debtTypeBorrowedOption');
+  const personLabel = document.getElementById('debtPersonLabel');
+  const dateLabel = document.getElementById('debtDateLabel');
+  const balanceLabel = document.getElementById('debtAffectBalanceLabel');
+  const personInput = document.getElementById('debtPerson');
+  const submitBtn = document.getElementById('debtSubmitBtn');
+
+  if (type === 'lent') {
+    if (lentOption) lentOption.classList.add('active');
+    if (borrowedOption) borrowedOption.classList.remove('active');
+    const radio = document.querySelector('input[name="debtDirection"][value="lent"]');
+    if (radio) radio.checked = true;
+    if (personLabel) personLabel.textContent = "Kimga berildi (Ismi):";
+    if (personInput) personInput.placeholder = "Masalan: Sardor, Akmalbek, Tog'am...";
+    if (dateLabel) dateLabel.textContent = "Berilgan sana:";
+    if (balanceLabel) balanceLabel.textContent = "Joriy balansdan yechilsin (pul berildi)";
+    if (submitBtn) submitBtn.textContent = "Yozib qo'yish";
+  } else {
+    if (borrowedOption) borrowedOption.classList.add('active');
+    if (lentOption) lentOption.classList.remove('active');
+    const radio = document.querySelector('input[name="debtDirection"][value="borrowed"]');
+    if (radio) radio.checked = true;
+    if (personLabel) personLabel.textContent = "Kimdan olindi (Ismi yoki Do'kon):";
+    if (personInput) personInput.placeholder = "Masalan: Mahalla do'koni, Akmal...";
+    if (dateLabel) dateLabel.textContent = "Olingan sana:";
+    if (balanceLabel) balanceLabel.textContent = "Joriy balansga qo'shilsin (pul olindi)";
+    if (submitBtn) submitBtn.textContent = "Qarzni saqlash";
+  }
+}
+
+function prepareDebtModal(defaultType = 'lent') {
+  const dateInput = document.getElementById('debtDate');
+  if (dateInput && !dateInput.value) {
+    dateInput.value = new Date().toISOString().split('T')[0];
+  }
+  updateDebtModalType(defaultType);
+}
+
+function setupDebtModalControls() {
+  const lentOption = document.getElementById('debtTypeLentOption');
+  const borrowedOption = document.getElementById('debtTypeBorrowedOption');
+
+  if (lentOption) {
+    lentOption.addEventListener('click', () => updateDebtModalType('lent'));
+  }
+  if (borrowedOption) {
+    borrowedOption.addEventListener('click', () => updateDebtModalType('borrowed'));
+  }
 }
 
 // Nomsiz xarajatga tezkor o'tish
@@ -755,16 +1008,54 @@ window.openExpenseForCustom = function() {
   document.getElementById('expAmount').focus();
 };
 
-// ==========================================
-// ASOSIY FUNKSIYA: "TO'LOV QILDIM" BOSILGANDA
-// ==========================================
-
-window.handleQuickPay = function(personName, amount) {
-  const debt = appState.debts.find(d => d.person === personName);
+// 1. Yaqin kishi pulni qaytarganda (Lent -> Repaid)
+window.handleReceiveRepayment = function(debtId) {
+  const debt = appState.debts.find(d => d.id === debtId);
   if (!debt) return;
 
   const remaining = debt.totalAmount - debt.paidAmount;
-  const payAmount = Math.min(amount, remaining);
+  if (remaining <= 0) {
+    showToast("Ushbu summa allaqachon to'liq qaytarilgan!");
+    return;
+  }
+
+  debt.paidAmount = debt.totalAmount;
+  debt.status = "To'liq qaytarildi";
+
+  // Balansga qaytgan pul qo'shiladi
+  appState.balance += remaining;
+  appState.monthlyIncome += remaining;
+
+  appState.transactions.unshift({
+    id: Date.now(),
+    type: "income",
+    title: `Qarz qaytarildi: ${debt.person}`,
+    tag: "Qaytarilgan pul",
+    time: `Hozir • Qaytarildi`,
+    amount: remaining,
+    icon: "🤝",
+    color: "var(--color-income)",
+    bg: "rgba(16, 185, 129, 0.15)"
+  });
+
+  saveState();
+  renderAll();
+  triggerHaptic('success');
+  showToast(`${debt.person} ${formatSom(remaining)} pulni qaytardi! Balansga qo'shildi.`, 'success');
+};
+
+// 2. Olingan qarz to'langanda (Borrowed -> Paid)
+window.handleQuickPay = function(identifier, amount) {
+  let debt;
+  if (typeof identifier === 'number') {
+    debt = appState.debts.find(d => d.id === identifier);
+  } else {
+    debt = appState.debts.find(d => d.person === identifier);
+  }
+  if (!debt) return;
+
+  const remaining = debt.totalAmount - debt.paidAmount;
+  const payAmount = amount ? Math.min(amount, remaining) : remaining;
 
   if (payAmount <= 0) {
     showToast("Ushbu qarz allaqachon to'liq to'langan!");
@@ -772,9 +1063,6 @@ window.handleQuickPay = function(personName, amount) {
   }
 
   debt.paidAmount += payAmount;
-  appState.activeDebtTotal -= payAmount;
-  if (appState.activeDebtTotal < 0) appState.activeDebtTotal = 0;
-
   if (debt.paidAmount >= debt.totalAmount) {
     debt.status = "To'liq yopildi";
   } else {
@@ -788,7 +1076,7 @@ window.handleQuickPay = function(personName, amount) {
   appState.transactions.unshift({
     id: Date.now(),
     type: "debt",
-    title: `Mikro qarz to'lovi: ${debt.person}`,
+    title: `Qarz to'lovi: ${debt.person}`,
     tag: "Qarz to'lovi",
     time: `Hozir • To'lov qilindi`,
     amount: -payAmount,
@@ -804,6 +1092,320 @@ window.handleQuickPay = function(personName, amount) {
 };
 
 // ==========================================
+// DAROMADLAR VA BAJARILGAN BUYURTMALAR LOGIKASI
+// ==========================================
+
+function calculateWorkDuration(startTime, endTime) {
+  if (!startTime || !endTime) {
+    return { hours: 0, minutes: 0, decimalHours: 0, text: "0 soat" };
+  }
+  const [sh, sm] = startTime.split(':').map(Number);
+  const [eh, em] = endTime.split(':').map(Number);
+  let startMin = sh * 60 + sm;
+  let endMin = eh * 60 + em;
+  if (endMin < startMin) {
+    // Ertasi kunga o'tgan ish (tungi)
+    endMin += 24 * 60;
+  }
+  const diff = endMin - startMin;
+  const hours = Math.floor(diff / 60);
+  const minutes = diff % 60;
+  const decimalHours = +(diff / 60).toFixed(2);
+  const text = `${hours} soat ${minutes > 0 ? minutes + " daqiqa" : "00 daqiqa"}`;
+  return { hours, minutes, decimalHours, text };
+}
+
+function updateWorkIncomeLivePreview() {
+  const startEl = document.getElementById('workIncomeStartTime');
+  const endEl = document.getElementById('workIncomeEndTime');
+  const ordersEl = document.getElementById('workIncomeOrders');
+  const amountEl = document.getElementById('workIncomeAmount');
+
+  if (!startEl || !endEl) return;
+
+  const startTime = startEl.value || "09:00";
+  const endTime = endEl.value || "18:00";
+  const orders = Number(ordersEl ? ordersEl.value : 0) || 0;
+  const amount = Number(amountEl ? amountEl.value : 0) || 0;
+
+  const duration = calculateWorkDuration(startTime, endTime);
+
+  const durationBanner = document.getElementById('workDurationText');
+  if (durationBanner) {
+    durationBanner.textContent = `${duration.text} ishlangan`;
+  }
+
+  setElText('liveIncomeTotalSum', formatSom(amount));
+  setElText('liveIncomeDuration', duration.text);
+
+  const perOrder = orders > 0 ? Math.round(amount / orders) : 0;
+  const perHour = duration.decimalHours > 0 ? Math.round(amount / duration.decimalHours) : 0;
+
+  setElText('liveIncomeOrderRate', formatSom(perOrder) + "/ta");
+  setElText('liveIncomeHourlyRate', formatSom(perHour) + "/s");
+}
+
+function resetWorkIncomeModal() {
+  const form = document.getElementById('workIncomeForm');
+  if (form) form.reset();
+  const editIdInput = document.getElementById('editWorkIncomeId');
+  if (editIdInput) editIdInput.value = '';
+
+  const dateInput = document.getElementById('workIncomeDate');
+  if (dateInput) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+  }
+  const startInput = document.getElementById('workIncomeStartTime');
+  if (startInput) startInput.value = "09:00";
+  const endInput = document.getElementById('workIncomeEndTime');
+  if (endInput) endInput.value = "18:00";
+
+  const titleEl = document.getElementById('workIncomeModalTitleText');
+  if (titleEl) titleEl.textContent = "Ish Vaqti va Daromad Kiritish";
+  const submitBtn = document.getElementById('workIncomeSubmitBtn');
+  if (submitBtn) submitBtn.textContent = "💾 Daromadni saqlash";
+
+  updateWorkIncomeLivePreview();
+}
+
+function initWorkIncomeForm() {
+  const form = document.getElementById('workIncomeForm');
+  if (!form) return;
+
+  const dateInput = document.getElementById('workIncomeDate');
+  const startInput = document.getElementById('workIncomeStartTime');
+  const endInput = document.getElementById('workIncomeEndTime');
+  const ordersInput = document.getElementById('workIncomeOrders');
+  const amountInput = document.getElementById('workIncomeAmount');
+
+  if (dateInput && !dateInput.value) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+  }
+
+  [startInput, endInput, ordersInput, amountInput].forEach(inp => {
+    if (inp) {
+      inp.addEventListener('input', updateWorkIncomeLivePreview);
+      inp.addEventListener('change', updateWorkIncomeLivePreview);
+    }
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const editId = document.getElementById('editWorkIncomeId').value;
+    const date = dateInput.value;
+    const startTime = startInput.value;
+    const endTime = endInput.value;
+    const orders = Number(ordersInput.value) || 0;
+    const amount = Number(amountInput.value) || 0;
+    const note = document.getElementById('workIncomeNote').value.trim();
+
+    if (amount <= 0) {
+      showToast("Iltimos, topilgan daromad summasini kiriting!");
+      return;
+    }
+
+    const duration = calculateWorkDuration(startTime, endTime);
+
+    if (editId) {
+      const item = (appState.workIncomes || []).find(i => i.id === Number(editId));
+      if (item) {
+        const diffAmount = amount - item.amount;
+        item.date = date;
+        item.startTime = startTime;
+        item.endTime = endTime;
+        item.durationHours = duration.decimalHours;
+        item.durationMinutes = duration.minutes;
+        item.durationText = duration.text;
+        item.ordersCount = orders;
+        item.amount = amount;
+        item.note = note;
+
+        appState.balance += diffAmount;
+        appState.monthlyIncome += diffAmount;
+        showToast("Daromad ma'lumotlari muvaffaqiyatli yangilandi!", 'success');
+      }
+    } else {
+      const newItem = {
+        id: Date.now(),
+        date,
+        startTime,
+        endTime,
+        durationHours: duration.decimalHours,
+        durationMinutes: duration.minutes,
+        durationText: duration.text,
+        ordersCount: orders,
+        amount,
+        note,
+        createdAt: Date.now()
+      };
+
+      if (!appState.workIncomes) appState.workIncomes = [];
+      appState.workIncomes.unshift(newItem);
+
+      appState.balance += amount;
+      appState.monthlyIncome += amount;
+
+      appState.transactions.unshift({
+        id: Date.now() + 1,
+        type: 'income',
+        title: `Ish daromadi (${orders} ta buyurtma)`,
+        tag: 'Ish daromadi',
+        time: `Bugun, ${startTime}—${endTime} • Qo'shildi`,
+        amount: amount,
+        icon: '💰',
+        color: 'var(--color-income)',
+        bg: 'rgba(16, 185, 129, 0.15)'
+      });
+
+      showToast(`+${formatSom(amount)} yangi ish daromadi saqlandi!`, 'success');
+    }
+
+    saveState();
+    renderAll();
+    closeAllModals();
+    resetWorkIncomeModal();
+    triggerHaptic('success');
+  });
+}
+
+function renderWorkIncomes() {
+  const container = document.getElementById('incomesListContainer');
+  if (!container) return;
+
+  const incomes = appState.workIncomes || [];
+
+  const totalAmount = incomes.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+  const totalOrders = incomes.reduce((sum, item) => sum + (Number(item.ordersCount) || 0), 0);
+  const totalHours = incomes.reduce((sum, item) => sum + (Number(item.durationHours) || 0), 0);
+  const avgPerHour = totalHours > 0 ? Math.round(totalAmount / totalHours) : 0;
+  const avgPerOrder = totalOrders > 0 ? Math.round(totalAmount / totalOrders) : 0;
+
+  setElText('heroTotalIncomeAmount', formatSom(totalAmount));
+  setElText('heroAvgPerOrder', formatSom(avgPerOrder));
+  setElText('heroAvgPerHour', formatSom(avgPerHour) + "/s");
+  setElText('incomeSessionsCount', `${incomes.length} ta ish kuni`);
+
+  setElText('kpiTotalIncome', formatSom(totalAmount));
+  setElText('kpiTotalOrders', `${totalOrders} ta`);
+  setElText('kpiTotalHours', `${totalHours.toFixed(1)} soat`);
+  setElText('kpiAvgHourlyRate', formatSom(avgPerHour) + "/s");
+  setElText('incomesStreamCountBadge', `${incomes.length} ta yozuv`);
+
+  if (incomes.length === 0) {
+    container.innerHTML = `
+      <div class="empty-incomes-box">
+        <div style="font-size: 2rem; margin-bottom: 8px;">💰</div>
+        Hozircha kiritilgan ish daromadlari yo'q.<br>
+        <strong>"+ Daromad kiritish"</strong> tugmasini bosib birinchi daromadni kiriting!
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = incomes.map(item => {
+    const rateHour = item.durationHours > 0 ? Math.round(item.amount / item.durationHours) : 0;
+    const rateOrder = item.ordersCount > 0 ? Math.round(item.amount / item.ordersCount) : 0;
+
+    return `
+      <div class="income-work-card" id="income-item-${item.id}">
+        <div class="income-card-left">
+          <div class="income-card-date">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span>${item.date}</span>
+          </div>
+          <div class="income-card-time">
+            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span>${item.startTime} — ${item.endTime} (${item.durationText || (item.durationHours + ' soat')})</span>
+          </div>
+        </div>
+
+        <div class="income-card-center">
+          <span class="income-pill-badge income-pill-orders">📦 ${item.ordersCount} ta buyurtma</span>
+          ${rateHour > 0 ? `<span class="income-pill-badge income-pill-rate">⚡ ${formatSom(rateHour)}/s</span>` : ''}
+          ${rateOrder > 0 ? `<span class="income-pill-badge income-pill-rate">🎯 ${formatSom(rateOrder)}/ta</span>` : ''}
+          ${item.note ? `<span class="income-pill-badge" style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">💬 ${item.note}</span>` : ''}
+        </div>
+
+        <div class="income-card-right">
+          <div class="income-card-amount">+${formatSom(item.amount)}</div>
+          <div class="income-card-actions">
+            <button class="btn-icon-action" onclick="editWorkIncome(${item.id})" title="Tahrirlash">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
+            <button class="btn-icon-action delete" onclick="deleteWorkIncome(${item.id})" title="O'chirish">
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.editWorkIncome = function(id) {
+  const item = (appState.workIncomes || []).find(i => i.id === id);
+  if (!item) return;
+
+  document.getElementById('editWorkIncomeId').value = item.id;
+  document.getElementById('workIncomeDate').value = item.date;
+  document.getElementById('workIncomeStartTime').value = item.startTime;
+  document.getElementById('workIncomeEndTime').value = item.endTime;
+  document.getElementById('workIncomeOrders').value = item.ordersCount;
+  document.getElementById('workIncomeAmount').value = item.amount;
+  document.getElementById('workIncomeNote').value = item.note || '';
+
+  document.getElementById('workIncomeModalTitleText').textContent = "Daromadni Tahrirlash";
+  document.getElementById('workIncomeSubmitBtn').textContent = "O'zgarishlarni saqlash";
+
+  updateWorkIncomeLivePreview();
+  openModal(document.getElementById('workIncomeModal'));
+};
+
+window.deleteWorkIncome = function(id) {
+  const index = (appState.workIncomes || []).findIndex(i => i.id === id);
+  if (index === -1) return;
+
+  const item = appState.workIncomes[index];
+
+  appTrash.unshift({
+    id: Date.now(),
+    type: 'work_income',
+    title: `Ish daromadi: +${formatSom(item.amount)} (${item.ordersCount} ta buyurtma)`,
+    deletedAt: Date.now(),
+    expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000),
+    data: item
+  });
+  saveTrash();
+
+  appState.balance -= item.amount;
+  if (appState.balance < 0) appState.balance = 0;
+  appState.monthlyIncome -= item.amount;
+  if (appState.monthlyIncome < 0) appState.monthlyIncome = 0;
+
+  appState.workIncomes.splice(index, 1);
+  saveState();
+  renderAll();
+  triggerHaptic('warning');
+  showToast("Daromad yozuvi Chiqindi qutisiga ko'chirildi (1 hafta saqlanadi)!", 'danger');
+};
+
+// ==========================================
 // UI NI CHIZISH (RENDER)
 // ==========================================
 
@@ -812,7 +1414,31 @@ function renderAll() {
   document.getElementById('balanceDisplay').textContent = formatSom(appState.balance);
   document.getElementById('totalIncomeDisplay').textContent = formatSom(appState.monthlyIncome);
   document.getElementById('totalExpenseDisplay').textContent = formatSom(appState.monthlyExpense);
-  document.getElementById('totalDebtDisplay').textContent = formatSom(appState.activeDebtTotal);
+
+  // Qarzlar qoldig'i (berilgan va olingan)
+  const lentRemaining = appState.debts
+    .filter(d => (d.direction === 'lent') && (d.totalAmount > d.paidAmount))
+    .reduce((sum, d) => sum + (d.totalAmount - d.paidAmount), 0);
+  const borrowedRemaining = appState.debts
+    .filter(d => (d.direction !== 'lent') && (d.totalAmount > d.paidAmount))
+    .reduce((sum, d) => sum + (d.totalAmount - d.paidAmount), 0);
+  appState.activeDebtTotal = lentRemaining + borrowedRemaining;
+
+  const totalDebtEl = document.getElementById('totalDebtDisplay');
+  if (totalDebtEl) totalDebtEl.textContent = formatSom(appState.activeDebtTotal);
+  
+  const debtSubEl = document.getElementById('activeDebtSubText');
+  if (debtSubEl) {
+    if (lentRemaining > 0 && borrowedRemaining > 0) {
+      debtSubEl.textContent = `🤝 Berilgan: ${formatSom(lentRemaining)} • 📥 Olingan: ${formatSom(borrowedRemaining)}`;
+    } else if (lentRemaining > 0) {
+      debtSubEl.textContent = `🤝 Yaqinlarga: ${formatSom(lentRemaining)}`;
+    } else if (borrowedRemaining > 0) {
+      debtSubEl.textContent = `📥 Qarz olingan: ${formatSom(borrowedRemaining)}`;
+    } else {
+      debtSubEl.textContent = "Barcha qarzlar yopilgan";
+    }
+  }
 
   // 2. Kategoriya kartochkalari (Alifbo bo'yicha)
   document.getElementById('sumSocial').textContent = formatSom(appState.categories.social);
@@ -862,7 +1488,10 @@ function renderAll() {
   // 4. Tranzaksiyalar ro'yxati
   renderTransactions();
 
-  // 5. Korzina badge
+  // 5. Ish va daromadlar ro'yxati
+  renderWorkIncomes();
+
+  // 6. Korzina badge
   updateTrashBadge();
 }
 
@@ -906,46 +1535,85 @@ function updateDonutVisual(sPct, fPct, dPct, txPct, trPct, cPct) {
   }
 }
 
-function renderDebts() {
+function renderDebts(filter = currentDebtFilter) {
   const container = document.getElementById('debtListContainer');
   const countBadge = document.getElementById('activeDebtCount');
-  
-  const activeDebts = appState.debts.filter(d => d.paidAmount < d.totalAmount);
-  countBadge.textContent = `${activeDebts.length} ta faol qarz`;
+  if (!container) return;
 
-  if (appState.debts.length === 0) {
-    container.innerHTML = `<div style="text-align: center; padding: 24px; color: var(--text-muted);">Qarzlar mavjud emas 🎉</div>`;
+  const activeDebts = appState.debts.filter(d => d.paidAmount < d.totalAmount);
+  if (countBadge) {
+    countBadge.textContent = `${activeDebts.length} ta faol`;
+  }
+
+  let list = appState.debts;
+  if (filter === 'lent') {
+    list = appState.debts.filter(d => d.direction === 'lent');
+  } else if (filter === 'borrowed') {
+    list = appState.debts.filter(d => d.direction !== 'lent');
+  }
+
+  if (list.length === 0) {
+    const emptyMsg = filter === 'lent'
+      ? "Yaqinlarga berilgan qarzlar yo'q 🎉"
+      : (filter === 'borrowed' ? "Olingan qarzlar yo'q 🎉" : "Qarzlar va berilgan pullar mavjud emas 🎉");
+    container.innerHTML = `<div style="text-align: center; padding: 24px; color: var(--text-muted);">${emptyMsg}</div>`;
     return;
   }
 
-  container.innerHTML = appState.debts.map(debt => {
+  container.innerHTML = list.map(debt => {
+    const isLent = debt.direction === 'lent';
     const remaining = debt.totalAmount - debt.paidAmount;
     const isPaid = remaining <= 0;
+    const initial = (debt.person || "?").trim().charAt(0).toUpperCase() || (isLent ? "Y" : "Q");
     
+    const statusText = debt.status || (isPaid ? (isLent ? "To'liq qaytarildi" : "To'liq yopildi") : "Kutilmoqda");
+    const statusColor = isPaid ? 'var(--color-income)' : (isLent ? '#34d399' : 'var(--color-debt)');
+
+    const dateFormatted = debt.date ? debt.date : "Ko'rsatilmagan";
+    const noteText = debt.note && debt.note.trim() ? ` • 💬 Izoh: ${debt.note}` : '';
+    const dueText = debt.dueDate && debt.dueDate !== "Muddatsiz" ? ` • ⏳ Qaytarish: ${debt.dueDate}` : '';
+
     return `
-      <div class="debt-card" style="${isPaid ? 'opacity: 0.6;' : ''}">
-        <div class="debt-avatar">${debt.avatar}</div>
+      <div class="debt-card ${isLent ? 'lent' : 'borrowed'}" style="${isPaid ? 'opacity: 0.6;' : ''}">
+        <div class="debt-avatar" style="${isLent ? 'background: rgba(16, 185, 129, 0.18); color: #34d399;' : ''}">${debt.avatar || initial}</div>
         <div class="debt-meta">
           <div class="debt-person">
             ${debt.person}
-            <span class="pill-badge" style="${isPaid ? 'color: var(--color-income);' : ''}">${debt.status}</span>
+            <span class="pill-badge" style="color: ${statusColor};">
+              ${isLent ? '🤝 Berildi' : '📥 Olindi'}: ${statusText}
+            </span>
           </div>
-          <div class="debt-note">${debt.note} • Muddat: ${debt.dueDate}</div>
+          <div class="debt-note">
+            📅 ${isLent ? 'Berilgan sana' : 'Sana'}: <strong>${dateFormatted}</strong>${noteText}${dueText}
+          </div>
         </div>
         <div class="debt-figures">
-          <div class="debt-remain" style="${isPaid ? 'color: var(--color-income);' : ''}">${isPaid ? '0 so\'m' : formatSom(remaining)}</div>
-          <div class="debt-total-sub">Jami: ${formatSom(debt.totalAmount)} ${debt.paidAmount > 0 ? `(${formatSom(debt.paidAmount)} to'langan)` : ''}</div>
+          <div class="debt-remain" style="${isPaid ? 'color: var(--color-income);' : (isLent ? 'color: #34d399;' : '')}">
+            ${isPaid ? '0 so\'m' : formatSom(remaining)}
+          </div>
+          <div class="debt-total-sub">
+            Jami: ${formatSom(debt.totalAmount)} ${debt.paidAmount > 0 ? `(${formatSom(debt.paidAmount)} ${isLent ? 'qaytarildi' : 'to\'langan'})` : ''}
+          </div>
         </div>
         <div class="debt-actions">
-          ${!isPaid ? `
-            <button class="btn-pay" onclick="handleQuickPay('${debt.person.replace(/'/g, "\\'")}', ${remaining})">
-              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              To'lov qildim
-            </button>
-          ` : `
-            <span style="font-size: 0.8rem; color: var(--color-income); font-weight: 700; align-self: center;">Yopildi ✓</span>
+          ${!isPaid ? (
+            isLent ? `
+              <button class="btn-repay-collected" onclick="handleReceiveRepayment(${debt.id})" title="Yaqiningiz pulni qaytarganda bosing">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Pulni qaytardi
+              </button>
+            ` : `
+              <button class="btn-pay" onclick="handleQuickPay(${debt.id}, ${remaining})">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2.5" fill="none">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                To'lov qildim
+              </button>
+            `
+          ) : `
+            <span style="font-size: 0.8rem; color: var(--color-income); font-weight: 700; align-self: center;">${isLent ? 'Qaytarildi ✓' : 'Yopildi ✓'}</span>
           `}
           <button class="btn-sm" style="color: #fb7185; border-color: rgba(244,63,94,0.3); padding: 8px 10px;" onclick="deleteSingleDebt(${debt.id})" title="Chiqindiga tashlash">
             🗑️
@@ -1001,6 +1669,16 @@ function initFilters() {
       filterTabs.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       renderTransactions(btn.getAttribute('data-filter'));
+    });
+  });
+
+  const debtFilterBtns = document.querySelectorAll('#debtFilterTabs .debt-filter-btn');
+  debtFilterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      debtFilterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentDebtFilter = btn.getAttribute('data-debt-filter') || 'all';
+      renderDebts(currentDebtFilter);
     });
   });
 }
@@ -1193,22 +1871,25 @@ function initMobileBottomBar() {
   const debtModal = document.getElementById('debtModal');
 
   const mobileExpBtn = document.getElementById('mobileExpBtn');
-  const mobileIncBtn = document.getElementById('mobileIncBtn');
+  const mobileIncomeBtn = document.getElementById('mobileIncomeBtn') || document.getElementById('mobileIncBtn');
   const mobileDebtBtn = document.getElementById('mobileDebtBtn');
   const mobileCalcBtn = document.getElementById('mobileCalcBtn');
   const mobileTopBtn = document.getElementById('mobileTopBtn');
 
+  if (mobileIncomeBtn) {
+    mobileIncomeBtn.addEventListener('click', () => {
+      triggerHaptic('light');
+      resetWorkIncomeModal();
+      openModal(document.getElementById('workIncomeModal'));
+    });
+  }
+
   if (mobileExpBtn) {
     mobileExpBtn.addEventListener('click', () => {
       triggerHaptic('light');
-      document.getElementById('customCatGroup').style.display = 'none';
+      const customGroup = document.getElementById('customCatGroup');
+      if (customGroup) customGroup.style.display = 'none';
       openModal(expenseModal);
-    });
-  }
-  if (mobileIncBtn) {
-    mobileIncBtn.addEventListener('click', () => {
-      triggerHaptic('light');
-      openModal(incomeModal);
     });
   }
   if (mobileDebtBtn) {

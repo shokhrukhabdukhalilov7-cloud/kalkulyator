@@ -811,6 +811,101 @@ body {
   transform: scale(1.03);
 }
 
+/* Debt Direction Selector & Repay Styles */
+.debt-type-selector {
+  display: flex;
+  gap: 8px;
+  background: var(--bg-surface-elevated);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 6px;
+}
+
+.debt-type-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  user-select: none;
+}
+
+.debt-type-option input {
+  display: none;
+}
+
+.debt-type-option.active {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  font-weight: 700;
+}
+
+.btn-repay-collected {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+.btn-repay-collected:hover {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+  transform: scale(1.03);
+}
+
+.debt-card.lent {
+  border-left: 3px solid #10b981;
+}
+
+.debt-card.borrowed {
+  border-left: 3px solid var(--color-debt);
+}
+
+.debt-filter-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  overflow-x: auto;
+}
+
+.debt-filter-btn {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+}
+
+.debt-filter-btn.active {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
+  color: #fbbf24;
+  font-weight: 700;
+}
+
 /* Transactions Stream */
 .transactions-list {
   display: flex;
@@ -1468,6 +1563,416 @@ body {
 /* Mobile Bottom Navigation Bar (Hidden on PC / Desktop) */
 .mobile-bottom-bar {
   display: none;
+}
+
+/* ========================================================
+   DAROMADLAR & BAJARILGAN BUYURTMALAR BO'LIMI
+   ======================================================== */
+
+.income-hero-card {
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.05) 0%, var(--bg-surface-card) 25%);
+  position: relative;
+}
+
+.heading-icon-badge.income-badge {
+  background: rgba(16, 185, 129, 0.16);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.income-hero-box {
+  background: var(--bg-surface-elevated);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.income-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.income-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.income-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.income-badge-pill {
+  padding: 4px 12px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 20px;
+}
+
+.income-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.income-sum-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.income-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.income-big-sum {
+  font-size: clamp(1.8rem, 4.5vw, 2.5rem);
+  font-weight: 900;
+  font-family: var(--font-mono);
+  color: #10b981;
+  letter-spacing: -0.03em;
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+}
+
+.income-meta-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.income-meta-info strong {
+  color: var(--text-main);
+}
+
+.income-actions-col {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.income-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.income-kpi-tile {
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: var(--transition);
+}
+
+.income-kpi-tile:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.income-kpi-tile .kpi-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.income-kpi-tile .kpi-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.income-kpi-tile .kpi-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.income-kpi-tile .kpi-lbl {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* Incomes Stream List */
+.incomes-stream-wrapper {
+  margin-top: 16px;
+}
+
+.incomes-stream-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.incomes-stream-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.incomes-stream-title svg {
+  color: #10b981;
+}
+
+.incomes-stream-count {
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.incomes-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.income-work-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: var(--transition);
+}
+
+.income-work-card:hover {
+  border-color: rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.income-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.income-card-date {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.income-card-time {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.income-card-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.income-pill-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.income-pill-orders {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+}
+
+.income-pill-rate {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+
+.income-card-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.income-card-amount {
+  font-size: 1.18rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: #10b981;
+  white-space: nowrap;
+}
+
+.income-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-icon-action {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.btn-icon-action:hover {
+  background: var(--bg-surface-elevated);
+  color: var(--text-main);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.btn-icon-action.delete:hover {
+  background: rgba(244, 63, 94, 0.2);
+  color: #fb7185;
+  border-color: #f43f5e;
+}
+
+/* Duration Indicator in Modal */
+.work-duration-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-md);
+}
+
+.work-duration-indicator .indicator-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.work-duration-indicator .indicator-duration {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #34d399;
+}
+
+.work-duration-indicator .indicator-rule {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+/* Modal Live Preview Pills */
+.income-live-preview {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.income-live-preview .live-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.income-live-preview .live-pill strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: #10b981;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.empty-incomes-box {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  background: var(--bg-surface-elevated);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-subtle);
 }
 
 /* ========================================================
