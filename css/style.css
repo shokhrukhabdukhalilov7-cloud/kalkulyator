@@ -890,6 +890,110 @@ body {
   font-weight: 700;
 }
 
+/* Payment Method Selector (Karta / Naqd) */
+.payment-method-selector {
+  margin-bottom: 4px;
+}
+
+.payment-method-selector .debt-type-option {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  transition: var(--transition);
+}
+
+.payment-method-selector #debtMethodCardOption.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.25);
+}
+
+.payment-method-selector #debtMethodCashOption.active {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+}
+
+/* Badges for Card and Cash in Debt List & History */
+.pill-card {
+  background: rgba(59, 130, 246, 0.15) !important;
+  color: #60a5fa !important;
+  border: 1px solid rgba(59, 130, 246, 0.35) !important;
+  font-weight: 700;
+}
+
+.pill-cash {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+  font-weight: 700;
+}
+
+.debt-paytype-tag {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+/* Date Display Hint & Quick Chips */
+.date-display-hint {
+  font-size: 0.8rem;
+  color: var(--brand-primary);
+  margin-top: 5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(99, 102, 241, 0.08);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed rgba(99, 102, 241, 0.25);
+}
+
+.quick-date-chips {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-date-chip {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-date-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+}
+
+.btn-date-chip.active {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+.income-duration-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.74rem;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
 .btn-repay-collected {
   background: rgba(16, 185, 129, 0.15);
   color: #34d399;
@@ -1976,11 +2080,11 @@ body {
   color: var(--text-secondary);
 }
 
-/* Modal Live Preview Pills (3 ta ko'rsatkich: Jami, Buyurtmalar, 1 buyurtmaga) */
+/* Modal Live Preview Pills (4 ta ko'rsatkich: Jami, Buyurtmalar, 1 buyurtmaga, Ish vaqti) */
 .income-live-preview {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
   padding: 12px;
   background: var(--bg-input);
   border-radius: var(--radius-md);

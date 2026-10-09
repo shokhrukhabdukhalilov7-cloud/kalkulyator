@@ -23,6 +23,7 @@ const defaultState = {
       id: 1,
       date: "2026-10-08",
       startTime: "09:00",
+      endTime: "18:00",
       ordersCount: 16,
       amount: 380000,
       note: "Kunduzgi faoliyat"
@@ -31,6 +32,7 @@ const defaultState = {
       id: 2,
       date: "2026-10-07",
       startTime: "10:00",
+      endTime: "19:30",
       ordersCount: 18,
       amount: 420000,
       note: "Faol kun"
@@ -39,6 +41,7 @@ const defaultState = {
       id: 3,
       date: "2026-10-06",
       startTime: "12:00",
+      endTime: "21:00",
       ordersCount: 14,
       amount: 320000,
       note: "Standart ish kuni"
@@ -48,6 +51,7 @@ const defaultState = {
     {
       id: 1,
       direction: 'lent',
+      paymentMethod: 'card',
       person: "Akmalbek (Do'stim)",
       avatar: "A",
       date: "2026-10-06",
@@ -60,6 +64,7 @@ const defaultState = {
     {
       id: 2,
       direction: 'lent',
+      paymentMethod: 'cash',
       person: "Anvar aka (Qarindosh)",
       avatar: "A",
       date: "2026-10-05",
@@ -72,6 +77,7 @@ const defaultState = {
     {
       id: 3,
       direction: 'borrowed',
+      paymentMethod: 'cash',
       person: "Mahalla do'koni",
       avatar: "M",
       date: "2026-10-04",
@@ -176,6 +182,15 @@ function loadState() {
       }
       if (!parsed.workIncomes) {
         parsed.workIncomes = JSON.parse(JSON.stringify(defaultState.workIncomes));
+      } else {
+        parsed.workIncomes.forEach(w => {
+          if (!w.endTime) w.endTime = "18:00";
+        });
+      }
+      if (parsed.debts) {
+        parsed.debts.forEach(d => {
+          if (!d.paymentMethod) d.paymentMethod = (d.direction === 'lent' ? 'card' : 'cash');
+        });
       }
       return parsed;
     } catch (e) {
@@ -238,6 +253,136 @@ function getRemainingDaysStr(expiresAt) {
 
 function formatSom(amount) {
   return new Intl.NumberFormat('uz-UZ').format(amount || 0) + " so'm";
+}
+
+// O'zbekcha sana formati: Kun, Oy, Yil (masalan: 09-Oktabr, 2026-yil)
+function formatDateUz(dateStr) {
+  if (!dateStr || dateStr === "Ko'rsatilmagan" || dateStr === "Muddatsiz") return dateStr || "Ko'rsatilmagan";
+  
+  const monthsUz = [
+    'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun',
+    'Iyul', 'Avgust', 'Sentabr', 'Oktabr', 'Noyabr', 'Dekabr'
+  ];
+  for (const mName of monthsUz) {
+    if (dateStr.includes(mName)) return dateStr;
+  }
+
+  const parts = dateStr.split(/[-/.]/);
+  if (parts.length === 3) {
+    let y, m, d;
+    if (parts[0].length === 4) {
+      // YYYY-MM-DD
+      y = parts[0];
+      m = parseInt(parts[1], 10);
+      d = parts[2].padStart(2, '0');
+    } else if (parts[2].length === 4) {
+      // DD-MM-YYYY
+      d = parts[0].padStart(2, '0');
+      m = parseInt(parts[1], 10);
+      y = parts[2];
+    } else {
+      return dateStr;
+    }
+
+    if (m >= 1 && m <= 12) {
+      const monthName = monthsUz[m - 1];
+      return `${d}-${monthName}, ${y}-yil`;
+    }
+  }
+  return dateStr;
+}
+
+// Ish davomiyligini hisoblash (Boshlanish va Tugash soatlaridan)
+function calculateWorkDuration(startTime, endTime) {
+  if (!startTime || !endTime) return '9 soat';
+  const sParts = startTime.split(':').map(Number);
+  const eParts = endTime.split(':').map(Number);
+  if (sParts.length < 2 || eParts.length < 2) return '';
+
+  let startMinutes = sParts[0] * 60 + sParts[1];
+  let endMinutes = eParts[0] * 60 + eParts[1];
+  if (endMinutes < startMinutes) {
+    endMinutes += 24 * 60; // Tungi smena yarim kechadan o'tgan
+  }
+  const diffMinutes = endMinutes - startMinutes;
+  const hours = Math.floor(diffMinutes / 60);
+  const mins = diffMinutes % 60;
+  if (hours === 0 && mins === 0) return '0 daqiqa';
+  let res = '';
+  if (hours > 0) res += `${hours} soat`;
+  if (mins > 0) res += ` ${mins} daq`;
+  return res.trim();
+}
+
+// Sana kiritish uchun interaktiv yordamchi (Kun, Oy, Yil ko'rsatish va Bugun/Kecha tugmalari)
+function setupDateInputEnhancements(dateInputId, hintId, todayBtnId, yesterdayBtnId) {
+  const dateInput = document.getElementById(dateInputId);
+  const hintEl = document.getElementById(hintId);
+  const todayBtn = document.getElementById(todayBtnId);
+  const yesterdayBtn = document.getElementById(yesterdayBtnId);
+
+  function getTodayStr() {
+    const d = new Date();
+    return d.toISOString().split('T')[0];
+  }
+
+  function getYesterdayStr() {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    return d.toISOString().split('T')[0];
+  }
+
+  function updateHint() {
+    if (!dateInput || !hintEl) return;
+    const val = dateInput.value;
+    if (!val) {
+      hintEl.textContent = "📅 Sana tanlanmagan";
+      return;
+    }
+    const today = getTodayStr();
+    const yesterday = getYesterdayStr();
+    const formatted = formatDateUz(val);
+
+    let prefix = "📅 Tanlangan sana: ";
+    if (val === today) {
+      prefix = "📅 Bugun: ";
+      if (todayBtn) todayBtn.classList.add('active');
+      if (yesterdayBtn) yesterdayBtn.classList.remove('active');
+    } else if (val === yesterday) {
+      prefix = "📅 Kecha: ";
+      if (yesterdayBtn) yesterdayBtn.classList.add('active');
+      if (todayBtn) todayBtn.classList.remove('active');
+    } else {
+      if (todayBtn) todayBtn.classList.remove('active');
+      if (yesterdayBtn) yesterdayBtn.classList.remove('active');
+    }
+
+    hintEl.innerHTML = `${prefix}<strong>${formatted}</strong>`;
+  }
+
+  if (dateInput) {
+    dateInput.addEventListener('input', updateHint);
+    dateInput.addEventListener('change', updateHint);
+  }
+
+  if (todayBtn && dateInput) {
+    todayBtn.addEventListener('click', () => {
+      dateInput.value = getTodayStr();
+      updateHint();
+      triggerHaptic('light');
+    });
+  }
+
+  if (yesterdayBtn && dateInput) {
+    yesterdayBtn.addEventListener('click', () => {
+      dateInput.value = getYesterdayStr();
+      updateHint();
+      triggerHaptic('light');
+    });
+  }
+
+  updateHint();
+  return updateHint;
 }
 
 function showToast(message, type = 'success') {
@@ -598,7 +743,8 @@ function renderTrash() {
             <span class="trash-timer">⏳ ${timeLeft}</span>
           </div>
           <div class="trash-details">
-            <div><strong>Summa:</strong> ${formatSom(item.data.totalAmount)} (${item.data.note})</div>
+            <div><strong>Summa:</strong> ${formatSom(item.data.totalAmount)} • <strong>To'lov turi:</strong> ${item.data.paymentMethod === 'card' ? '💳 Karta' : '💵 Naqd'} • <strong>Sana:</strong> ${formatDateUz(item.data.date)}</div>
+            ${item.data.note ? `<div><strong>Izoh:</strong> ${item.data.note}</div>` : ''}
           </div>
           <div class="trash-card-footer">
             <button class="btn btn-sm btn-restore" onclick="restoreTrashItem(${item.id})">
@@ -622,7 +768,7 @@ function renderTrash() {
             <span class="trash-timer">⏳ ${timeLeft}</span>
           </div>
           <div class="trash-details">
-            <div><strong>Sana:</strong> ${d.date} • <strong>Boshlanish vaqti:</strong> ${d.startTime || '--:--'}</div>
+            <div><strong>Sana:</strong> ${formatDateUz(d.date)} • <strong>Ish vaqti:</strong> ${d.startTime || '--:--'} — ${d.endTime || '--:--'}</div>
             <div><strong>Buyurtmalar:</strong> ${d.ordersCount} ta • <strong>Daromad:</strong> +${formatSom(d.amount)}</div>
           </div>
           <div class="trash-card-footer">
@@ -865,6 +1011,7 @@ function initForms() {
     e.preventDefault();
     const direction = document.querySelector('input[name="debtDirection"]:checked')?.value || 'lent';
     const isLent = direction === 'lent';
+    const paymentMethod = document.querySelector('input[name="debtPaymentMethod"]:checked')?.value || 'card';
     const person = document.getElementById('debtPerson').value.trim();
     const dateVal = document.getElementById('debtDate').value || new Date().toISOString().split('T')[0];
     const amount = parseInt(document.getElementById('debtAmount').value, 10);
@@ -883,6 +1030,8 @@ function initForms() {
     }
 
     const formattedDueDate = dueDateVal ? dueDateVal : "Muddatsiz";
+    const paymentMethodTitle = paymentMethod === 'card' ? "Plastik karta" : "Naqd pul";
+    const methodIcon = paymentMethod === 'card' ? "💳" : "💵";
 
     if (affectBalance) {
       if (isLent) {
@@ -892,10 +1041,10 @@ function initForms() {
           id: Date.now(),
           type: "expense",
           title: `Yaqinga pul berildi: ${person}`,
-          tag: "Berilgan pul",
-          time: `Bugun • Pul berildi`,
+          tag: paymentMethodTitle,
+          time: `Bugun • ${paymentMethod === 'card' ? 'Kartadan' : 'Naqd'} berildi`,
           amount: -amount,
-          icon: "🤝",
+          icon: methodIcon,
           color: "var(--color-debt)",
           bg: "rgba(245, 158, 11, 0.15)"
         });
@@ -906,10 +1055,10 @@ function initForms() {
           id: Date.now(),
           type: "income",
           title: `Qarz olindi: ${person}`,
-          tag: "Olingan qarz",
-          time: `Bugun • Qarz olindi`,
+          tag: paymentMethodTitle,
+          time: `Bugun • ${paymentMethod === 'card' ? 'Kartaga' : 'Naqd'} olindi`,
           amount: amount,
-          icon: "📥",
+          icon: methodIcon,
           color: "var(--color-income)",
           bg: "rgba(16, 185, 129, 0.15)"
         });
@@ -919,6 +1068,7 @@ function initForms() {
     appState.debts.unshift({
       id: Date.now(),
       direction: direction,
+      paymentMethod: paymentMethod,
       person: person,
       avatar: person.charAt(0).toUpperCase() || (isLent ? "Y" : "Q"),
       date: dateVal,
@@ -936,9 +1086,9 @@ function initForms() {
     renderAll();
     triggerHaptic('success');
     if (isLent) {
-      showToast(`${person} ga ${formatSom(amount)} berilgan pul ro'yxatga olindi!`, 'success');
+      showToast(`${person} ga ${formatSom(amount)} (${paymentMethodTitle}) berilgan pul ro'yxatga olindi!`, 'success');
     } else {
-      showToast(`${person} dan ${formatSom(amount)} qarz ro'yxatga olindi!`, 'debt');
+      showToast(`${person} dan ${formatSom(amount)} (${paymentMethodTitle}) qarz ro'yxatga olindi!`, 'debt');
     }
   });
 
@@ -968,12 +1118,58 @@ function initForms() {
 
 let currentDebtFilter = 'all';
 
+function setDebtPaymentMethod(method = 'card') {
+  const cardOpt = document.getElementById('debtMethodCardOption');
+  const cashOpt = document.getElementById('debtMethodCashOption');
+  const cardRadio = document.querySelector('input[name="debtPaymentMethod"][value="card"]');
+  const cashRadio = document.querySelector('input[name="debtPaymentMethod"][value="cash"]');
+
+  if (method === 'card') {
+    if (cardOpt) cardOpt.classList.add('active');
+    if (cashOpt) cashOpt.classList.remove('active');
+    if (cardRadio) cardRadio.checked = true;
+  } else {
+    if (cashOpt) cashOpt.classList.add('active');
+    if (cardOpt) cardOpt.classList.remove('active');
+    if (cashRadio) cashRadio.checked = true;
+  }
+  updateDebtBalanceLabel();
+}
+
+function updateDebtBalanceLabel() {
+  const direction = document.querySelector('input[name="debtDirection"]:checked')?.value || 'lent';
+  const method = document.querySelector('input[name="debtPaymentMethod"]:checked')?.value || 'card';
+  const balanceLabel = document.getElementById('debtAffectBalanceLabel');
+  if (!balanceLabel) return;
+
+  const methodText = method === 'card' ? 'plastik kartadan' : 'naqd puldan';
+  const methodInText = method === 'card' ? 'plastik kartaga' : 'naqd pulga';
+
+  if (direction === 'lent') {
+    balanceLabel.textContent = `Joriy balansdan yechilsin (${methodText} pul berildi)`;
+  } else {
+    balanceLabel.textContent = `Joriy balansga qo'shilsin (${methodInText} pul olindi)`;
+  }
+}
+
+function updateDebtDueDateHint() {
+  const dueInput = document.getElementById('debtDueDate');
+  const dueHint = document.getElementById('debtDueDateDisplayHint');
+  if (!dueInput || !dueHint) return;
+  if (dueInput.value) {
+    dueHint.style.display = 'flex';
+    dueHint.innerHTML = `⏳ Qaytarish va'dasi: <strong>${formatDateUz(dueInput.value)}</strong>`;
+  } else {
+    dueHint.style.display = 'none';
+  }
+}
+
 function updateDebtModalType(type) {
   const lentOption = document.getElementById('debtTypeLentOption');
   const borrowedOption = document.getElementById('debtTypeBorrowedOption');
   const personLabel = document.getElementById('debtPersonLabel');
   const dateLabel = document.getElementById('debtDateLabel');
-  const balanceLabel = document.getElementById('debtAffectBalanceLabel');
+  const paymentMethodLabel = document.getElementById('debtPaymentMethodLabel');
   const personInput = document.getElementById('debtPerson');
   const submitBtn = document.getElementById('debtSubmitBtn');
   const modalTitle = document.getElementById('debtModalTitleText');
@@ -986,8 +1182,8 @@ function updateDebtModalType(type) {
     if (radio) radio.checked = true;
     if (personLabel) personLabel.textContent = "Kimga berildi (Ismi):";
     if (personInput) personInput.placeholder = "Masalan: Sardor, Akmalbek, Tog'am...";
-    if (dateLabel) dateLabel.textContent = "Berilgan sana:";
-    if (balanceLabel) balanceLabel.textContent = "Joriy balansdan yechilsin (pul berildi)";
+    if (dateLabel) dateLabel.textContent = "Berilgan sana (Kun, Oy, Yil):";
+    if (paymentMethodLabel) paymentMethodLabel.textContent = "Berish puli turi (Karta yoki Naqd):";
     if (submitBtn) submitBtn.textContent = "Yozib qo'yish";
   } else {
     if (modalTitle) modalTitle.textContent = "📥 Qarz Olish";
@@ -997,10 +1193,11 @@ function updateDebtModalType(type) {
     if (radio) radio.checked = true;
     if (personLabel) personLabel.textContent = "Kimdan olindi (Ismi yoki Do'kon):";
     if (personInput) personInput.placeholder = "Masalan: Mahalla do'koni, Akmal...";
-    if (dateLabel) dateLabel.textContent = "Olingan sana:";
-    if (balanceLabel) balanceLabel.textContent = "Joriy balansga qo'shilsin (pul olindi)";
+    if (dateLabel) dateLabel.textContent = "Olingan sana (Kun, Oy, Yil):";
+    if (paymentMethodLabel) paymentMethodLabel.textContent = "Qarz olingan shakl (Karta yoki Naqd):";
     if (submitBtn) submitBtn.textContent = "Qarzni saqlash";
   }
+  updateDebtBalanceLabel();
 }
 
 function prepareDebtModal(defaultType = 'lent') {
@@ -1009,17 +1206,49 @@ function prepareDebtModal(defaultType = 'lent') {
     dateInput.value = new Date().toISOString().split('T')[0];
   }
   updateDebtModalType(defaultType);
+  setDebtPaymentMethod('card');
+  const updateHint = setupDateInputEnhancements('debtDate', 'debtDateDisplayHint', 'debtDateTodayBtn', 'debtDateYesterdayBtn');
+  if (updateHint) updateHint();
+  updateDebtDueDateHint();
 }
 
 function setupDebtModalControls() {
   const lentOption = document.getElementById('debtTypeLentOption');
   const borrowedOption = document.getElementById('debtTypeBorrowedOption');
+  const cardOption = document.getElementById('debtMethodCardOption');
+  const cashOption = document.getElementById('debtMethodCashOption');
 
   if (lentOption) {
-    lentOption.addEventListener('click', () => updateDebtModalType('lent'));
+    lentOption.addEventListener('click', () => {
+      updateDebtModalType('lent');
+      triggerHaptic('light');
+    });
   }
   if (borrowedOption) {
-    borrowedOption.addEventListener('click', () => updateDebtModalType('borrowed'));
+    borrowedOption.addEventListener('click', () => {
+      updateDebtModalType('borrowed');
+      triggerHaptic('light');
+    });
+  }
+  if (cardOption) {
+    cardOption.addEventListener('click', () => {
+      setDebtPaymentMethod('card');
+      triggerHaptic('light');
+    });
+  }
+  if (cashOption) {
+    cashOption.addEventListener('click', () => {
+      setDebtPaymentMethod('cash');
+      triggerHaptic('light');
+    });
+  }
+
+  setupDateInputEnhancements('debtDate', 'debtDateDisplayHint', 'debtDateTodayBtn', 'debtDateYesterdayBtn');
+
+  const dueInput = document.getElementById('debtDueDate');
+  if (dueInput) {
+    dueInput.addEventListener('input', updateDebtDueDateHint);
+    dueInput.addEventListener('change', updateDebtDueDateHint);
   }
 }
 
@@ -1127,15 +1356,22 @@ window.handleQuickPay = function(identifier, amount) {
 function updateWorkIncomeLivePreview() {
   const ordersEl = document.getElementById('workIncomeOrders');
   const amountEl = document.getElementById('workIncomeAmount');
+  const startEl = document.getElementById('workIncomeStartTime');
+  const endEl = document.getElementById('workIncomeEndTime');
 
   const orders = Number(ordersEl ? ordersEl.value : 0) || 0;
   const amount = Number(amountEl ? amountEl.value : 0) || 0;
+  const startTime = (startEl && startEl.value) ? startEl.value : "09:00";
+  const endTime = (endEl && endEl.value) ? endEl.value : "18:00";
 
   setElText('liveIncomeTotalSum', formatSom(amount));
   setElText('liveIncomeOrdersCount', `${orders} ta`);
 
   const perOrder = orders > 0 ? Math.round(amount / orders) : 0;
   setElText('liveIncomeOrderRate', formatSom(perOrder) + "/ta");
+
+  const durationStr = calculateWorkDuration(startTime, endTime);
+  setElText('liveIncomeWorkDuration', `${durationStr} (${startTime} — ${endTime})`);
 }
 
 function resetWorkIncomeModal() {
@@ -1151,11 +1387,16 @@ function resetWorkIncomeModal() {
   }
   const startInput = document.getElementById('workIncomeStartTime');
   if (startInput) startInput.value = "09:00";
+  const endInput = document.getElementById('workIncomeEndTime');
+  if (endInput) endInput.value = "18:00";
 
   const titleEl = document.getElementById('workIncomeModalTitleText');
   if (titleEl) titleEl.textContent = "Daromad va Buyurtmalar Kiritish";
   const submitBtn = document.getElementById('workIncomeSubmitBtn');
   if (submitBtn) submitBtn.textContent = "💾 Daromadni saqlash";
+
+  const updateHint = setupDateInputEnhancements('workIncomeDate', 'workIncomeDateDisplayHint', 'workIncomeDateTodayBtn', 'workIncomeDateYesterdayBtn');
+  if (updateHint) updateHint();
 
   updateWorkIncomeLivePreview();
 }
@@ -1166,6 +1407,7 @@ function initWorkIncomeForm() {
 
   const dateInput = document.getElementById('workIncomeDate');
   const startInput = document.getElementById('workIncomeStartTime');
+  const endInput = document.getElementById('workIncomeEndTime');
   const ordersInput = document.getElementById('workIncomeOrders');
   const amountInput = document.getElementById('workIncomeAmount');
 
@@ -1174,7 +1416,9 @@ function initWorkIncomeForm() {
     dateInput.value = today;
   }
 
-  [ordersInput, amountInput].forEach(inp => {
+  setupDateInputEnhancements('workIncomeDate', 'workIncomeDateDisplayHint', 'workIncomeDateTodayBtn', 'workIncomeDateYesterdayBtn');
+
+  [ordersInput, amountInput, startInput, endInput].forEach(inp => {
     if (inp) {
       inp.addEventListener('input', updateWorkIncomeLivePreview);
       inp.addEventListener('change', updateWorkIncomeLivePreview);
@@ -1186,9 +1430,11 @@ function initWorkIncomeForm() {
     const editId = document.getElementById('editWorkIncomeId').value;
     const date = dateInput.value;
     const startTime = (startInput && startInput.value) ? startInput.value : "09:00";
+    const endTime = (endInput && endInput.value) ? endInput.value : "18:00";
     const orders = Number(ordersInput.value) || 0;
     const amount = Number(amountInput.value) || 0;
     const note = document.getElementById('workIncomeNote').value.trim();
+    const durationStr = calculateWorkDuration(startTime, endTime);
 
     if (amount <= 0) {
       showToast("Iltimos, topilgan daromad summasini kiriting!");
@@ -1201,6 +1447,7 @@ function initWorkIncomeForm() {
         const diffAmount = amount - item.amount;
         item.date = date;
         item.startTime = startTime;
+        item.endTime = endTime;
         item.ordersCount = orders;
         item.amount = amount;
         item.note = note;
@@ -1214,6 +1461,7 @@ function initWorkIncomeForm() {
         id: Date.now(),
         date,
         startTime,
+        endTime,
         ordersCount: orders,
         amount,
         note,
@@ -1231,7 +1479,7 @@ function initWorkIncomeForm() {
         type: 'income',
         title: `Ish daromadi (${orders} ta buyurtma)`,
         tag: 'Ish daromadi',
-        time: `Bugun, ${startTime} da boshlangan • Qo'shildi`,
+        time: `Bugun • ${startTime} — ${endTime} (${durationStr}) • Qo'shildi`,
         amount: amount,
         icon: '💰',
         color: 'var(--color-income)',
@@ -1284,6 +1532,8 @@ function renderWorkIncomes() {
 
   container.innerHTML = incomes.map(item => {
     const rateOrder = item.ordersCount > 0 ? Math.round(item.amount / item.ordersCount) : 0;
+    const formattedDate = formatDateUz(item.date);
+    const durationStr = calculateWorkDuration(item.startTime || '09:00', item.endTime || '18:00');
 
     return `
       <div class="income-work-card" id="income-item-${item.id}">
@@ -1295,14 +1545,15 @@ function renderWorkIncomes() {
               <line x1="8" y1="2" x2="8" y2="6"/>
               <line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
-            <span>${item.date}</span>
+            <span>${formattedDate}</span>
           </div>
           <div class="income-card-time">
             <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
               <circle cx="12" cy="12" r="10"/>
               <polyline points="12 6 12 12 16 14"/>
             </svg>
-            <span>Boshlanish: ${item.startTime || '--:--'}</span>
+            <span>⏰ ${item.startTime || '--:--'} — ${item.endTime || '--:--'}</span>
+            ${durationStr ? `<span class="income-duration-badge">⏱️ ${durationStr}</span>` : ''}
           </div>
         </div>
 
@@ -1340,13 +1591,19 @@ window.editWorkIncome = function(id) {
 
   document.getElementById('editWorkIncomeId').value = item.id;
   document.getElementById('workIncomeDate').value = item.date;
-  document.getElementById('workIncomeStartTime').value = item.startTime;
+  document.getElementById('workIncomeStartTime').value = item.startTime || "09:00";
+  document.getElementById('workIncomeEndTime').value = item.endTime || "18:00";
   document.getElementById('workIncomeOrders').value = item.ordersCount;
   document.getElementById('workIncomeAmount').value = item.amount;
   document.getElementById('workIncomeNote').value = item.note || '';
 
   document.getElementById('workIncomeModalTitleText').textContent = "Daromadni Tahrirlash";
   document.getElementById('workIncomeSubmitBtn').textContent = "O'zgarishlarni saqlash";
+
+  const hintEl = document.getElementById('workIncomeDateDisplayHint');
+  if (hintEl) {
+    hintEl.innerHTML = `📅 Tanlangan sana: <strong>${formatDateUz(item.date)}</strong>`;
+  }
 
   updateWorkIncomeLivePreview();
   openModal(document.getElementById('workIncomeModal'));
@@ -1505,7 +1762,8 @@ function updateDonutVisual(sPct, fPct, dPct, txPct, trPct, cPct) {
 
   const totalLabel = document.querySelector('.donut-total-val');
   if (totalLabel) {
-    const mln = (appState.monthlyExpense / 1000000).toFixed(2);
+    const valMln = appState.monthlyExpense / 1000000;
+    const mln = parseFloat(valMln.toFixed(2));
     totalLabel.textContent = `${mln} mln`;
   }
 }
@@ -1544,9 +1802,16 @@ function renderDebts(filter = currentDebtFilter) {
     const statusText = debt.status || (isPaid ? (isLent ? "To'liq qaytarildi" : "To'liq yopildi") : "Kutilmoqda");
     const statusColor = isPaid ? 'var(--color-income)' : (isLent ? '#34d399' : 'var(--color-debt)');
 
-    const dateFormatted = debt.date ? debt.date : "Ko'rsatilmagan";
+    const dateFormatted = debt.date ? formatDateUz(debt.date) : "Ko'rsatilmagan";
+    const paymentMethod = debt.paymentMethod || 'cash';
+    const isCard = paymentMethod === 'card';
+    const paymentBadge = isCard
+      ? '<span class="pill-badge pill-card">💳 Karta</span>'
+      : '<span class="pill-badge pill-cash">💵 Naqd</span>';
+    const paymentLabel = isCard ? 'Plastik karta' : 'Naqd pul';
+
     const noteText = debt.note && debt.note.trim() ? ` • 💬 Izoh: ${debt.note}` : '';
-    const dueText = debt.dueDate && debt.dueDate !== "Muddatsiz" ? ` • ⏳ Qaytarish: ${debt.dueDate}` : '';
+    const dueText = debt.dueDate && debt.dueDate !== "Muddatsiz" ? ` • ⏳ Qaytarish: <strong>${formatDateUz(debt.dueDate)}</strong>` : '';
 
     return `
       <div class="debt-card ${isLent ? 'lent' : 'borrowed'}" style="${isPaid ? 'opacity: 0.6;' : ''}">
@@ -1554,12 +1819,13 @@ function renderDebts(filter = currentDebtFilter) {
         <div class="debt-meta">
           <div class="debt-person">
             ${debt.person}
+            ${paymentBadge}
             <span class="pill-badge" style="color: ${statusColor};">
               ${isLent ? '🤝 Berildi' : '📥 Olindi'}: ${statusText}
             </span>
           </div>
           <div class="debt-note">
-            📅 ${isLent ? 'Berilgan sana' : 'Sana'}: <strong>${dateFormatted}</strong>${noteText}${dueText}
+            📅 ${isLent ? 'Berilgan sana' : 'Sana'}: <strong>${dateFormatted}</strong> • <span class="debt-paytype-tag">${paymentLabel}</span>${noteText}${dueText}
           </div>
         </div>
         <div class="debt-figures">
@@ -1666,6 +1932,17 @@ let calcMemory = '';
 let calcCurrentVal = '0';
 let calcWaitingForOperand = false;
 
+// Sonlarni telefon kalkulyatori kabi to'g'ri va aniq formatlash (qoldiq/kasr sonlar, ortiqcha 0 larsiz)
+function formatCalcResult(num) {
+  if (num === null || num === undefined || isNaN(num) || !isFinite(num)) {
+    return 'Xato';
+  }
+  // JavaScript suzuvchi nuqta xatolarini (0.1 + 0.2 = 0.30000000000000004) to'g'rilash
+  const precisionNum = Number(num.toPrecision(12));
+  const rounded = parseFloat(precisionNum.toFixed(8));
+  return String(rounded);
+}
+
 function flashCalcKey(key) {
   const btn = document.querySelector(`.calc-btn[data-key="${key}"]`);
   if (btn) {
@@ -1677,11 +1954,22 @@ function flashCalcKey(key) {
 window.calcNum = function(num) {
   triggerHaptic('light');
   flashCalcKey(String(num));
+
+  if (calcCurrentVal === 'Xato') {
+    calcCurrentVal = '0';
+  }
+
+  const strNum = String(num);
+
   if (calcWaitingForOperand) {
-    calcCurrentVal = String(num);
+    calcCurrentVal = strNum === '000' ? '0' : strNum;
     calcWaitingForOperand = false;
   } else {
-    calcCurrentVal = calcCurrentVal === '0' ? String(num) : calcCurrentVal + String(num);
+    if (calcCurrentVal === '0') {
+      calcCurrentVal = strNum === '000' ? '0' : strNum;
+    } else {
+      calcCurrentVal += strNum;
+    }
   }
   updateCalcDisplay();
 };
@@ -1689,6 +1977,12 @@ window.calcNum = function(num) {
 window.calcDot = function() {
   triggerHaptic('light');
   flashCalcKey('.');
+
+  if (calcCurrentVal === 'Xato') {
+    calcCurrentVal = '0';
+    calcWaitingForOperand = false;
+  }
+
   if (calcWaitingForOperand) {
     calcCurrentVal = '0.';
     calcWaitingForOperand = false;
@@ -1701,7 +1995,62 @@ window.calcDot = function() {
 window.calcOp = function(op) {
   triggerHaptic('light');
   flashCalcKey(op);
-  calcMemory = `${calcCurrentVal} ${op}`;
+
+  if (calcCurrentVal === 'Xato') {
+    calcCurrentVal = '0';
+    calcMemory = '';
+    calcWaitingForOperand = false;
+    updateCalcDisplay();
+    return;
+  }
+
+  // Foiz (%) amali telefon kalkulyatoridek darhol hisoblanadi
+  if (op === '%') {
+    if (calcMemory) {
+      const parts = calcMemory.trim().split(' ');
+      if (parts.length >= 2 && !isNaN(parts[0])) {
+        const base = parseFloat(parts[0]);
+        const current = parseFloat(calcCurrentVal) || 0;
+        const operator = parts[1];
+        if (operator === '+' || operator === '−' || operator === '-') {
+          calcCurrentVal = formatCalcResult((base * current) / 100);
+        } else {
+          calcCurrentVal = formatCalcResult(current / 100);
+        }
+      } else {
+        calcCurrentVal = formatCalcResult((parseFloat(calcCurrentVal) || 0) / 100);
+      }
+    } else {
+      calcCurrentVal = formatCalcResult((parseFloat(calcCurrentVal) || 0) / 100);
+    }
+    updateCalcDisplay();
+    return;
+  }
+
+  // Operator belgilarini chiroyli ko'rsatish
+  let displayOp = op;
+  if (op === '*') displayOp = '×';
+  else if (op === '/') displayOp = '÷';
+  else if (op === '-') displayOp = '−';
+
+  // Agar oldingi operatsiya bo'lsa va yangi son kiritilgan bo'lsa, zanjir bo'yicha oraliq natijani hisoblaymiz (telefondagidek)
+  if (calcMemory && !calcWaitingForOperand) {
+    try {
+      const expression = `${calcMemory} ${calcCurrentVal}`
+        .replace(/×/g, '*')
+        .replace(/÷/g, '/')
+        .replace(/−/g, '-');
+      const intermediate = Function(`'use strict'; return (${expression})`)();
+      calcCurrentVal = formatCalcResult(intermediate);
+    } catch (e) {
+      calcCurrentVal = 'Xato';
+      calcMemory = '';
+      updateCalcDisplay();
+      return;
+    }
+  }
+
+  calcMemory = `${calcCurrentVal} ${displayOp}`;
   calcWaitingForOperand = true;
   updateCalcDisplay();
 };
@@ -1709,15 +2058,32 @@ window.calcOp = function(op) {
 window.calcEquals = function() {
   triggerHaptic('light');
   flashCalcKey('Enter');
+
   if (!calcMemory) return;
+
   try {
-    const expression = `${calcMemory} ${calcCurrentVal}`.replace(/×/g, '*').replace(/÷/g, '/');
+    const expression = `${calcMemory} ${calcCurrentVal}`
+      .replace(/×/g, '*')
+      .replace(/÷/g, '/')
+      .replace(/−/g, '-');
+
+    // 0 ga bo'lish tekshiruvi
+    const cleanExpr = expression.replace(/\s+/g, '');
+    if (/\/0(?!\d|\.)/.test(cleanExpr)) {
+      calcCurrentVal = 'Xato';
+      calcMemory = '';
+      calcWaitingForOperand = true;
+      updateCalcDisplay();
+      return;
+    }
+
     const result = Function(`'use strict'; return (${expression})`)();
     calcMemory = '';
-    calcCurrentVal = String(Math.round(result));
+    calcCurrentVal = formatCalcResult(result);
     calcWaitingForOperand = true;
   } catch (e) {
     calcCurrentVal = 'Xato';
+    calcMemory = '';
   }
   updateCalcDisplay();
 };
@@ -1734,8 +2100,15 @@ window.calcClear = function() {
 window.calcBackspace = function() {
   triggerHaptic('light');
   flashCalcKey('Backspace');
-  if (calcCurrentVal.length > 1) {
+
+  if (calcCurrentVal === 'Xato' || calcWaitingForOperand) {
+    calcCurrentVal = '0';
+    calcWaitingForOperand = false;
+  } else if (calcCurrentVal.length > 1) {
     calcCurrentVal = calcCurrentVal.slice(0, -1);
+    if (calcCurrentVal === '-' || calcCurrentVal === '') {
+      calcCurrentVal = '0';
+    }
   } else {
     calcCurrentVal = '0';
   }
@@ -1743,13 +2116,15 @@ window.calcBackspace = function() {
 };
 
 function updateCalcDisplay() {
-  document.getElementById('calcCurrent').textContent = calcCurrentVal;
-  document.getElementById('calcPrev').textContent = calcMemory;
+  const currentEl = document.getElementById('calcCurrent');
+  const prevEl = document.getElementById('calcPrev');
+  if (currentEl) currentEl.textContent = calcCurrentVal;
+  if (prevEl) prevEl.textContent = calcMemory;
 }
 
 window.applyCalcToExpense = function(category) {
   triggerHaptic('light');
-  const val = parseInt(calcCurrentVal, 10);
+  const val = Math.round(parseFloat(calcCurrentVal));
   if (!val || isNaN(val) || val <= 0) {
     showToast("Kalkulyatorda to'g'ri summa hisoblang!", 'debt');
     return;

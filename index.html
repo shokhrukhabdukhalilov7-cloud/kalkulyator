@@ -228,7 +228,7 @@
               </div>
               <div>
                 <span>Daromadlar & Bajarilgan Buyurtmalar</span>
-                <div class="card-subheading">Ish boshlanish vaqti, sana, buyurtmalar hisobi va sof daromad</div>
+                <div class="card-subheading">Ish vaqti (boshlanish va tugash soatlari), sana, buyurtmalar hisobi va sof daromad</div>
               </div>
             </div>
             <button class="btn btn-income btn-sm" id="quickAddIncomeBtn">
@@ -495,7 +495,7 @@
           <div class="debt-highlight-banner">
             <div class="debt-banner-text">
               <h4>🤝 Qarz berish va Qarz olish hisobi</h4>
-              <p>Yaqinlaringizga pul berilganda yoki qarz olinganda sana, ism va summa bilan yozib qo'ying. Qaytarilganda <strong>"Pulni qaytardi"</strong> yoki <strong>"To'lov qildim"</strong> tugmasini bosing!</p>
+              <p>Yaqinlaringizga pul berilganda yoki qarz olinganda to'lov turi (karta yoki naqd), sana (kun, oy, yil), ism va summa bilan yozib qo'ying. Qaytarilganda <strong>"Pulni qaytardi"</strong> yoki <strong>"To'lov qildim"</strong> tugmasini bosing!</p>
             </div>
             <div class="debt-banner-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
               <button class="btn btn-lend" id="bannerLendBtn" style="padding: 8px 14px; font-size: 0.82rem;">
@@ -752,15 +752,28 @@
       <form class="modal-form" id="workIncomeForm">
         <input type="hidden" id="editWorkIncomeId" value="">
 
-        <!-- Sana va Ish boshlanish vaqti -->
+        <!-- Sana (Kun, Oy, Yil) -->
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label for="workIncomeDate" style="margin-bottom: 0;">Ish sanasi (Kun, Oy, Yil):</label>
+            <div class="quick-date-chips">
+              <button type="button" class="btn-date-chip active" id="workIncomeDateTodayBtn">Bugun</button>
+              <button type="button" class="btn-date-chip" id="workIncomeDateYesterdayBtn">Kecha</button>
+            </div>
+          </div>
+          <input type="date" class="form-input" id="workIncomeDate" required>
+          <div class="date-display-hint" id="workIncomeDateDisplayHint">📅 Tanlangan sana: Bugun</div>
+        </div>
+
+        <!-- Ish boshlanish va tugash soatlari -->
         <div class="form-row-2">
           <div class="form-group">
-            <label for="workIncomeDate">Ish sanasi va oyi:</label>
-            <input type="date" class="form-input" id="workIncomeDate" required>
+            <label for="workIncomeStartTime">⏰ Ish boshlangan soat:</label>
+            <input type="time" class="form-input" id="workIncomeStartTime" value="09:00" required>
           </div>
           <div class="form-group">
-            <label for="workIncomeStartTime">Ish boshlangan vaqt:</label>
-            <input type="time" class="form-input" id="workIncomeStartTime" value="09:00" required>
+            <label for="workIncomeEndTime">🏁 Ish tugagan soat:</label>
+            <input type="time" class="form-input" id="workIncomeEndTime" value="18:00" required>
           </div>
         </div>
 
@@ -795,6 +808,10 @@
           <div class="live-pill">
             <span>1 buyurtmaga o'rtacha:</span>
             <strong id="liveIncomeOrderRate">0 so'm/ta</strong>
+          </div>
+          <div class="live-pill">
+            <span>Ish davomiyligi:</span>
+            <strong id="liveIncomeWorkDuration">9 soat (09:00 - 18:00)</strong>
           </div>
         </div>
 
@@ -913,14 +930,36 @@
           </div>
         </div>
 
+        <!-- Berish puli / to'lov turi (Karta yoki Naqd) -->
+        <div class="form-group" id="debtPaymentMethodGroup">
+          <label id="debtPaymentMethodLabel">Berish puli turi (Karta yoki Naqd):</label>
+          <div class="debt-type-selector payment-method-selector" id="debtPaymentMethodSelector">
+            <label class="debt-type-option active" id="debtMethodCardOption">
+              <input type="radio" name="debtPaymentMethod" value="card" checked>
+              <span>💳 Plastik karta</span>
+            </label>
+            <label class="debt-type-option" id="debtMethodCashOption">
+              <input type="radio" name="debtPaymentMethod" value="cash">
+              <span>💵 Naqd pul</span>
+            </label>
+          </div>
+        </div>
+
         <div class="form-group">
           <label id="debtPersonLabel">Kimga berildi (Ismi):</label>
           <input type="text" class="form-input" id="debtPerson" placeholder="Masalan: Sardor, Akmalbek, Tog'am..." required>
         </div>
 
         <div class="form-group">
-          <label id="debtDateLabel">Berilgan sana:</label>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label id="debtDateLabel" for="debtDate" style="margin-bottom: 0;">Berilgan sana (Kun, Oy, Yil):</label>
+            <div class="quick-date-chips">
+              <button type="button" class="btn-date-chip active" id="debtDateTodayBtn">Bugun</button>
+              <button type="button" class="btn-date-chip" id="debtDateYesterdayBtn">Kecha</button>
+            </div>
+          </div>
           <input type="date" class="form-input" id="debtDate" required>
+          <div class="date-display-hint" id="debtDateDisplayHint">📅 Tanlangan sana: Bugun</div>
         </div>
 
         <div class="form-group">
@@ -934,8 +973,9 @@
         </div>
 
         <div class="form-group">
-          <label id="debtDueDateLabel">Qaytarish va'dasi / muddati (ixtiyoriy):</label>
+          <label id="debtDueDateLabel" for="debtDueDate">Qaytarish va'dasi / muddati (Kun, Oy, Yil - ixtiyoriy):</label>
           <input type="date" class="form-input" id="debtDueDate">
+          <div class="date-display-hint" id="debtDueDateDisplayHint" style="display: none;"></div>
         </div>
 
         <div class="form-group" id="debtAffectBalanceGroup" style="margin-top: 4px;">
