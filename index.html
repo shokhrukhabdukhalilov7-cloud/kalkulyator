@@ -18,10 +18,113 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981'><path d='M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z'/></svg>">
 </head>
 <body>
+  <!-- Drawer Backdrop Overlay & Drawer Panel (Gamburger Yon Menyu) -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <aside class="app-drawer" id="appDrawer" aria-label="Yon menyu">
+    <div class="drawer-header">
+      <div class="drawer-brand">
+        <div class="drawer-logo-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.2" fill="none">
+            <rect x="2" y="4" width="20" height="16" rx="3"/>
+            <path d="M2 10h20"/>
+            <circle cx="16" cy="15" r="1.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="drawer-title">Moliya Menejeri</h2>
+          <span class="drawer-version">v2.5 Pro Edition</span>
+        </div>
+      </div>
+      <button class="drawer-close-btn" id="drawerCloseBtn" onclick="closeDrawer()" title="Yopish">&times;</button>
+    </div>
+
+    <div class="drawer-body">
+      <div class="drawer-section-label">Asosiy sahifalar</div>
+      <div class="drawer-item drawer-nav-item active" data-tab="dashboard" onclick="switchTab('dashboard'); closeDrawer();">
+        <div class="drawer-item-icon">📊</div>
+        <div class="drawer-item-info">
+          <div class="drawer-item-title">Asosiy (Dashboard)</div>
+          <div class="drawer-item-desc">Balans, daromad va amaliyotlar</div>
+        </div>
+      </div>
+      <div class="drawer-item drawer-nav-item" data-tab="incomes" onclick="switchTab('incomes'); closeDrawer();">
+        <div class="drawer-item-icon">💰</div>
+        <div class="drawer-item-info">
+          <div class="drawer-item-title">Daromadlar</div>
+          <div class="drawer-item-desc">Haftalik daromad va kalendar</div>
+        </div>
+      </div>
+      <div class="drawer-item drawer-nav-item" data-tab="expenses" onclick="switchTab('expenses'); closeDrawer();">
+        <div class="drawer-item-icon">🛍️</div>
+        <div class="drawer-item-info">
+          <div class="drawer-item-title">Xarajatlar</div>
+          <div class="drawer-item-desc">Tahlil va nisbat diagrammasi</div>
+        </div>
+      </div>
+      <div class="drawer-item drawer-nav-item" data-tab="debts" onclick="switchTab('debts'); closeDrawer();">
+        <div class="drawer-item-icon">🤝</div>
+        <div class="drawer-item-info">
+          <div class="drawer-item-title">Qarzlar</div>
+          <div class="drawer-item-desc">Berilgan pullar va qarzlar</div>
+        </div>
+      </div>
+      <div class="drawer-item drawer-nav-item" data-tab="calculator" onclick="switchTab('calculator'); closeDrawer();">
+        <div class="drawer-item-icon">🧮</div>
+        <div class="drawer-item-info">
+          <div class="drawer-item-title">Kalkulyator</div>
+          <div class="drawer-item-desc">Tezkor hisob-kitob vidjeti</div>
+        </div>
+      </div>
+
+      <div class="drawer-section-label" style="margin-top: 10px;">Boshqaruv & Sozlamalar</div>
+      <div class="drawer-item" id="drawerThemeToggle" onclick="toggleThemeFromDrawer()">
+        <div class="drawer-item-icon" id="drawerThemeIcon">🌙</div>
+        <div class="drawer-item-info">
+          <div class="drawer-item-title">Mavzu almashtirish</div>
+          <div class="drawer-item-desc" id="drawerThemeText">Tungi / Kunduzgi rejim</div>
+        </div>
+      </div>
+      <div class="drawer-item" onclick="openTrashFromDrawer()">
+        <div class="drawer-item-icon">🗑️</div>
+        <div class="drawer-item-info">
+          <div class="drawer-item-title">Chiqindi qutisi (Korzina)</div>
+          <div class="drawer-item-desc">O'chirilgan yozuvlar (<span id="drawerTrashCountBadge">0</span> ta)</div>
+        </div>
+      </div>
+      <div class="drawer-item danger-item" onclick="openResetFromDrawer()">
+        <div class="drawer-item-icon">⚠️</div>
+        <div class="drawer-item-info">
+          <div class="drawer-item-title" style="color: #f87171;">Statistikani 0 ga tushirish</div>
+          <div class="drawer-item-desc">Barcha hisobni yangilash</div>
+        </div>
+      </div>
+      <div class="drawer-item" onclick="openAboutAppModal()">
+        <div class="drawer-item-icon">ℹ️</div>
+        <div class="drawer-item-info">
+          <div class="drawer-item-title">Ilova haqida</div>
+          <div class="drawer-item-desc">Dastur versiyasi va ma'lumot</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      © 2026 Moliya Menejeri • Shaxsiy byudjet tizimi
+    </div>
+  </aside>
+
   <div class="app-layout">
     <!-- Header Section -->
     <header class="app-header">
       <div class="brand-section">
+        <!-- 3 ta nuqta Menyu Tugmasi (Sidebar Toggle) -->
+        <button class="hamburger-btn" id="drawerToggleBtn" type="button" title="Menyuni ochish (3 ta nuqta)" aria-label="Yon menyuni ochish" onclick="toggleDrawer(event)">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <circle cx="12" cy="5" r="2.3"/>
+            <circle cx="12" cy="12" r="2.3"/>
+            <circle cx="12" cy="19" r="2.3"/>
+          </svg>
+        </button>
+
         <div class="brand-logo-icon">
           <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.2" fill="none">
             <rect x="2" y="4" width="20" height="16" rx="3"/>
@@ -30,7 +133,10 @@
           </svg>
         </div>
         <div class="brand-info">
-          <h1>Hisob-Kitob & Daromadlar</h1>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h1>Hisob-Kitob & Daromadlar</h1>
+            <span class="active-tab-badge" id="currentTabBadge">Asosiy</span>
+          </div>
           <p>Kundalik ish daromadlari, buyurtmalar va xarajatlar balansi</p>
         </div>
       </div>
@@ -45,482 +151,166 @@
           </svg>
           <span id="dateText">Bugun, 8-Oktabr</span>
         </div>
-
-        <button class="btn btn-trash" id="openTrashModalBtn" title="Chiqindi qutisi (Korzina)">
-          <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" stroke-width="2" fill="none">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-          </svg>
-          Korzina <span class="trash-badge" id="trashCountBadge">0</span>
-        </button>
-
-        <button class="icon-btn" id="themeToggleBtn" title="Mavzuni almashtirish">
-          <svg id="themeIcon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
-            <circle cx="12" cy="12" r="5"/>
-            <line x1="12" y1="1" x2="12" y2="3"/>
-            <line x1="12" y1="21" x2="12" y2="23"/>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-            <line x1="1" y1="12" x2="3" y2="12"/>
-            <line x1="21" y1="12" x2="23" y2="12"/>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-        </button>
       </div>
     </header>
 
-    <!-- Quick Action Bar (6 ta asosiy menyu funksiyalari) -->
-    <div class="action-bar">
-      <div class="action-buttons-group">
-        <!-- 1. Daromadlar -->
-        <button class="btn btn-income" id="openWorkIncomeModalBtn" title="Daromadlarni kiritish va ko'rish">
-          <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3" fill="none">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Daromadlar
-        </button>
-
-        <!-- 2. Xarajatlar -->
-        <button class="btn btn-expense" id="openExpenseModalBtn" title="Yangi xarajat kiritish">
-          <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" fill="none">
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Xarajatlar
-        </button>
-
-        <!-- 3. Qarz berish -->
-        <button class="btn btn-lend" id="openLendModalBtn" title="Qarz berish (Yaqinlarga berilgan pul)">
-          <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3" fill="none">
-            <path d="M17 18a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10z"/>
-            <polyline points="15 11 12 8 9 11"/>
-            <line x1="12" y1="8" x2="12" y2="16"/>
-          </svg>
-          Qarz berish
-        </button>
-
-        <!-- 4. Qarz olish -->
-        <button class="btn btn-borrow" id="openBorrowModalBtn" title="Qarz olish (Olingan qarz)">
-          <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3" fill="none">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="9 13 12 16 15 13"/>
-            <line x1="12" y1="8" x2="12" y2="16"/>
-          </svg>
-          Qarz olish
-        </button>
-
-        <!-- 5. Kalkulyator -->
-        <button class="btn btn-calc" id="scrollToCalcBtn" title="Tezkor kalkulyatorga o'tish">
-          <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
-            <rect x="4" y="2" width="16" height="20" rx="2"/>
-            <line x1="8" y1="6" x2="16" y2="6"/>
-            <line x1="16" y1="14" x2="16" y2="18"/>
-            <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>
-          </svg>
-          Kalkulyator
-        </button>
-
-        <!-- 6. Statistikani 0 ga tushirish -->
-        <button class="btn btn-reset" id="openResetModalBtn" title="Barcha statistikalarni 0 ga tushirish">
-          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-            <polyline points="3 3 3 8 8 8"/>
-          </svg>
-          Statistikani 0 ga tushirish
-        </button>
-      </div>
-    </div>
-
-    <!-- Overview Metrics Cards (4 Symmetric Balanced Cards) -->
-    <section class="metrics-grid">
-      <!-- 1. Mavjud Balans -->
-      <div class="metric-card balance">
-        <div class="metric-header">
-          <span class="metric-title">Mavjud Balans</span>
-          <div class="metric-icon-wrap">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-              <line x1="1" y1="10" x2="23" y2="10"/>
-            </svg>
+    <!-- SPA Tab Views Container (5 ta Alohida Ekran) -->
+    <div class="tabs-container">
+      <!-- ==========================================
+           1-OYNA: ASOSIY (DASHBOARD)
+           ========================================== -->
+      <div class="tab-view active" id="tabDashboard">
+        <!-- Overview Metrics Cards (5 Symmetric Balanced Cards) -->
+        <section class="metrics-grid">
+          <!-- 1. Mavjud Balans -->
+          <div class="metric-card balance">
+            <div class="metric-header">
+              <span class="metric-title">Mavjud Balans</span>
+              <div class="metric-icon-wrap">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+              </div>
+            </div>
+            <div class="metric-amount" id="balanceDisplay">3 840 000 so'm</div>
+            <div class="metric-sub">
+              <span class="positive">Erkin qoldiq:</span> sof mablag'
+            </div>
           </div>
-        </div>
-        <div class="metric-amount" id="balanceDisplay">3 840 000 so'm</div>
-        <div class="metric-sub">
-          <span class="positive">Erkin qoldiq:</span> sof mablag'
-        </div>
-      </div>
 
-      <!-- 2. Jami Daromadlar -->
-      <div class="metric-card income">
-        <div class="metric-header">
-          <span class="metric-title">Jami Daromadlar</span>
-          <div class="metric-icon-wrap">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-              <polyline points="17 6 23 6 23 12"/>
-            </svg>
+          <!-- 2. Jami Daromadlar -->
+          <div class="metric-card income">
+            <div class="metric-header">
+              <span class="metric-title">Jami Daromadlar</span>
+              <div class="metric-icon-wrap">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                  <polyline points="17 6 23 6 23 12"/>
+                </svg>
+              </div>
+            </div>
+            <div class="metric-amount" id="totalIncomeDisplay">4 500 000 so'm</div>
+            <div class="metric-sub">
+              <span class="positive">+100%</span> barcha kiritilgan daromadlar
+            </div>
           </div>
-        </div>
-        <div class="metric-amount" id="totalIncomeDisplay">4 500 000 so'm</div>
-        <div class="metric-sub">
-          <span class="positive">+100%</span> barcha kiritilgan daromadlar
-        </div>
-      </div>
 
-      <!-- 3. Oylik Xarajatlar -->
-      <div class="metric-card expense">
-        <div class="metric-header">
-          <span class="metric-title">Oylik Xarajatlar</span>
-          <div class="metric-icon-wrap">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-              <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
-              <polyline points="17 18 23 18 23 12"/>
-            </svg>
+          <!-- 3. Oylik Xarajatlar -->
+          <div class="metric-card expense">
+            <div class="metric-header">
+              <span class="metric-title">Oylik Xarajatlar</span>
+              <div class="metric-icon-wrap">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                  <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                  <polyline points="17 18 23 18 23 12"/>
+                </svg>
+              </div>
+            </div>
+            <div class="metric-amount" id="totalExpenseDisplay">2 660 000 so'm</div>
+            <div class="metric-sub">
+              <span class="negative">41%</span> byudjetdan sarflandi
+            </div>
           </div>
-        </div>
-        <div class="metric-amount" id="totalExpenseDisplay">2 660 000 so'm</div>
-        <div class="metric-sub">
-          <span class="negative">41%</span> byudjetdan sarflandi
-        </div>
-      </div>
 
-      <!-- 4. Qarzlar Qoldig'i -->
-      <div class="metric-card debt">
-        <div class="metric-header">
-          <span class="metric-title">Qarzlar Qoldig'i</span>
-          <div class="metric-icon-wrap">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
+          <!-- 4. Qarzlar Qoldig'i -->
+          <div class="metric-card debt">
+            <div class="metric-header">
+              <span class="metric-title">Qarzlar Qoldig'i</span>
+              <div class="metric-icon-wrap">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+              </div>
+            </div>
+            <div class="metric-amount" id="totalDebtDisplay">450 000 so'm</div>
+            <div class="metric-sub">
+              <span class="warning" id="activeDebtSubText">2 ta faol</span> qaytarilishi kerak qarz
+            </div>
           </div>
-        </div>
-        <div class="metric-amount" id="totalDebtDisplay">450 000 so'm</div>
-        <div class="metric-sub">
-          <span class="warning" id="activeDebtSubText">2 ta faol</span> qaytarilishi kerak qarz
-        </div>
-      </div>
-    </section>
 
-    <!-- Mobile Quick Section Jumper (Daromadlar, Xarajatlar, Qarzlar, Tarix, Kalkulyator) -->
-    <nav class="mobile-section-nav" aria-label="Bo'limlarga tezkor o'tish">
-      <button class="sec-nav-pill active" onclick="scrollToSection('incomeSection')">💰 Daromadlar</button>
-      <button class="sec-nav-pill" onclick="scrollToSection('analysisSection')">📊 Xarajatlar</button>
-      <button class="sec-nav-pill" onclick="scrollToSection('debtSection')">💳 Qarzlar</button>
-      <button class="sec-nav-pill" onclick="scrollToSection('historySection')">📜 Tarix</button>
-      <button class="sec-nav-pill" onclick="scrollToSection('calculatorWidget')">🧮 Kalkulyator</button>
-    </nav>
-
-    <!-- Main Dashboard Section -->
-    <main class="dashboard-grid">
-      <!-- Main Left Column -->
-      <div class="main-column">
-        <!-- 0. Daromadlar & Bajarilgan Buyurtmalar Bo'limi -->
-        <section class="content-card income-hero-card" id="incomeSection">
-          <div class="card-title-bar">
-            <div class="card-heading">
-              <div class="heading-icon-badge income-badge">
-                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.2" fill="none">
+          <!-- 5. Yangi ko'rsatkich: Jami Ishlab Topilgan Umumiy Pul (Cumulative Lifetime Earnings) -->
+          <div class="metric-card lifetime-earnings-card">
+            <div class="metric-header">
+              <span class="metric-title">Jami Ishlab Topilgan Pul</span>
+              <div class="metric-icon-wrap" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.4" fill="none">
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                 </svg>
               </div>
-              <div>
-                <span>Daromadlar & Bajarilgan Buyurtmalar</span>
-                <div class="card-subheading">Ish vaqti (boshlanish va tugash soatlari), sana, buyurtmalar hisobi va sof daromad</div>
-              </div>
             </div>
-            <button class="btn btn-income btn-sm" id="quickAddIncomeBtn">
-              + Daromad qo'shish
+            <div class="metric-amount" id="cumulativeEarningsDisplay">0 so'm</div>
+            <div class="metric-sub">
+              <span class="positive">💎 Kamaymas jami:</span> barcha topilgan daromadlar
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick Action Bar (Tezkor Amallar Paneli) -->
+        <div class="action-bar">
+          <div class="action-buttons-group">
+            <!-- 1. Daromadlar -->
+            <button class="btn btn-income" id="openWorkIncomeModalBtn" title="Daromadlarni kiritish va ko'rish">
+              <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3" fill="none">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Daromadlar
+            </button>
+
+            <!-- 2. Xarajatlar -->
+            <button class="btn btn-expense" id="openExpenseModalBtn" title="Yangi xarajat kiritish">
+              <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" fill="none">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Xarajatlar
+            </button>
+
+            <!-- 3. Qarz berish -->
+            <button class="btn btn-lend" id="openLendModalBtn" title="Qarz berish (Yaqinlarga berilgan pul)">
+              <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3" fill="none">
+                <path d="M17 18a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10z"/>
+                <polyline points="15 11 12 8 9 11"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+              </svg>
+              Qarz berish
+            </button>
+
+            <!-- 4. Qarz olish -->
+            <button class="btn btn-borrow" id="openBorrowModalBtn" title="Qarz olish (Olingan qarz)">
+              <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3" fill="none">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="9 13 12 16 15 13"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+              </svg>
+              Qarz olish
+            </button>
+
+            <!-- 5. Kalkulyator -->
+            <button class="btn btn-calc" id="scrollToCalcBtn" onclick="switchTab('calculator')" title="Tezkor kalkulyatorga o'tish">
+              <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+                <rect x="4" y="2" width="16" height="20" rx="2"/>
+                <line x1="8" y1="6" x2="16" y2="6"/>
+                <line x1="16" y1="14" x2="16" y2="18"/>
+                <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>
+              </svg>
+              Kalkulyator
+            </button>
+
+            <!-- 6. Statistikani 0 ga tushirish -->
+            <button class="btn btn-reset" id="openResetModalBtn" title="Barcha statistikalarni 0 ga tushirish">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <polyline points="3 3 3 8 8 8"/>
+              </svg>
+              Statistikani 0 ga tushirish
             </button>
           </div>
+        </div>
 
-          <!-- Hero Income Highlights Box -->
-          <div class="income-hero-box">
-            <div class="income-box-header">
-              <div class="income-tag">
-                <span class="income-dot"></span>
-                <span>Jami qayd etilgan daromad hisoboti</span>
-              </div>
-              <span class="income-badge-pill" id="incomeSessionsCount">3 ta ish kuni</span>
-            </div>
-
-            <div class="income-main-row">
-              <div class="income-sum-col">
-                <span class="income-label">Jami topilgan sof daromad:</span>
-                <div class="income-big-sum" id="heroTotalIncomeAmount">1 120 000 so'm</div>
-                <div class="income-meta-info">
-                  <span>Jami buyurtmalar: <strong id="heroTotalOrdersCount">48 ta</strong></span>
-                  <span class="meta-divider">•</span>
-                  <span>1 buyurtmaga o'rtacha: <strong id="heroAvgPerOrder">23 333 so'm</strong></span>
-                </div>
-              </div>
-
-              <div class="income-actions-col">
-                <button class="btn btn-income" id="heroAddIncomeBtn" title="Yangi daromad kiritish">
-                  <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
-                    <line x1="12" y1="5" x2="12" y2="19"/>
-                    <line x1="5" y1="12" x2="19" y2="12"/>
-                  </svg>
-                  <span>Yangi daromad kiritish</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- KPI Metric Tiles Grid -->
-            <div class="income-kpi-grid">
-              <div class="income-kpi-tile">
-                <div class="kpi-icon-wrap" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
-                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                  </svg>
-                </div>
-                <div class="kpi-info">
-                  <div class="kpi-val" id="kpiTotalIncome">1 120 000 so'm</div>
-                  <div class="kpi-lbl">Jami daromad</div>
-                </div>
-              </div>
-
-              <div class="income-kpi-tile">
-                <div class="kpi-icon-wrap" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
-                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
-                    <polyline points="9 11 12 14 22 4"/>
-                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                  </svg>
-                </div>
-                <div class="kpi-info">
-                  <div class="kpi-val" id="kpiTotalOrders">48 ta</div>
-                  <div class="kpi-lbl">Bajarilgan buyurtmalar</div>
-                </div>
-              </div>
-
-              <div class="income-kpi-tile">
-                <div class="kpi-icon-wrap" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
-                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
-                    <circle cx="9" cy="21" r="1"/>
-                    <circle cx="20" cy="21" r="1"/>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                  </svg>
-                </div>
-                <div class="kpi-info">
-                  <div class="kpi-val" id="kpiAvgPerOrder">23 333 so'm</div>
-                  <div class="kpi-lbl">1 buyurtmaga o'rtacha</div>
-                </div>
-              </div>
-
-              <div class="income-kpi-tile">
-                <div class="kpi-icon-wrap" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
-                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                  </svg>
-                </div>
-                <div class="kpi-info">
-                  <div class="kpi-val" id="kpiTotalDays">3 kun</div>
-                  <div class="kpi-lbl">Qayd etilgan ish kunlari</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recorded Incomes Stream / History -->
-          <div class="incomes-stream-wrapper">
-            <div class="incomes-stream-header">
-              <div class="incomes-stream-title">
-                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.2" fill="none">
-                  <line x1="8" y1="6" x2="21" y2="6"/>
-                  <line x1="8" y1="12" x2="21" y2="12"/>
-                  <line x1="8" y1="18" x2="21" y2="18"/>
-                  <line x1="3" y1="6" x2="3.01" y2="6"/>
-                  <line x1="3" y1="12" x2="3.01" y2="12"/>
-                  <line x1="3" y1="18" x2="3.01" y2="18"/>
-                </svg>
-                <span>Kiritilgan Daromadlar Ro'yxati</span>
-              </div>
-              <div class="incomes-stream-count" id="incomesStreamCountBadge">3 ta yozuv</div>
-            </div>
-
-            <div class="incomes-items-list" id="incomesListContainer">
-              <!-- Rendered dynamically via JS -->
-            </div>
-          </div>
-        </section>
-
-        <!-- Category Breakdown Card -->
-        <section class="content-card" id="analysisSection">
-          <div class="card-title-bar">
-            <div class="card-heading">
-              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
-                <path d="M22 12A10 10 0 0 0 12 2v10z"/>
-              </svg>
-              Kundalik Xarajatlar Tahlili
-            </div>
-            <span class="pill-badge">Hozirgi oy</span>
-          </div>
-
-          <div class="category-cards-grid">
-            <!-- 1. I: Ijtimoiy tarmoq obunalari -->
-            <div class="category-card cat-social">
-              <div class="cat-top">
-                <div class="cat-badge">
-                  <div class="cat-icon">📱</div>
-                  <span>Ijtimoiy tarmoq obunalari</span>
-                </div>
-                <span class="pill-badge" id="pctSocial">15%</span>
-              </div>
-              <div class="cat-sum" id="sumSocial">400 000 so'm</div>
-              <div class="cat-progress-bg">
-                <div class="cat-progress-bar" id="barSocial" style="width: 15%;"></div>
-              </div>
-              <div class="cat-foot">
-                <span>Telegram, YouTube, obunalar</span>
-                <span>3 ta to'lov</span>
-              </div>
-            </div>
-
-            <!-- 2. O: Ovqatlanish -->
-            <div class="category-card cat-food">
-              <div class="cat-top">
-                <div class="cat-badge">
-                  <div class="cat-icon">🍔</div>
-                  <span>Ovqatlanish</span>
-                </div>
-                <span class="pill-badge" id="pctFood">35%</span>
-              </div>
-              <div class="cat-sum" id="sumFood">920 000 so'm</div>
-              <div class="cat-progress-bg">
-                <div class="cat-progress-bar" id="barFood" style="width: 35%;"></div>
-              </div>
-              <div class="cat-foot">
-                <span>Tushlik, kofe, bozor</span>
-                <span>15 ta xarid</span>
-              </div>
-            </div>
-
-            <!-- 3. Q: Qarz to'lovlari -->
-            <div class="category-card cat-debt">
-              <div class="cat-top">
-                <div class="cat-badge">
-                  <div class="cat-icon">💳</div>
-                  <span>Qarz to'lovlari</span>
-                </div>
-                <span class="pill-badge" id="pctDebt">15%</span>
-              </div>
-              <div class="cat-sum" id="sumDebtPaid">400 000 so'm</div>
-              <div class="cat-progress-bg">
-                <div class="cat-progress-bar" id="barDebt" style="width: 15%;"></div>
-              </div>
-              <div class="cat-foot">
-                <span>To'lab yopilgan qarzlar</span>
-                <span>1 ta to'lov</span>
-              </div>
-            </div>
-
-            <!-- 4. T: Taxi xizmati -->
-            <div class="category-card cat-taxi">
-              <div class="cat-top">
-                <div class="cat-badge">
-                  <div class="cat-icon">🚕</div>
-                  <span>Taxi xizmati</span>
-                </div>
-                <span class="pill-badge" id="pctTaxi">20%</span>
-              </div>
-              <div class="cat-sum" id="sumTaxi">540 000 so'm</div>
-              <div class="cat-progress-bg">
-                <div class="cat-progress-bar" id="barTaxi" style="width: 20%;"></div>
-              </div>
-              <div class="cat-foot">
-                <span>Yandex, shahar ichi</span>
-                <span>12 ta safar</span>
-              </div>
-            </div>
-
-            <!-- 5. Y: Yo'l haqi (Jamoat) -->
-            <div class="category-card cat-transport">
-              <div class="cat-top">
-                <div class="cat-badge">
-                  <div class="cat-icon">🚌</div>
-                  <span>Yo'l haqi (Jamoat)</span>
-                </div>
-                <span class="pill-badge" id="pctTransport">8%</span>
-              </div>
-              <div class="cat-sum" id="sumTransport">200 000 so'm</div>
-              <div class="cat-progress-bg">
-                <div class="cat-progress-bar" id="barTransport" style="width: 8%;"></div>
-              </div>
-              <div class="cat-foot">
-                <span>Metro, avtobus, ATTO</span>
-                <span>16 ta qatnov</span>
-              </div>
-            </div>
-
-            <!-- 6. Oxiri: Nomsiz (Nomini o'zingiz qo'yasiz va xarajat yozasiz) -->
-            <div class="category-card cat-custom">
-              <div class="cat-top">
-                <div class="cat-badge">
-                  <div class="cat-icon">✏️</div>
-                  <span id="customCatTitle">Nomsiz xarajat</span>
-                  <button class="cat-edit-btn" id="renameCustomCatBtn" title="Nomini o'zgartirish">✏️</button>
-                </div>
-                <span class="pill-badge" id="pctCustom">7%</span>
-              </div>
-              <div class="cat-sum" id="sumCustom">200 000 so'm</div>
-              <div class="cat-progress-bg">
-                <div class="cat-progress-bar" id="barCustom" style="width: 7%;"></div>
-              </div>
-              <div class="cat-foot">
-                <span id="customCatSubtitle">O'zingiz nomlaysiz</span>
-                <button class="btn-sm" style="padding: 2px 8px; font-size: 0.72rem; color: #14b8a6; border-color: rgba(20,184,166,0.3);" onclick="openExpenseForCustom()">+ Xarajat yozish</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Micro-Debt & Lent Money Management Module -->
-        <section class="content-card" id="debtSection">
-          <div class="card-title-bar">
-            <div class="card-heading">
-              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-              </svg>
-              Qarzlar & Yaqinlarga Berilgan Pullar
-            </div>
-            <span class="pill-badge debt-count" id="activeDebtCount">2 ta faol</span>
-          </div>
-
-          <div class="debt-highlight-banner">
-            <div class="debt-banner-text">
-              <h4>🤝 Qarz berish va Qarz olish hisobi</h4>
-              <p>Yaqinlaringizga pul berilganda yoki qarz olinganda to'lov turi (karta yoki naqd), sana (kun, oy, yil), ism va summa bilan yozib qo'ying. Qaytarilganda <strong>"Pulni qaytardi"</strong> yoki <strong>"To'lov qildim"</strong> tugmasini bosing!</p>
-            </div>
-            <div class="debt-banner-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button class="btn btn-lend" id="bannerLendBtn" style="padding: 8px 14px; font-size: 0.82rem;">
-                🤝 Qarz berish
-              </button>
-              <button class="btn btn-borrow" id="bannerBorrowBtn" style="padding: 8px 14px; font-size: 0.82rem;">
-                📥 Qarz olish
-              </button>
-            </div>
-          </div>
-
-          <!-- Debt Filter Tabs -->
-          <div class="debt-filter-tabs" id="debtFilterTabs">
-            <button class="debt-filter-btn active" data-debt-filter="all">Barchasi</button>
-            <button class="debt-filter-btn" data-debt-filter="lent">🤝 Yaqinlarga berilgan pullar</button>
-            <button class="debt-filter-btn" data-debt-filter="borrowed">📥 Olingan qarzlar</button>
-          </div>
-
-          <!-- Debts List -->
-          <div class="debt-items-list" id="debtListContainer">
-            <!-- Dynamically populated by JS renderDebts() -->
-          </div>
-        </section>
-
-        <!-- Transaction History -->
+        <!-- Transaction History (Amaliyotlar Tarixi) -->
         <section class="content-card" id="historySection">
           <div class="card-title-bar">
             <div class="card-heading">
@@ -604,139 +394,493 @@
         </section>
       </div>
 
-      <!-- Right Column: Sidebar (Donut Chart & Built-in Calculator) -->
-      <aside class="sidebar-column">
-        <!-- Spend Breakdown Donut Chart -->
-        <section class="content-card chart-card">
-          <div class="card-title-bar" style="width: 100%;">
-            <div class="card-heading">
-              <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 2a10 10 0 0 1 10 10"/>
-              </svg>
-              Xarajatlar Nisbati
-            </div>
-          </div>
-
-          <div class="donut-visual-container">
-            <div class="donut-visual">
-              <div class="donut-visual-inner">
-                <span class="donut-total-label">Jami xarajat</span>
-                <span class="donut-total-val">2.66 mln</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="legend-list">
-            <div class="legend-item">
-              <div class="legend-info">
-                <span class="legend-dot" style="background: #a855f7;"></span>
-                <span>Ijtimoiy tarmoq</span>
-              </div>
-              <span class="legend-pct" id="legendPctSocial">15%</span>
-            </div>
-
-            <div class="legend-item">
-              <div class="legend-info">
-                <span class="legend-dot" style="background: var(--color-food);"></span>
-                <span>Ovqatlanish</span>
-              </div>
-              <span class="legend-pct" id="legendPctFood">35%</span>
-            </div>
-
-            <div class="legend-item">
-              <div class="legend-info">
-                <span class="legend-dot" style="background: var(--color-debt);"></span>
-                <span>Qarz to'lovlari</span>
-              </div>
-              <span class="legend-pct" id="legendPctDebt">15%</span>
-            </div>
-
-            <div class="legend-item">
-              <div class="legend-info">
-                <span class="legend-dot" style="background: var(--color-taxi);"></span>
-                <span>Taxi xizmati</span>
-              </div>
-              <span class="legend-pct" id="legendPctTaxi">20%</span>
-            </div>
-
-            <div class="legend-item">
-              <div class="legend-info">
-                <span class="legend-dot" style="background: var(--color-transport);"></span>
-                <span>Yo'l haqi</span>
-              </div>
-              <span class="legend-pct" id="legendPctTransport">8%</span>
-            </div>
-
-            <div class="legend-item">
-              <div class="legend-info">
-                <span class="legend-dot" style="background: #14b8a6;"></span>
-                <span id="legendCustomLabel">Nomsiz xarajat</span>
-              </div>
-              <span class="legend-pct" id="legendPctCustom">7%</span>
-            </div>
-          </div>
-        </section>
-
-        <!-- Built-in Smart Calculator Widget -->
-        <section class="calc-widget" id="calculatorWidget">
+      <!-- ==========================================
+           2-OYNA: DAROMADLAR
+           ========================================== -->
+      <div class="tab-view" id="tabIncomes">
+        <!-- 0. Daromadlar & Bajarilgan Buyurtmalar Bo'limi -->
+        <section class="content-card income-hero-card" id="incomeSection">
           <div class="card-title-bar">
-            <div class="card-heading" style="font-size: 1rem;">
-              <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
-                <rect x="4" y="2" width="16" height="20" rx="2"/>
-                <line x1="8" y1="6" x2="16" y2="6"/>
-                <line x1="16" y1="14" x2="16" y2="18"/>
-                <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>
-              </svg>
-              Tezkor Kalkulyator
+            <div class="card-heading">
+              <div class="heading-icon-badge income-badge">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.2" fill="none">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <div>
+                <span>Daromadlar & Bajarilgan Buyurtmalar</span>
+                <div class="card-subheading">Haftalik 7 kunlik daromad, ish soatlari, buyurtmalar hamda ishlangan va dam olingan kunlar hisobi</div>
+              </div>
             </div>
-            <span class="pill-badge calc-badge" id="calcModeBadge" title="Numpad va kompyuter klaviaturasi (0-9, +, -, *, /, Enter, Backspace, Esc) qo'llab-quvvatlanadi">⌨️ Numpad faol</span>
+            <button class="btn btn-income btn-sm" id="quickAddIncomeBtn">
+              + Haftalik daromad
+            </button>
           </div>
 
-          <div class="calc-display">
-            <div class="calc-prev" id="calcPrev"></div>
-            <div class="calc-current" id="calcCurrent">0</div>
+          <!-- Hero Income Highlights Box -->
+          <div class="income-hero-box">
+            <div class="income-box-header">
+              <div class="income-tag">
+                <span class="income-dot"></span>
+                <span>Haftalik daromadlar & ish faoliyati hisoboti</span>
+              </div>
+              <span class="income-badge-pill" id="incomeSessionsCount">0 ta hafta</span>
+            </div>
+
+            <div class="income-main-row">
+              <div class="income-sum-col">
+                <span class="income-label">Jami topilgan sof daromad:</span>
+                <div class="income-big-sum" id="heroTotalIncomeAmount">0 so'm</div>
+                <div class="income-meta-info">
+                  <span>Oxirgi 7 kunda: <strong id="heroWeeklyIncomeAmount">0 so'm</strong></span>
+                  <span class="meta-divider">•</span>
+                  <span>Jami ish soati: <strong id="heroTotalHoursCount">0 soat</strong></span>
+                  <span class="meta-divider">•</span>
+                  <span>Jami buyurtmalar: <strong id="heroTotalOrdersCount">0 ta</strong></span>
+                  <span class="meta-divider">•</span>
+                  <span>Kunlar: <strong id="heroWorkRestDaysRatio">0 ish / 0 dam</strong></span>
+                </div>
+              </div>
+
+              <div class="income-actions-col">
+                <button class="btn btn-income" id="heroAddIncomeBtn" title="Yangi haftalik daromad kiritish">
+                  <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  <span>Haftalik daromad kiritish</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- KPI Metric Tiles Grid (6 ta ko'rsatkich) -->
+            <div class="income-kpi-grid">
+              <!-- 1. Jami daromad -->
+              <div class="income-kpi-tile">
+                <div class="kpi-icon-wrap" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  </svg>
+                </div>
+                <div class="kpi-info">
+                  <div class="kpi-val" id="kpiTotalIncome">0 so'm</div>
+                  <div class="kpi-lbl">Jami daromad</div>
+                </div>
+              </div>
+
+              <!-- 2. 7 kunda topgan pul -->
+              <div class="income-kpi-tile">
+                <div class="kpi-icon-wrap" style="background: rgba(52, 211, 153, 0.15); color: #34d399;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                </div>
+                <div class="kpi-info">
+                  <div class="kpi-val" id="kpiWeeklyIncome">0 so'm</div>
+                  <div class="kpi-lbl">7 kunda topgan pul</div>
+                </div>
+              </div>
+
+              <!-- 3. Jami ish soati -->
+              <div class="income-kpi-tile">
+                <div class="kpi-icon-wrap" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 14 10"/>
+                  </svg>
+                </div>
+                <div class="kpi-info">
+                  <div class="kpi-val" id="kpiTotalHours">0 soat</div>
+                  <div class="kpi-lbl">Jami ish soat</div>
+                </div>
+              </div>
+
+              <!-- 4. Jami bajarilgan buyurtmalar -->
+              <div class="income-kpi-tile">
+                <div class="kpi-icon-wrap" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
+                    <polyline points="9 11 12 14 22 4"/>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                  </svg>
+                </div>
+                <div class="kpi-info">
+                  <div class="kpi-val" id="kpiTotalOrders">0 ta</div>
+                  <div class="kpi-lbl">Bajarilgan buyurtmalar</div>
+                </div>
+              </div>
+
+              <!-- 5. Ishlangan kunlar -->
+              <div class="income-kpi-tile">
+                <div class="kpi-icon-wrap" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                  </svg>
+                </div>
+                <div class="kpi-info">
+                  <div class="kpi-val" id="kpiTotalWorkDays">0 kun</div>
+                  <div class="kpi-lbl">Ishlangan kunlar</div>
+                </div>
+              </div>
+
+              <!-- 6. Dam olingan kunlar -->
+              <div class="income-kpi-tile">
+                <div class="kpi-icon-wrap" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
+                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none">
+                    <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+                  </svg>
+                </div>
+                <div class="kpi-info">
+                  <div class="kpi-val" id="kpiTotalRestDays">0 kun</div>
+                  <div class="kpi-lbl">Dam olingan kunlar</div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="calc-keys">
-            <button class="calc-btn clear" data-key="Escape" onclick="calcClear()">C</button>
-            <button class="calc-btn" data-key="Backspace" onclick="calcBackspace()">⌫</button>
-            <button class="calc-btn op" data-key="%" onclick="calcOp('%')">%</button>
-            <button class="calc-btn op" data-key="/" onclick="calcOp('/')">÷</button>
+          <!-- Recorded Incomes Stream / History -->
+          <div class="incomes-stream-wrapper">
+            <div class="incomes-stream-header">
+              <div class="incomes-stream-title">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.2" fill="none">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span>Haftalik Daromadlar Ro'yxati</span>
+              </div>
+              <div class="incomes-stream-count" id="incomesStreamCountBadge">0 ta hafta</div>
+            </div>
 
-            <button class="calc-btn" data-key="7" onclick="calcNum('7')">7</button>
-            <button class="calc-btn" data-key="8" onclick="calcNum('8')">8</button>
-            <button class="calc-btn" data-key="9" onclick="calcNum('9')">9</button>
-            <button class="calc-btn op" data-key="*" onclick="calcOp('*')">×</button>
-
-            <button class="calc-btn" data-key="4" onclick="calcNum('4')">4</button>
-            <button class="calc-btn" data-key="5" onclick="calcNum('5')">5</button>
-            <button class="calc-btn" data-key="6" onclick="calcNum('6')">6</button>
-            <button class="calc-btn op" data-key="-" onclick="calcOp('-')">−</button>
-
-            <button class="calc-btn" data-key="1" onclick="calcNum('1')">1</button>
-            <button class="calc-btn" data-key="2" onclick="calcNum('2')">2</button>
-            <button class="calc-btn" data-key="3" onclick="calcNum('3')">3</button>
-            <button class="calc-btn op" data-key="+" onclick="calcOp('+')">+</button>
-
-            <button class="calc-btn" data-key="0" onclick="calcNum('0')">0</button>
-            <button class="calc-btn" data-key="000" onclick="calcNum('000')">000</button>
-            <button class="calc-btn" data-key="." onclick="calcDot()">.</button>
-            <button class="calc-btn equal" data-key="Enter" onclick="calcEquals()">=</button>
-          </div>
-
-          <div class="calc-quick-apply">
-            <button class="btn-sm" onclick="applyCalcToExpense('food')">🍔 Ovqatga kiritish</button>
-            <button class="btn-sm" onclick="applyCalcToExpense('taxi')">🚕 Taksiga kiritish</button>
+            <div class="incomes-items-list" id="incomesListContainer">
+              <!-- Rendered dynamically via JS -->
+            </div>
           </div>
         </section>
-      </aside>
-    </main>
+      </div>
+
+      <!-- ==========================================
+           3-OYNA: XARAJATLAR
+           ========================================== -->
+      <div class="tab-view" id="tabExpenses">
+        <div class="expenses-tab-grid">
+          <!-- Category Breakdown Card -->
+          <section class="content-card" id="analysisSection">
+            <div class="card-title-bar">
+              <div class="card-heading">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                  <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                  <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                </svg>
+                Kundalik Xarajatlar Tahlili
+              </div>
+              <span class="pill-badge">Hozirgi oy</span>
+            </div>
+
+            <div class="category-cards-grid">
+              <!-- 1. I: Ijtimoiy tarmoq obunalari -->
+              <div class="category-card cat-social">
+                <div class="cat-top">
+                  <div class="cat-badge">
+                    <div class="cat-icon">📱</div>
+                    <span>Ijtimoiy tarmoq obunalari</span>
+                  </div>
+                  <span class="pill-badge" id="pctSocial">15%</span>
+                </div>
+                <div class="cat-sum" id="sumSocial">400 000 so'm</div>
+                <div class="cat-progress-bg">
+                  <div class="cat-progress-bar" id="barSocial" style="width: 15%;"></div>
+                </div>
+                <div class="cat-foot">
+                  <span>Telegram, YouTube, obunalar</span>
+                  <span>3 ta to'lov</span>
+                </div>
+              </div>
+
+              <!-- 2. O: Ovqatlanish -->
+              <div class="category-card cat-food">
+                <div class="cat-top">
+                  <div class="cat-badge">
+                    <div class="cat-icon">🍔</div>
+                    <span>Ovqatlanish</span>
+                  </div>
+                  <span class="pill-badge" id="pctFood">35%</span>
+                </div>
+                <div class="cat-sum" id="sumFood">920 000 so'm</div>
+                <div class="cat-progress-bg">
+                  <div class="cat-progress-bar" id="barFood" style="width: 35%;"></div>
+                </div>
+                <div class="cat-foot">
+                  <span>Tushlik, kofe, bozor</span>
+                  <span>15 ta xarid</span>
+                </div>
+              </div>
+
+              <!-- 3. Q: Qarz to'lovlari -->
+              <div class="category-card cat-debt">
+                <div class="cat-top">
+                  <div class="cat-badge">
+                    <div class="cat-icon">💳</div>
+                    <span>Qarz to'lovlari</span>
+                  </div>
+                  <span class="pill-badge" id="pctDebt">15%</span>
+                </div>
+                <div class="cat-sum" id="sumDebtPaid">400 000 so'm</div>
+                <div class="cat-progress-bg">
+                  <div class="cat-progress-bar" id="barDebt" style="width: 15%;"></div>
+                </div>
+                <div class="cat-foot">
+                  <span>To'lab yopilgan qarzlar</span>
+                  <span>1 ta to'lov</span>
+                </div>
+              </div>
+
+              <!-- 4. T: Taxi xizmati -->
+              <div class="category-card cat-taxi">
+                <div class="cat-top">
+                  <div class="cat-badge">
+                    <div class="cat-icon">🚕</div>
+                    <span>Taxi xizmati</span>
+                  </div>
+                  <span class="pill-badge" id="pctTaxi">20%</span>
+                </div>
+                <div class="cat-sum" id="sumTaxi">540 000 so'm</div>
+                <div class="cat-progress-bg">
+                  <div class="cat-progress-bar" id="barTaxi" style="width: 20%;"></div>
+                </div>
+                <div class="cat-foot">
+                  <span>Yandex, shahar ichi</span>
+                  <span>12 ta safar</span>
+                </div>
+              </div>
+
+              <!-- 5. Y: Yo'l haqi (Jamoat) -->
+              <div class="category-card cat-transport">
+                <div class="cat-top">
+                  <div class="cat-badge">
+                    <div class="cat-icon">🚌</div>
+                    <span>Yo'l haqi (Jamoat)</span>
+                  </div>
+                  <span class="pill-badge" id="pctTransport">8%</span>
+                </div>
+                <div class="cat-sum" id="sumTransport">200 000 so'm</div>
+                <div class="cat-progress-bg">
+                  <div class="cat-progress-bar" id="barTransport" style="width: 8%;"></div>
+                </div>
+                <div class="cat-foot">
+                  <span>Metro, avtobus, ATTO</span>
+                  <span>16 ta qatnov</span>
+                </div>
+              </div>
+
+              <!-- 6. Oxiri: Nomsiz (Nomini o'zingiz qo'yasiz va xarajat yozasiz) -->
+              <div class="category-card cat-custom">
+                <div class="cat-top">
+                  <div class="cat-badge">
+                    <div class="cat-icon">✏️</div>
+                    <span id="customCatTitle">Nomsiz xarajat</span>
+                    <button class="cat-edit-btn" id="renameCustomCatBtn" title="Nomini o'zgartirish">✏️</button>
+                  </div>
+                  <span class="pill-badge" id="pctCustom">7%</span>
+                </div>
+                <div class="cat-sum" id="sumCustom">200 000 so'm</div>
+                <div class="cat-progress-bg">
+                  <div class="cat-progress-bar" id="barCustom" style="width: 7%;"></div>
+                </div>
+                <div class="cat-foot">
+                  <span id="customCatSubtitle">O'zingiz nomlaysiz</span>
+                  <button class="btn-sm" style="padding: 2px 8px; font-size: 0.72rem; color: #14b8a6; border-color: rgba(20,184,166,0.3);" onclick="openExpenseForCustom()">+ Xarajat yozish</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Spend Breakdown Donut Chart -->
+          <section class="content-card chart-card">
+            <div class="card-title-bar" style="width: 100%;">
+              <div class="card-heading">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 2a10 10 0 0 1 10 10"/>
+                </svg>
+                Xarajatlar Nisbati
+              </div>
+            </div>
+
+            <div class="donut-visual-container">
+              <div class="donut-visual">
+                <div class="donut-visual-inner">
+                  <span class="donut-total-label">Jami xarajat</span>
+                  <span class="donut-total-val">2.66 mln</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="legend-list">
+              <div class="legend-item">
+                <div class="legend-info">
+                  <span class="legend-dot" style="background: #a855f7;"></span>
+                  <span>Ijtimoiy tarmoq</span>
+                </div>
+                <span class="legend-pct" id="legendPctSocial">15%</span>
+              </div>
+
+              <div class="legend-item">
+                <div class="legend-info">
+                  <span class="legend-dot" style="background: var(--color-food);"></span>
+                  <span>Ovqatlanish</span>
+                </div>
+                <span class="legend-pct" id="legendPctFood">35%</span>
+              </div>
+
+              <div class="legend-item">
+                <div class="legend-info">
+                  <span class="legend-dot" style="background: var(--color-debt);"></span>
+                  <span>Qarz to'lovlari</span>
+                </div>
+                <span class="legend-pct" id="legendPctDebt">15%</span>
+              </div>
+
+              <div class="legend-item">
+                <div class="legend-info">
+                  <span class="legend-dot" style="background: var(--color-taxi);"></span>
+                  <span>Taxi xizmati</span>
+                </div>
+                <span class="legend-pct" id="legendPctTaxi">20%</span>
+              </div>
+
+              <div class="legend-item">
+                <div class="legend-info">
+                  <span class="legend-dot" style="background: var(--color-transport);"></span>
+                  <span>Yo'l haqi</span>
+                </div>
+                <span class="legend-pct" id="legendPctTransport">8%</span>
+              </div>
+
+              <div class="legend-item">
+                <div class="legend-info">
+                  <span class="legend-dot" style="background: #14b8a6;"></span>
+                  <span id="legendCustomLabel">Nomsiz xarajat</span>
+                </div>
+                <span class="legend-pct" id="legendPctCustom">7%</span>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- ==========================================
+           4-OYNA: QARZLAR
+           ========================================== -->
+      <div class="tab-view" id="tabDebts">
+        <!-- Micro-Debt & Lent Money Management Module -->
+        <section class="content-card" id="debtSection">
+          <div class="card-title-bar">
+            <div class="card-heading">
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+              Qarzlar & Yaqinlarga Berilgan Pullar
+            </div>
+            <span class="pill-badge debt-count" id="activeDebtCount">2 ta faol</span>
+          </div>
+
+          <div class="debt-highlight-banner">
+            <div class="debt-banner-text">
+              <h4>🤝 Qarz berish va Qarz olish hisobi</h4>
+              <p>Yaqinlaringizga pul berilganda yoki qarz olinganda to'lov turi (karta yoki naqd), sana (kun, oy, yil), ism va summa bilan yozib qo'ying. Qaytarilganda <strong>"Pulni qaytardi"</strong> yoki <strong>"To'lov qildim"</strong> tugmasini bosing!</p>
+            </div>
+            <div class="debt-banner-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-lend" id="bannerLendBtn" style="padding: 8px 14px; font-size: 0.82rem;">
+                🤝 Qarz berish
+              </button>
+              <button class="btn btn-borrow" id="bannerBorrowBtn" style="padding: 8px 14px; font-size: 0.82rem;">
+                📥 Qarz olish
+              </button>
+            </div>
+          </div>
+
+          <!-- Debt Filter Tabs -->
+          <div class="debt-filter-tabs" id="debtFilterTabs">
+            <button class="debt-filter-btn active" data-debt-filter="all">Barchasi</button>
+            <button class="debt-filter-btn" data-debt-filter="lent">🤝 Yaqinlarga berilgan pullar</button>
+            <button class="debt-filter-btn" data-debt-filter="borrowed">📥 Olingan qarzlar</button>
+          </div>
+
+          <!-- Debts List -->
+          <div class="debt-items-list" id="debtListContainer">
+            <!-- Dynamically populated by JS renderDebts() -->
+          </div>
+        </section>
+      </div>
+
+      <!-- ==========================================
+           5-OYNA: KALKULYATOR
+           ========================================== -->
+      <div class="tab-view" id="tabCalculator">
+        <div class="calc-page-wrapper" style="max-width: 480px; margin: 0 auto; width: 100%;">
+          <!-- Built-in Smart Calculator Widget -->
+          <section class="calc-widget" id="calculatorWidget">
+            <div class="card-title-bar">
+              <div class="card-heading" style="font-size: 1rem;">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                  <rect x="4" y="2" width="16" height="20" rx="2"/>
+                  <line x1="8" y1="6" x2="16" y2="6"/>
+                  <line x1="16" y1="14" x2="16" y2="18"/>
+                  <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>
+                </svg>
+                Tezkor Kalkulyator
+              </div>
+              <span class="pill-badge calc-badge" id="calcModeBadge" title="Numpad va kompyuter klaviaturasi (0-9, +, -, *, /, Enter, Backspace, Esc) qo'llab-quvvatlanadi">⌨️ Numpad faol</span>
+            </div>
+
+            <div class="calc-display">
+              <div class="calc-prev" id="calcPrev"></div>
+              <div class="calc-current" id="calcCurrent">0</div>
+            </div>
+
+            <div class="calc-keys">
+              <button class="calc-btn clear" data-key="Escape" onclick="calcClear()">C</button>
+              <button class="calc-btn" data-key="Backspace" onclick="calcBackspace()">⌫</button>
+              <button class="calc-btn op" data-key="%" onclick="calcOp('%')">%</button>
+              <button class="calc-btn op" data-key="/" onclick="calcOp('/')">÷</button>
+
+              <button class="calc-btn" data-key="7" onclick="calcNum('7')">7</button>
+              <button class="calc-btn" data-key="8" onclick="calcNum('8')">8</button>
+              <button class="calc-btn" data-key="9" onclick="calcNum('9')">9</button>
+              <button class="calc-btn op" data-key="*" onclick="calcOp('*')">×</button>
+
+              <button class="calc-btn" data-key="4" onclick="calcNum('4')">4</button>
+              <button class="calc-btn" data-key="5" onclick="calcNum('5')">5</button>
+              <button class="calc-btn" data-key="6" onclick="calcNum('6')">6</button>
+              <button class="calc-btn op" data-key="-" onclick="calcOp('-')">−</button>
+
+              <button class="calc-btn" data-key="1" onclick="calcNum('1')">1</button>
+              <button class="calc-btn" data-key="2" onclick="calcNum('2')">2</button>
+              <button class="calc-btn" data-key="3" onclick="calcNum('3')">3</button>
+              <button class="calc-btn op" data-key="+" onclick="calcOp('+')">+</button>
+
+              <button class="calc-btn" data-key="0" onclick="calcNum('0')">0</button>
+              <button class="calc-btn" data-key="000" onclick="calcNum('000')">000</button>
+              <button class="calc-btn" data-key="." onclick="calcDot()">.</button>
+              <button class="calc-btn equal" data-key="Enter" onclick="calcEquals()">=</button>
+            </div>
+
+            <div class="calc-quick-apply">
+              <button class="btn-sm" onclick="applyCalcToExpense('food')">🍔 Ovqatga kiritish</button>
+              <button class="btn-sm" onclick="applyCalcToExpense('taxi')">🚕 Taksiga kiritish</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MODALS FOR QUICK ACTIONS -->
 
-  <!-- Modal: Yangi Ish Faoliyati va Daromad Kiritish -->
+  <!-- Modal: Yangi Haftalik Daromad va Ish Faoliyatini Kiritish -->
   <div class="modal-overlay" id="workIncomeModal">
     <div class="modal-window work-income-modal-window">
       <div class="modal-handle-bar"></div>
@@ -745,79 +889,167 @@
           <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.3" fill="none">
             <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
           </svg>
-          <span id="workIncomeModalTitleText">Daromad va Buyurtmalar Kiritish</span>
+          <span id="workIncomeModalTitleText">Haftalik Daromad va Ish Faoliyatini Kiritish</span>
         </h3>
         <button class="modal-close" onclick="closeAllModals()">&times;</button>
       </div>
       <form class="modal-form" id="workIncomeForm">
         <input type="hidden" id="editWorkIncomeId" value="">
 
-        <!-- Sana (Kun, Oy, Yil) -->
-        <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-            <label for="workIncomeDate" style="margin-bottom: 0;">Ish sanasi (Kun, Oy, Yil):</label>
-            <div class="quick-date-chips">
-              <button type="button" class="btn-date-chip active" id="workIncomeDateTodayBtn">Bugun</button>
-              <button type="button" class="btn-date-chip" id="workIncomeDateYesterdayBtn">Kecha</button>
+        <!-- Hafta davri / O'tgan haftalar boshqaruvi -->
+        <div class="form-group week-selector-block">
+          <div class="week-picker-header">
+            <label for="workIncomeWeekDate" class="week-picker-label">
+              <span>📅</span> <strong>Hafta davrini tanlash:</strong>
+            </label>
+            <span class="week-badge-relative" id="workIncomeRelativeBadge">📌 Joriy hafta</span>
+          </div>
+
+          <!-- O'tgan haftalar tezkor chipslari (scrollable) -->
+          <div class="quick-weeks-scroll-wrapper">
+            <div class="quick-weeks-chips" id="quickWeeksChipsContainer">
+              <!-- JS orqali to'ldiriladi: Joriy, 1, 2, 3, 4, 5, 6, 8, 12 hafta oldin -->
             </div>
           </div>
-          <input type="date" class="form-input" id="workIncomeDate" required>
-          <div class="date-display-hint" id="workIncomeDateDisplayHint">📅 Tanlangan sana: Bugun</div>
+
+          <!-- Hafta stepperi (Orqaga ◀, Sana input, Oldinga ▶) -->
+          <div class="week-stepper-control">
+            <button type="button" class="btn-week-step" id="workIncomePrevWeekBtn" title="1 hafta orqaga o'tish (oldingi hafta)">
+              <span>◀</span> 1 hafta orqaga
+            </button>
+            <div class="week-input-wrap">
+              <input type="date" class="form-input week-date-input" id="workIncomeWeekDate" min="2026-09-07" required>
+            </div>
+            <button type="button" class="btn-week-step" id="workIncomeNextWeekBtn" title="1 hafta oldinga o'tish (keyingi hafta)">
+              1 hafta oldinga <span>▶</span>
+            </button>
+          </div>
+
+          <!-- 7-Sentabrdan bugungacha bo'lgan haftalar dropdown ro'yxati -->
+          <div class="week-dropdown-wrap">
+            <select id="workIncomePastWeeksSelect" class="form-select week-select-control" title="7-Sentabrdan bugungacha haftalarni tanlash">
+              <option value="">📋 7-Sentabrdan bugungacha bo'lgan haftalar ro'yxati...</option>
+            </select>
+          </div>
+
+          <!-- Hafta holati va 7 kunlik davr ko'rsatkichi (Status Banner) -->
+          <div class="week-status-banner" id="workIncomeWeekStatusBanner">
+            <div class="ws-icon" id="workIncomeStatusIcon">📅</div>
+            <div class="ws-content">
+              <div class="ws-range" id="workIncomeWeekRangeHint">📅 7 kunlik davr: Tanlanmoqda...</div>
+              <div class="ws-sub" id="workIncomeWeekEntryStatus">Ushbu haftaga yangi daromad kiritilmoqda</div>
+            </div>
+          </div>
         </div>
 
-        <!-- Ish boshlanish va tugash soatlari -->
+        <!-- 7 Kunlik Interaktiv Kalendar (Hafta kunlarini tanlash) -->
+        <div class="form-group weekly-calendar-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+            <label style="margin-bottom: 0;">
+              🗓️ <strong>Hafta kunlari (Kalendardan tanlang):</strong>
+              <span style="font-size: 0.78rem; font-weight: normal; color: var(--text-muted); display: block;">
+                Tanlangan sanalar <strong>ishlangan</strong>, tanlanmagan sanalar <strong>dam olingan</strong> hisoblanadi
+              </span>
+            </label>
+            <div class="cal-quick-actions">
+              <button type="button" class="btn-cal-chip" id="calSelect5DaysBtn">5 kun (Du-Ju)</button>
+              <button type="button" class="btn-cal-chip" id="calSelect6DaysBtn">6 kun (Du-Sha)</button>
+              <button type="button" class="btn-cal-chip" id="calSelectAllBtn">7 kun</button>
+              <button type="button" class="btn-cal-chip" id="calClearAllBtn">Tozalash</button>
+            </div>
+          </div>
+
+          <!-- 7 ta kun kartochkalari konteyneri -->
+          <div class="weekly-days-grid" id="weeklyCalendarDaysGrid">
+            <!-- Dynamically populated 7 days via JS -->
+          </div>
+
+          <!-- Kunlar balansi: Necha kun ishlangan va necha kun dam olingan -->
+          <div class="days-summary-bar">
+            <div class="days-counter-pill work">
+              <span class="pill-dot work"></span>
+              <span>Ishlangan: <strong id="modalWorkDaysCount">5</strong> kun</span>
+            </div>
+            <div class="days-counter-pill rest">
+              <span class="pill-dot rest"></span>
+              <span>Dam olingan: <strong id="modalRestDaysCount">2</strong> kun</span>
+            </div>
+            <div class="days-counter-pill total">
+              <span>Jami: <strong>7</strong> kun</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7 kunda topgan pul va Jami ish soati -->
         <div class="form-row-2">
           <div class="form-group">
-            <label for="workIncomeStartTime">⏰ Ish boshlangan soat:</label>
-            <input type="time" class="form-input" id="workIncomeStartTime" value="09:00" required>
+            <label for="workIncomeAmount">💵 7 kunda topgan pul (so'mda):</label>
+            <input type="number" class="form-input" id="workIncomeAmount" min="0" placeholder="Masalan: 3200000" inputmode="numeric" required>
+            <div class="amount-quick-chips">
+              <button type="button" class="quick-chip-btn" data-add="500000">+500k</button>
+              <button type="button" class="quick-chip-btn" data-add="1000000">+1M</button>
+              <button type="button" class="quick-chip-btn" data-add="2000000">+2M</button>
+              <button type="button" class="quick-chip-btn" data-add="3000000">+3M</button>
+            </div>
           </div>
           <div class="form-group">
-            <label for="workIncomeEndTime">🏁 Ish tugagan soat:</label>
-            <input type="time" class="form-input" id="workIncomeEndTime" value="18:00" required>
+            <label for="workIncomeHours">⏰ Jami ish soati (soatda):</label>
+            <input type="number" class="form-input" id="workIncomeHours" min="0" step="0.5" placeholder="Masalan: 42" inputmode="decimal" required>
+            <div class="amount-quick-chips">
+              <button type="button" class="quick-chip-btn" id="hoursAutoCalcBtn" title="Ishlangan kunlarga qarab (kuniga 8 soat)">⚡ 8 soatdan</button>
+              <button type="button" class="quick-chip-btn" data-hour="40">40s</button>
+              <button type="button" class="quick-chip-btn" data-hour="45">45s</button>
+              <button type="button" class="quick-chip-btn" data-hour="50">50s</button>
+            </div>
           </div>
         </div>
 
-        <!-- Buyurtmalar soni va Topilgan daromad -->
+        <!-- Jami bajarilgan buyurtmalar va Izoh -->
         <div class="form-row-2">
           <div class="form-group">
-            <label for="workIncomeOrders">Nechta buyurtma bajarildi:</label>
-            <input type="number" class="form-input" id="workIncomeOrders" min="0" placeholder="Masalan: 16" required>
+            <label for="workIncomeOrders">📦 Jami bajarilgan buyurtmalar (ta):</label>
+            <input type="number" class="form-input" id="workIncomeOrders" min="0" placeholder="Masalan: 48" inputmode="numeric" required>
           </div>
           <div class="form-group">
-            <label for="workIncomeAmount">Topilgan daromad (so'mda):</label>
-            <input type="number" class="form-input" id="workIncomeAmount" min="0" placeholder="Masalan: 380000" required>
+            <label for="workIncomeNote">📝 Izoh (ixtiyoriy):</label>
+            <input type="text" class="form-input" id="workIncomeNote" placeholder="Masalan: Faol hafta, dam olish maroqli o'tdi">
           </div>
-        </div>
-
-        <!-- Izoh -->
-        <div class="form-group">
-          <label for="workIncomeNote">Izoh (ixtiyoriy):</label>
-          <input type="text" class="form-input" id="workIncomeNote" placeholder="Masalan: Kunduzgi smena, buyurtmalar">
         </div>
 
         <!-- Real-time Live Calculation Preview -->
         <div class="income-live-preview">
           <div class="live-pill">
-            <span>Jami daromad:</span>
+            <span>7 kunda topgan pul:</span>
             <strong id="liveIncomeTotalSum">0 so'm</strong>
+          </div>
+          <div class="live-pill">
+            <span>Ish va Dam balansi:</span>
+            <strong id="liveIncomeDaysRatio">5 kun ish / 2 kun dam</strong>
+          </div>
+          <div class="live-pill">
+            <span>Jami ish soati:</span>
+            <strong id="liveIncomeTotalHours">0 soat</strong>
           </div>
           <div class="live-pill">
             <span>Bajarilgan buyurtmalar:</span>
             <strong id="liveIncomeOrdersCount">0 ta</strong>
           </div>
           <div class="live-pill">
+            <span>1 soatlik daromad:</span>
+            <strong id="liveIncomeHourlyRate">0 so'm/soat</strong>
+          </div>
+          <div class="live-pill">
             <span>1 buyurtmaga o'rtacha:</span>
             <strong id="liveIncomeOrderRate">0 so'm/ta</strong>
           </div>
-          <div class="live-pill">
-            <span>Ish davomiyligi:</span>
-            <strong id="liveIncomeWorkDuration">9 soat (09:00 - 18:00)</strong>
-          </div>
         </div>
 
-        <div class="form-actions">
-          <button type="button" class="btn" style="background: var(--bg-surface-elevated);" onclick="closeAllModals()">Bekor qilish</button>
-          <button type="submit" class="btn btn-income" id="workIncomeSubmitBtn">💾 Daromadni saqlash</button>
+        <div class="form-actions" style="margin-top: 18px; display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn" style="background: var(--bg-surface-elevated); flex: 1; min-width: 90px;" onclick="closeAllModals()">Bekor qilish</button>
+          <button type="button" class="btn btn-step-save" id="workIncomeSaveAndPrevBtn" title="Ushbu haftani saqlab, oldingi haftaga o'tish (ketma-ket bir necha haftani tezkor kiritish uchun)" style="flex: 1.5; min-width: 175px;">
+            <span>💾◀</span> Saqlab, oldingi haftaga
+          </button>
+          <button type="submit" class="btn btn-income" id="workIncomeSubmitBtn" style="flex: 1.2; min-width: 130px;">💾 Saqlash</button>
         </div>
       </form>
     </div>
@@ -1062,52 +1294,40 @@
     </div>
   </div>
 
-  <!-- Mobile Floating Quick-Action Bar (Universal Mobile Dock - 6 ta asosiy menyu funksiyalari) -->
-  <nav class="mobile-bottom-bar" id="mobileBottomBar" aria-label="Mobil tezkor harakatlar">
-    <button class="mobile-nav-btn mobile-nav-inc" id="mobileIncomeBtn" title="Daromadlar">
-      <svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="2.3" fill="none">
-        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-      </svg>
-      <span>Daromad</span>
-    </button>
-    <button class="mobile-nav-btn mobile-nav-exp" id="mobileExpBtn" title="Xarajatlar">
-      <svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="2.3" fill="none">
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-      <span>Xarajat</span>
-    </button>
-    <button class="mobile-nav-btn mobile-nav-lend" id="mobileLendBtn" title="Qarz berish">
-      <svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="2.3" fill="none">
-        <path d="M17 18a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10z"/>
-        <polyline points="15 11 12 8 9 11"/>
-        <line x1="12" y1="8" x2="12" y2="16"/>
-      </svg>
-      <span>Qarz berish</span>
-    </button>
-    <button class="mobile-nav-btn mobile-nav-borrow" id="mobileBorrowBtn" title="Qarz olish">
-      <svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="2.3" fill="none">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="9 13 12 16 15 13"/>
-        <line x1="12" y1="8" x2="12" y2="16"/>
-      </svg>
-      <span>Qarz olish</span>
-    </button>
-    <button class="mobile-nav-btn mobile-nav-calc" id="mobileCalcBtn" title="Kalkulyator">
-      <svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="2.3" fill="none">
-        <rect x="4" y="2" width="16" height="20" rx="2"/>
-        <line x1="8" y1="6" x2="16" y2="6"/>
-        <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>
-      </svg>
-      <span>Kalkulyator</span>
-    </button>
-    <button class="mobile-nav-btn mobile-nav-reset" id="mobileResetBtn" title="Statistikani 0 ga tushirish">
-      <svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="2.3" fill="none">
-        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-        <polyline points="3 3 3 8 8 8"/>
-      </svg>
-      <span>0 qilish</span>
-    </button>
-  </nav>
+
+
+  <!-- Modal: Ilova haqida (About App Modal) -->
+  <div class="modal-overlay" id="aboutAppModal">
+    <div class="modal-window modal-window-sm">
+      <div class="modal-handle-bar"></div>
+      <div class="modal-header">
+        <h3 class="modal-title" style="color: #818cf8;">
+          ℹ️ Ilova haqida
+        </h3>
+        <button class="modal-close" onclick="closeAllModals()">&times;</button>
+      </div>
+      <div style="padding: 12px 4px 6px; display: flex; flex-direction: column; gap: 14px; color: var(--text-main); font-size: 0.9rem; line-height: 1.55;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--brand-primary) 0%, #4338ca 100%); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff;">💎</div>
+          <div>
+            <div style="font-weight: 800; font-size: 1.05rem;">Moliya & Daromadlar Menejeri</div>
+            <div style="font-size: 0.75rem; color: #818cf8; font-weight: 700;">Talqin: 2.5 Pro (SPA Edition)</div>
+          </div>
+        </div>
+        <p style="margin: 0; color: var(--text-secondary);">
+          Ushbu ilova shaxsiy haftalik daromadlar, ish soatlari, buyurtmalar, mikro-qarzlar va kundalik xarajatlarni qulay hisoblab borish uchun yaratilgan.
+        </p>
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; font-size: 0.82rem; display: flex; flex-direction: column; gap: 6px;">
+          <div>🔒 <strong>Xavfsizlik:</strong> Barcha ma'lumotlar brauzeringiz xotirasida (localStorage) saqlanadi.</div>
+          <div>📱 <strong>Moslashuvchanlik:</strong> Mobil telefon, planshet va kompyuterlarda to'liq moslashgan.</div>
+          <div>⚡ <strong>Tezkorlik:</strong> Numpad klaviatura va tezkor kalkulyator integratsiyasi mavjud.</div>
+        </div>
+        <div class="form-actions" style="margin-top: 8px;">
+          <button type="button" class="btn btn-primary" style="width: 100%;" onclick="closeAllModals()">Tushunarli</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast Container -->
   <div class="toast-container" id="toastContainer"></div>

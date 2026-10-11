@@ -10,11 +10,13 @@ Zamonaviy va qulay moliya tahlilchisi hamda kalkulyator veb-ilovasi.
    - 🚕 **Taxi xizmati** (Yandex, mashina yo'l haqi)
    - 🚌 **Yo'l haqi** (avtobus, metro, ATTO kartasi)
    - ✏️ **Nomsiz / Maxsus kategoriya** (nomini foydalanuvchi o'zi qo'yadi va xarajatni yozadi!)
-2. **Daromadlar & Bajarilgan Buyurtmalar**:
-   - ⏱️ **Ish vaqti**: Ish boshlangan va tugagan vaqtni tanlash hamda ish davomiyligini avtomatik hisoblash.
-   - 📦 **Bajarilgan buyurtmalar soni**: Kunlik bajarilgan buyurtmalar hisobi.
-   - 💵 **Topilgan daromad**: Kunlik sof daromad summasi, soatlik o'rtacha tushum va 1 ta buyurtmaga to'g'ri kelgan daromad ko'rsatkichlari.
-   - 📝 **Tahrirlash va O'chirish**: Har bir kiritilgan ish daromadini tahrirlash yoki Korzinaga o'tkazish.
+2. **Haftalik Daromadlar & Ish Faoliyati (7 kunlik hisobot & kalendar)**:
+   - 🗓️ **Interaktiv 7 kunlik kalendar**: Hafta kunlari (Du, Se, Cho, Pay, Ju, Sha, Ya) kalendardan tanlab olinadi. Tanlangan kunlar **ishlangan**, tanlanmagan kunlar esa avtomatik **dam olingan** deb hisoblanadi.
+   - 💵 **7 kunda topgan pul**: Haftalik sof tushum summasi.
+   - ⏱️ **Jami ish soati**: Hafta davomida ishlangan jami soatlar hisobi va soatlik o'rtacha daromad kalkulyatsiyasi.
+   - 📦 **Jami bajarilgan buyurtmalar**: Haftalik jami yetkazilgan buyurtmalar soni hamda 1 ta buyurtmaga to'g'ri kelgan o'rtacha tushum.
+   - 📊 **6 ta KPI ko'rsatkich**: Jami daromad, 7 kunda topgan pul, Jami ish soat, Bajarilgan buyurtmalar, Ishlangan kunlar va Dam olingan kunlar.
+   - 📝 **Tahrirlash va O'chirish**: Har bir kiritilgan haftalik daromadni tahrirlash yoki Chiqindi qutisiga o'tkazish.
 3. **Oylik tushumlar**:
    - Asosiy oylik maosh, avans va qo'shimcha daromadlarni hisobga olish.
 4. **Qarzlar & Yaqinlarga berilgan pullar (Omonat) moduli**:

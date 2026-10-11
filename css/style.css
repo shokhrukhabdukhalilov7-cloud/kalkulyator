@@ -1831,12 +1831,18 @@ body {
 
 .income-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   padding-top: 16px;
   border-top: 1px solid var(--border-subtle);
   width: 100%;
   min-width: 0;
+}
+
+@media (min-width: 1100px) {
+  .income-kpi-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
 }
 
 .income-kpi-tile {
@@ -1928,96 +1934,741 @@ body {
 .incomes-items-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
-.income-work-card {
-  background: var(--bg-surface-elevated);
+/* ========================================================
+   WEEK SELECTOR & HISTORICAL WEEKS NAVIGATION
+   ======================================================== */
+.week-selector-block {
+  background: var(--bg-surface-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 14px 18px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.week-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.week-picker-label {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0;
+}
+
+.week-badge-relative {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 4px 11px;
+  border-radius: 20px;
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
   transition: var(--transition);
 }
 
-.income-work-card:hover {
-  border-color: rgba(16, 185, 129, 0.35);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+.week-badge-relative.is-current {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
-.income-card-left {
+/* Quick weeks chips horizontal scroll */
+.quick-weeks-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  padding: 3px 0 8px;
+  margin-bottom: 10px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.quick-weeks-scroll-wrapper::-webkit-scrollbar {
+  height: 4px;
+}
+
+.quick-weeks-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 4px;
+}
+
+.quick-weeks-chips {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+  min-width: max-content;
+}
+
+.quick-week-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-radius: 20px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.quick-week-chip:hover {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--text-main);
+  border-color: rgba(99, 102, 241, 0.35);
+  transform: translateY(-1px);
+}
+
+.quick-week-chip:active {
+  transform: scale(0.96);
+}
+
+.quick-week-chip.active {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 3px 10px rgba(99, 102, 241, 0.35);
+  font-weight: 700;
+}
+
+.quick-week-chip .chip-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 5px #10b981;
+  display: inline-block;
+}
+
+.quick-week-chip.active .chip-status-dot {
+  background: #34d399;
+  box-shadow: 0 0 6px #ffffff;
+}
+
+/* Week Stepper Control */
+.week-stepper-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.btn-week-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  min-height: 40px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+
+.btn-week-step:hover {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.35);
+  color: var(--text-main);
+}
+
+.btn-week-step:active {
+  transform: scale(0.97);
+}
+
+.week-input-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.week-date-input {
+  width: 100%;
+  text-align: center;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  padding: 8px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  transition: var(--transition);
+}
+
+.week-date-input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+/* Past 16 weeks dropdown */
+.week-dropdown-wrap {
+  margin-bottom: 10px;
+}
+
+.week-select-control {
+  width: 100%;
+  font-size: 0.82rem;
+  padding: 9px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.week-select-control:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+/* Week Status Banner */
+.week-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.25s ease;
+}
+
+.week-status-banner.is-existing {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(37, 99, 235, 0.08) 100%);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.week-status-banner.is-new {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.06) 100%);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.ws-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.ws-content {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  min-width: 0;
 }
 
-.income-card-date {
-  font-size: 0.95rem;
+.ws-range {
+  font-size: 0.84rem;
   font-weight: 700;
   color: var(--text-main);
+  line-height: 1.3;
+}
+
+.ws-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+/* Step save button (Batch entry: Saqlab, oldingi haftaga) */
+.btn-step-save {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3) !important;
+  transition: var(--transition) !important;
+}
+
+.btn-step-save:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.45) !important;
+  transform: translateY(-1px);
+}
+
+.btn-step-save:active {
+  transform: scale(0.97);
+}
+
+/* Card Relative Week Tag */
+.income-week-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.14);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.income-week-tag.is-current {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 600px) {
+  .week-stepper-control {
+    flex-wrap: wrap;
+  }
+  .btn-week-step {
+    flex: 1;
+    min-width: 120px;
+    padding: 8px 6px;
+    font-size: 0.74rem;
+  }
+  .week-input-wrap {
+    order: -1;
+    width: 100%;
+    flex-basis: 100%;
+  }
+}
+
+/* 1. Modal Weekly Calendar Selector */
+.weekly-calendar-group {
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.cal-quick-actions {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
-.income-card-time {
-  font-size: 0.8rem;
+.btn-cal-chip {
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-cal-chip:hover {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+/* 7 ta kun kartochkalari (Grid: Du dan Yakshanbagacha) */
+.weekly-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin: 12px 0 10px;
+}
+
+@media (max-width: 768px) {
+  .weekly-days-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 460px) {
+  .weekly-days-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+}
+
+.cal-day-card {
+  background: var(--bg-surface-elevated);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.cal-day-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Tanlangan sana (Ish kuni) */
+.cal-day-card.is-work {
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.18) 0%, rgba(5, 150, 105, 0.28) 100%);
+  border-color: #10b981;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+
+/* Tanlanmagan sana (Dam olish kuni) */
+.cal-day-card.is-rest {
+  background: rgba(148, 163, 184, 0.05);
+  border-color: rgba(148, 163, 184, 0.15);
+  opacity: 0.85;
+}
+
+.cal-day-card.is-rest:hover {
+  opacity: 1;
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.cal-day-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+}
+
+.cal-day-card.is-work .cal-day-name {
+  color: #34d399;
+}
+
+.cal-day-date {
+  font-size: 0.82rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-main);
+}
+
+.cal-day-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 8px;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.cal-day-card.is-work .cal-day-badge {
+  background: rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+}
+
+.cal-day-card.is-rest .cal-day-badge {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+}
+
+/* Days Summary Bar (Ishlangan / Dam olingan) */
+.days-summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  margin-top: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.days-counter-pill {
   display: flex;
   align-items: center;
   gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
 }
 
-.income-card-center {
+.days-counter-pill strong {
+  color: var(--text-main);
+  font-family: var(--font-mono);
+}
+
+.days-counter-pill .pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.days-counter-pill .pill-dot.work {
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.days-counter-pill .pill-dot.rest {
+  background: #818cf8;
+  box-shadow: 0 0 6px #818cf8;
+}
+
+/* Amount & Hours Quick Chips */
+.amount-quick-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.quick-chip-btn {
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 10px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.quick-chip-btn:hover {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+/* Haftalik kartochkalar (Weekly Income Cards) */
+.income-week-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.income-week-card:hover {
+  border-color: rgba(16, 185, 129, 0.35);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.22);
+}
+
+.income-week-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.income-week-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.week-icon-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+.income-week-range {
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.income-week-sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.income-week-sum-wrap {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.income-week-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.income-week-amount {
+  font-size: 1.3rem;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  color: #10b981;
+  letter-spacing: -0.02em;
+}
+
+/* 7 kunlik vizual polosa (strip) */
+.income-week-days-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--bg-surface-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 540px) {
+  .income-week-days-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.strip-day-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 4px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.strip-day-chip.work {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.strip-day-chip.rest {
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  color: var(--text-muted);
+}
+
+.strip-day-chip strong {
+  font-size: 0.76rem;
+}
+
+.strip-day-chip span {
+  font-size: 0.65rem;
+}
+
+/* Metrikalar paneli (Chips row) */
+.income-week-metrics-bar {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.income-pill-badge {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 14px;
-  background: var(--bg-input);
+.income-metric-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 16px;
+  background: var(--bg-surface-card);
   border: 1px solid var(--border-subtle);
+  font-size: 0.76rem;
   color: var(--text-secondary);
 }
 
-.income-pill-orders {
-  background: rgba(99, 102, 241, 0.12);
-  border-color: rgba(99, 102, 241, 0.3);
+.income-metric-chip strong {
+  color: var(--text-main);
+  font-family: var(--font-mono);
+}
+
+.income-metric-chip.work-chip {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+}
+
+.income-metric-chip.rest-chip {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.25);
   color: #a5b4fc;
 }
 
-.income-pill-rate {
-  background: rgba(16, 185, 129, 0.12);
-  border-color: rgba(16, 185, 129, 0.3);
-  color: #6ee7b7;
+.income-metric-chip.hours-chip {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
 }
 
-.income-card-right {
+.income-metric-chip.orders-chip {
+  background: rgba(6, 182, 212, 0.08);
+  border-color: rgba(6, 182, 212, 0.25);
+  color: #22d3ee;
+}
+
+.income-week-note {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background: var(--bg-input);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid #10b981;
+}
+
+.income-week-footer {
   display: flex;
   align-items: center;
-  gap: 14px;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.income-card-amount {
-  font-size: 1.18rem;
-  font-weight: 800;
-  font-family: var(--font-mono);
-  color: #10b981;
-  white-space: nowrap;
+.income-week-timestamp {
+  font-size: 0.73rem;
+  color: var(--text-muted);
 }
 
-.income-card-actions {
+.income-week-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .btn-icon-action {
@@ -2776,4 +3427,392 @@ body {
     padding: 10px 4px;
     font-size: 0.9rem;
   }
+}
+
+/* ========================================================
+   TAB-BASED SPA NAVIGATION & DRAWER SYSTEM
+   ======================================================== */
+
+/* App layout padding */
+.app-layout {
+  padding-bottom: 40px !important;
+}
+
+/* Tab Views System */
+.tabs-container {
+  width: 100%;
+}
+
+.tab-view {
+  display: none;
+  width: 100%;
+  animation: fadeInTab 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tab-view.active {
+  display: block;
+}
+
+@keyframes fadeInTab {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Lifetime Earnings Card (Jami Ishlab Topilgan Pul) */
+.lifetime-earnings-card {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%) !important;
+  border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.12) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.lifetime-earnings-card::after {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.lifetime-earnings-card .metric-amount {
+  color: #34d399 !important;
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+
+/* 5 Cards Metrics Grid Responsive Layout */
+@media (min-width: 1081px) {
+  .metrics-grid {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+}
+
+@media (max-width: 1080px) and (min-width: 601px) {
+  .metrics-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .lifetime-earnings-card {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .metrics-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Expenses Tab Grid (Analysis + Donut Chart side-by-side on wide screens) */
+.expenses-tab-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .expenses-tab-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Hamburger / 3-dot Header Button */
+.hamburger-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1.5px solid var(--border-subtle);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: var(--transition);
+  margin-right: 8px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+  touch-action: manipulation;
+}
+
+.hamburger-btn svg {
+  pointer-events: none;
+}
+
+.hamburger-btn:hover {
+  background: rgba(99, 102, 241, 0.16);
+  border-color: var(--brand-primary);
+  color: #818cf8;
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.25);
+}
+
+.hamburger-btn:active {
+  transform: scale(0.95);
+}
+
+/* Sidebar Drawer Overlay */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2000 !important;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.drawer-overlay.active {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* App Drawer Panel */
+.app-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 330px;
+  max-width: 86vw;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  box-shadow: 12px 0 40px rgba(0, 0, 0, 0.65);
+  z-index: 2001 !important;
+  transform: translateX(-100%);
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-drawer.active {
+  transform: translateX(0) !important;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+}
+
+.drawer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawer-logo-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--brand-primary) 0%, #4338ca 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.drawer-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.drawer-version {
+  font-size: 0.72rem;
+  color: #818cf8;
+  font-weight: 700;
+}
+
+.drawer-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.6rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+  transition: var(--transition);
+}
+
+.drawer-close-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.drawer-section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 10px 4px;
+}
+
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  transition: var(--transition);
+  user-select: none;
+  border: 1px solid transparent;
+}
+
+.drawer-item:hover {
+  background: var(--bg-surface-elevated);
+  border-color: var(--border-subtle);
+  transform: translateX(3px);
+}
+
+.drawer-item:active {
+  transform: scale(0.98);
+}
+
+.drawer-item-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  flex-shrink: 0;
+  font-size: 1.15rem;
+  transition: var(--transition);
+}
+
+.drawer-item:hover .drawer-item-icon {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border-color: rgba(99, 102, 241, 0.35);
+}
+
+.drawer-item.danger-item:hover .drawer-item-icon {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.drawer-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.drawer-item-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.drawer-item-desc {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.drawer-footer {
+  padding: 14px 18px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-align: center;
+  background: var(--bg-surface-elevated);
+}
+
+/* Drawer Item Active State (Hozirgi Tanlangan Oyna) */
+.drawer-item.active {
+  background: rgba(99, 102, 241, 0.16) !important;
+  border-color: rgba(99, 102, 241, 0.45) !important;
+  position: relative;
+}
+
+.drawer-item.active .drawer-item-icon {
+  background: linear-gradient(135deg, var(--brand-primary) 0%, #4f46e5 100%) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.45) !important;
+}
+
+.drawer-item.active .drawer-item-title {
+  color: #818cf8 !important;
+  font-weight: 800 !important;
+}
+
+.drawer-item.active::after {
+  content: '✓';
+  position: absolute;
+  right: 14px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #818cf8;
+}
+
+/* Header Active Tab Badge */
+.active-tab-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.18);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
+}
+
+[data-theme="light"] .active-tab-badge {
+  background: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+  border-color: rgba(79, 70, 229, 0.25);
+}
+
+/* Pastdagi va tepadagi keraksiz navigatsiyalarni yashirish */
+.mobile-section-nav {
+  display: none !important;
+}
+
+.app-bottom-nav {
+  display: none !important;
 }

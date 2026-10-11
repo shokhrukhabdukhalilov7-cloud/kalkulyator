@@ -21,30 +21,29 @@ const defaultState = {
   workIncomes: [
     {
       id: 1,
-      date: "2026-10-08",
-      startTime: "09:00",
-      endTime: "18:00",
-      ordersCount: 16,
-      amount: 380000,
-      note: "Kunduzgi faoliyat"
+      startDate: "2026-10-05",
+      endDate: "2026-10-11",
+      amount: 3200000,
+      totalHours: 42,
+      ordersCount: 48,
+      workDays: ["2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09"],
+      restDays: ["2026-10-10", "2026-10-11"],
+      workDaysCount: 5,
+      restDaysCount: 2,
+      note: "5 kun ishlangan, 2 kun dam"
     },
     {
       id: 2,
-      date: "2026-10-07",
-      startTime: "10:00",
-      endTime: "19:30",
-      ordersCount: 18,
-      amount: 420000,
-      note: "Faol kun"
-    },
-    {
-      id: 3,
-      date: "2026-10-06",
-      startTime: "12:00",
-      endTime: "21:00",
-      ordersCount: 14,
-      amount: 320000,
-      note: "Standart ish kuni"
+      startDate: "2026-09-28",
+      endDate: "2026-10-04",
+      amount: 3800000,
+      totalHours: 50,
+      ordersCount: 56,
+      workDays: ["2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03"],
+      restDays: ["2026-10-04"],
+      workDaysCount: 6,
+      restDaysCount: 1,
+      note: "Faol hafta, 6 kun ish"
     }
   ],
   debts: [
@@ -183,8 +182,35 @@ function loadState() {
       if (!parsed.workIncomes) {
         parsed.workIncomes = JSON.parse(JSON.stringify(defaultState.workIncomes));
       } else {
-        parsed.workIncomes.forEach(w => {
-          if (!w.endTime) w.endTime = "18:00";
+        parsed.workIncomes = parsed.workIncomes.map(w => {
+          if (!w.startDate && w.date) {
+            const d = new Date(w.date);
+            const day = d.getDay();
+            const diff = day === 0 ? -6 : 1 - day;
+            const mon = new Date(d);
+            mon.setDate(d.getDate() + diff);
+            const sun = new Date(mon);
+            sun.setDate(mon.getDate() + 6);
+            const toIso = dt => dt.toISOString().split('T')[0];
+            return {
+              id: w.id || Date.now(),
+              startDate: toIso(mon),
+              endDate: toIso(sun),
+              amount: w.amount || 0,
+              totalHours: 9,
+              ordersCount: w.ordersCount || 0,
+              workDays: [w.date],
+              restDays: [],
+              workDaysCount: 1,
+              restDaysCount: 6,
+              note: w.note || "Kunlik yozuvdan ko'chirildi"
+            };
+          }
+          if (w.workDays && !w.workDaysCount) {
+            w.workDaysCount = w.workDays.length;
+            w.restDaysCount = 7 - w.workDaysCount;
+          }
+          return w;
         });
       }
       if (parsed.debts) {
@@ -233,6 +259,10 @@ function updateTrashBadge() {
   const badge = document.getElementById('trashCountBadge');
   if (badge) {
     badge.textContent = appTrash.length;
+  }
+  const drawerBadge = document.getElementById('drawerTrashCountBadge');
+  if (drawerBadge) {
+    drawerBadge.textContent = appTrash.length;
   }
 }
 
@@ -605,7 +635,8 @@ function initModals() {
   if (confirmResetBtn) confirmResetBtn.addEventListener('click', handleResetStatistics);
 
   // Tashqariga bosilganda yopish
-  [expenseModal, incomeModal, workIncomeModal, debtModal, resetConfirmModal, trashModal, renameCatModal].forEach(modal => {
+  const aboutAppModal = document.getElementById('aboutAppModal');
+  [expenseModal, incomeModal, workIncomeModal, debtModal, resetConfirmModal, trashModal, renameCatModal, aboutAppModal].forEach(modal => {
     if (modal) {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) closeAllModals();
@@ -615,7 +646,10 @@ function initModals() {
 
   // Esc klavishi
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeAllModals();
+    if (e.key === 'Escape') {
+      if (typeof closeDrawer === 'function') closeDrawer();
+      closeAllModals();
+    }
   });
 }
 
@@ -645,6 +679,7 @@ function handleResetStatistics() {
       monthlyIncome: appState.monthlyIncome,
       monthlyExpense: appState.monthlyExpense,
       activeDebtTotal: appState.activeDebtTotal,
+      cumulativeEarnings: appState.cumulativeEarnings || 0,
       customCategoryName: appState.customCategoryName,
       categories: { ...appState.categories },
       debts: [...appState.debts],
@@ -661,6 +696,7 @@ function handleResetStatistics() {
   appState.monthlyIncome = 0;
   appState.monthlyExpense = 0;
   appState.activeDebtTotal = 0;
+  appState.cumulativeEarnings = 0;
   appState.categories = {
     social: 0,
     food: 0,
@@ -1350,28 +1386,403 @@ window.handleQuickPay = function(identifier, amount) {
 };
 
 // ==========================================
-// DAROMADLAR VA BAJARILGAN BUYURTMALAR LOGIKASI
+// DAROMADLAR VA BAJARILGAN BUYURTMALAR LOGIKASI (HAFTALIK HISOBOT & KALENDAR)
 // ==========================================
 
-function updateWorkIncomeLivePreview() {
-  const ordersEl = document.getElementById('workIncomeOrders');
-  const amountEl = document.getElementById('workIncomeAmount');
-  const startEl = document.getElementById('workIncomeStartTime');
-  const endEl = document.getElementById('workIncomeEndTime');
+const UZ_MONTH_NAMES = [
+  'Yanvar', 'Fevral', 'Mart', 'Aprel', 'May', 'Iyun',
+  'Iyul', 'Avgust', 'Sentabr', 'Oktabr', 'Noyabr', 'Dekabr'
+];
 
-  const orders = Number(ordersEl ? ordersEl.value : 0) || 0;
+// Dushanba sanasini hisoblash
+function getMondayDate(dateInput) {
+  let d;
+  if (!dateInput) {
+    d = new Date();
+  } else if (typeof dateInput === 'string') {
+    const parts = dateInput.split('-').map(Number);
+    if (parts.length === 3) {
+      d = new Date(parts[0], parts[1] - 1, parts[2]);
+    } else {
+      d = new Date(dateInput);
+    }
+  } else {
+    d = new Date(dateInput);
+  }
+  const day = d.getDay(); // 0: Yakshanba, 1: Dushanba ... 6: Shanba
+  const diff = (day === 0 ? -6 : 1 - day);
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+
+function toIsoDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function getWeek7Days(mondayDate) {
+  const dayNames = ["Dushanba", "Seshanba", "Chorshanba", "Payshanba", "Juma", "Shanba", "Yakshanba"];
+  const dayShorts = ["Du", "Se", "Cho", "Pay", "Ju", "Sha", "Ya"];
+  const list = [];
+  for (let i = 0; i < 7; i++) {
+    const cur = new Date(mondayDate);
+    cur.setDate(mondayDate.getDate() + i);
+    list.push({
+      dateStr: toIsoDate(cur),
+      dayName: dayNames[i],
+      dayShort: dayShorts[i],
+      dayNum: cur.getDate(),
+      monthNum: cur.getMonth() + 1,
+      index: i
+    });
+  }
+  return list;
+}
+
+// 7.09.2026 dan oldingi haftalar ko'rsatilmaydi
+const MIN_WORK_INCOME_DATE = '2026-09-07';
+
+// Modalda tanlangan ish kunlari to'plami
+let modalWorkDays = new Set();
+
+// Hafta farqini hisoblash (Joriy haftaga nisbatan nechta hafta oldin/keyin)
+function getWeekOffset(mondayInput) {
+  const curMon = getMondayDate(new Date());
+  const targetMon = getMondayDate(mondayInput);
+  const t1 = new Date(curMon.getFullYear(), curMon.getMonth(), curMon.getDate()).getTime();
+  const t2 = new Date(targetMon.getFullYear(), targetMon.getMonth(), targetMon.getDate()).getTime();
+  const diffDays = Math.round((t1 - t2) / (1000 * 60 * 60 * 24));
+  return Math.round(diffDays / 7);
+}
+
+// Nisbiy hafta matni (badge uchun)
+function getWeekRelativeText(offset) {
+  if (offset === 0) return "📌 Joriy hafta";
+  if (offset === 1) return "⏪ 1 hafta oldin (o'tgan hafta)";
+  if (offset > 1) return `⏪ ${offset} hafta oldin`;
+  if (offset === -1) return "⏩ Keyingi hafta";
+  return `⏩ ${Math.abs(offset)} hafta keyin`;
+}
+
+// 7-Sentabrdan bugungacha bo'lgan haftalar tezkor chipslari
+function renderQuickWeeksChips(activeMondayStr) {
+  const container = document.getElementById('quickWeeksChipsContainer');
+  if (!container) return;
+
+  const curMon = getMondayDate(new Date());
+  const activeMonStr = toIsoDate(getMondayDate(activeMondayStr));
+
+  // Faqat 7.09.2026 dan joriy haftagacha bo'lgan haftalar
+  const chipsList = [];
+  let d = new Date(curMon);
+  let offset = 0;
+  while (toIsoDate(d) >= MIN_WORK_INCOME_DATE) {
+    chipsList.push({
+      mondayStr: toIsoDate(d),
+      offset: offset
+    });
+    d.setDate(d.getDate() - 7);
+    offset++;
+  }
+
+  const chipsHtml = chipsList.map(item => {
+    const mondayStr = item.mondayStr;
+    const offset = item.offset;
+    const isActive = mondayStr === activeMonStr;
+
+    // Mavjud kiritilgan daromad bormi?
+    const existing = (appState.workIncomes || []).find(rec => rec.startDate === mondayStr);
+
+    let label = '';
+    if (offset === 0) {
+      label = '📌 Joriy';
+    } else if (offset === 1) {
+      label = '⏪ 1 h. oldin';
+    } else {
+      label = `⏪ ${offset} h. oldin`;
+    }
+
+    const dotHtml = existing ? `<span class="chip-status-dot" title="Saqlangan: +${formatSom(existing.amount)}"></span>` : '';
+
+    return `
+      <button type="button" 
+        class="quick-week-chip ${isActive ? 'active' : ''} ${existing ? 'has-record' : ''}" 
+        onclick="selectWeekDate('${mondayStr}')"
+        title="${getWeekRelativeText(offset)} (${formatDateUz(mondayStr)})${existing ? ' — ✅ Saqlangan: +' + formatSom(existing.amount) : ' — 🆕 Kiritilmagan'}">
+        ${label} ${dotHtml}
+      </button>
+    `;
+  }).join('');
+
+  container.innerHTML = chipsHtml;
+
+  // Faol chipni avtomatik markazga scroll qilish
+  setTimeout(() => {
+    const activeChip = container.querySelector('.quick-week-chip.active');
+    if (activeChip) {
+      activeChip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, 50);
+}
+
+// 7-Sentabrdan bugungacha bo'lgan haftalar dropdown ro'yxati
+function populatePastWeeksDropdown(activeMondayStr) {
+  const select = document.getElementById('workIncomePastWeeksSelect');
+  if (!select) return;
+
+  const curMon = getMondayDate(new Date());
+  const activeMonStr = toIsoDate(getMondayDate(activeMondayStr));
+  let options = `<option value="">📋 7-Sentabrdan bugungacha bo'lgan haftalar ro'yxati...</option>`;
+
+  let d = new Date(curMon);
+  let offset = 0;
+  while (toIsoDate(d) >= MIN_WORK_INCOME_DATE) {
+    const mondayStr = toIsoDate(d);
+    const sunday = new Date(d);
+    sunday.setDate(d.getDate() + 6);
+    const sundayStr = toIsoDate(sunday);
+
+    const existing = (appState.workIncomes || []).find(item => item.startDate === mondayStr);
+    const relText = offset === 0 ? "📌 Joriy hafta" : (offset === 1 ? "⏪ 1 hafta oldin" : `⏪ ${offset} hafta oldin`);
+    const statusText = existing ? `[✅ Saqlangan: +${formatSom(existing.amount)}]` : `[🆕 Kiritilmagan]`;
+
+    const isSel = mondayStr === activeMonStr ? 'selected' : '';
+    options += `<option value="${mondayStr}" ${isSel}>${relText} • (${formatDateUz(mondayStr)} — ${formatDateUz(sundayStr)}) ${statusText}</option>`;
+
+    d.setDate(d.getDate() - 7);
+    offset++;
+  }
+
+  select.innerHTML = options;
+  select.value = activeMonStr;
+}
+
+// Hafta sanasini tanlash va forma holatini moslash
+window.selectWeekDate = function(mondayInput, preserveData = false) {
+  const dateInput = document.getElementById('workIncomeWeekDate');
+  let baseMonday = getMondayDate(mondayInput);
+  let mondayStr = toIsoDate(baseMonday);
+
+  const curMon = getMondayDate(new Date());
+  const maxMonStr = toIsoDate(curMon);
+
+  // 7-Sentabr 2026-yildan oldingi haftalarni cheklash
+  if (mondayStr < MIN_WORK_INCOME_DATE) {
+    mondayStr = MIN_WORK_INCOME_DATE;
+    baseMonday = getMondayDate(MIN_WORK_INCOME_DATE);
+  } else if (mondayStr > maxMonStr) {
+    mondayStr = maxMonStr;
+    baseMonday = curMon;
+  }
+
+  if (dateInput) {
+    dateInput.value = mondayStr;
+    dateInput.min = MIN_WORK_INCOME_DATE;
+    dateInput.max = maxMonStr;
+  }
+
+  // Stepper tugmalarini chegaralarda boshqarish
+  const prevWeekBtn = document.getElementById('workIncomePrevWeekBtn');
+  const nextWeekBtn = document.getElementById('workIncomeNextWeekBtn');
+  if (prevWeekBtn) {
+    if (mondayStr <= MIN_WORK_INCOME_DATE) {
+      prevWeekBtn.style.opacity = '0.4';
+      prevWeekBtn.style.pointerEvents = 'none';
+      prevWeekBtn.title = "7-Sentabr 2026-yildan oldingi davrga o'tib bo'lmaydi";
+    } else {
+      prevWeekBtn.style.opacity = '1';
+      prevWeekBtn.style.pointerEvents = 'auto';
+      prevWeekBtn.title = "1 hafta orqaga o'tish";
+    }
+  }
+  if (nextWeekBtn) {
+    if (mondayStr >= maxMonStr) {
+      nextWeekBtn.style.opacity = '0.4';
+      nextWeekBtn.style.pointerEvents = 'none';
+      nextWeekBtn.title = "Bugungi haftadan keyingi davrga o'tib bo'lmaydi";
+    } else {
+      nextWeekBtn.style.opacity = '1';
+      nextWeekBtn.style.pointerEvents = 'auto';
+      nextWeekBtn.title = "1 hafta oldinga o'tish";
+    }
+  }
+
+  const offset = getWeekOffset(mondayStr);
+  const relativeBadge = document.getElementById('workIncomeRelativeBadge');
+  const relText = getWeekRelativeText(offset);
+  if (relativeBadge) {
+    relativeBadge.textContent = relText;
+    if (offset === 0) {
+      relativeBadge.classList.add('is-current');
+    } else {
+      relativeBadge.classList.remove('is-current');
+    }
+  }
+
+  const existingItem = (appState.workIncomes || []).find(i => i.startDate === mondayStr);
+  const statusBanner = document.getElementById('workIncomeWeekStatusBanner');
+  const statusIcon = document.getElementById('workIncomeStatusIcon');
+  const entryStatus = document.getElementById('workIncomeWeekEntryStatus');
+  const titleEl = document.getElementById('workIncomeModalTitleText');
+  const submitBtn = document.getElementById('workIncomeSubmitBtn');
+  const editIdInput = document.getElementById('editWorkIncomeId');
+
+  if (existingItem) {
+    if (editIdInput) editIdInput.value = existingItem.id;
+    if (titleEl) titleEl.textContent = `Haftalik Daromadni Tahrirlash (${relText})`;
+    if (submitBtn) submitBtn.textContent = "💾 O'zgarishlarni saqlash";
+
+    if (statusBanner) {
+      statusBanner.classList.add('is-existing');
+      statusBanner.classList.remove('is-new');
+    }
+    if (statusIcon) statusIcon.textContent = "✅";
+    if (entryStatus) {
+      entryStatus.innerHTML = `<strong>Ushbu haftaga daromad kiritilgan</strong> (+${formatSom(existingItem.amount)}, ${existingItem.ordersCount || 0} ta buyurtma, ${existingItem.totalHours || 0} soat). Tahrirlash rejimida.`;
+    }
+
+    if (!preserveData) {
+      const amtEl = document.getElementById('workIncomeAmount');
+      const hrsEl = document.getElementById('workIncomeHours');
+      const ordEl = document.getElementById('workIncomeOrders');
+      const noteEl = document.getElementById('workIncomeNote');
+
+      if (amtEl) amtEl.value = existingItem.amount;
+      if (hrsEl) hrsEl.value = existingItem.totalHours || 40;
+      if (ordEl) ordEl.value = existingItem.ordersCount || 0;
+      if (noteEl) noteEl.value = existingItem.note || '';
+
+      modalWorkDays.clear();
+      (existingItem.workDays || []).forEach(d => modalWorkDays.add(d));
+    }
+  } else {
+    if (editIdInput) editIdInput.value = '';
+    if (titleEl) titleEl.textContent = `Haftalik Daromad Kiritish (${relText})`;
+    if (submitBtn) submitBtn.textContent = "💾 Haftalik daromadni saqlash";
+
+    if (statusBanner) {
+      statusBanner.classList.add('is-new');
+      statusBanner.classList.remove('is-existing');
+    }
+    if (statusIcon) statusIcon.textContent = "🆕";
+    if (entryStatus) {
+      entryStatus.textContent = "Ushbu haftaga hali daromad kiritilmagan. Yangi hisobot yaratilmoqda.";
+    }
+
+    if (!preserveData) {
+      const amtEl = document.getElementById('workIncomeAmount');
+      const hrsEl = document.getElementById('workIncomeHours');
+      const ordEl = document.getElementById('workIncomeOrders');
+      const noteEl = document.getElementById('workIncomeNote');
+
+      if (amtEl) amtEl.value = '';
+      if (hrsEl) hrsEl.value = '40';
+      if (ordEl) ordEl.value = '';
+      if (noteEl) noteEl.value = '';
+
+      // Standart 5 kunlik ish haftasi (Du-Ju)
+      const days = getWeek7Days(baseMonday);
+      modalWorkDays.clear();
+      for (let i = 0; i < 5; i++) {
+        if (days[i]) modalWorkDays.add(days[i].dateStr);
+      }
+    }
+  }
+
+  renderQuickWeeksChips(mondayStr);
+  populatePastWeeksDropdown(mondayStr);
+  renderModalCalendar();
+  updateWorkIncomeLivePreview();
+};
+
+function renderModalCalendar() {
+  const grid = document.getElementById('weeklyCalendarDaysGrid');
+  const dateInput = document.getElementById('workIncomeWeekDate');
+  const hintEl = document.getElementById('workIncomeWeekRangeHint');
+  if (!grid || !dateInput) return;
+
+  const baseMonday = getMondayDate(dateInput.value);
+  const mondayStr = toIsoDate(baseMonday);
+  
+  if (dateInput.value !== mondayStr) {
+    dateInput.value = mondayStr;
+  }
+
+  const days = getWeek7Days(baseMonday);
+  const sunday = days[6];
+
+  if (hintEl) {
+    hintEl.innerHTML = `📅 <strong>7 kunlik davr:</strong> ${formatDateUz(mondayStr)} — ${formatDateUz(sunday.dateStr)}`;
+  }
+
+  grid.innerHTML = days.map(d => {
+    const isWork = modalWorkDays.has(d.dateStr);
+    const mName = UZ_MONTH_NAMES[d.monthNum - 1] || '';
+    const mShort = mName.slice(0, 3);
+    return `
+      <div class="cal-day-card ${isWork ? 'is-work' : 'is-rest'}" onclick="toggleModalCalendarDay('${d.dateStr}')" title="${d.dayName} (${d.dateStr}) — ${isWork ? 'Ishlangan' : 'Dam olingan'}">
+        <span class="cal-day-name">${d.dayShort}</span>
+        <span class="cal-day-date">${d.dayNum}-${mShort}</span>
+        <span class="cal-day-badge">${isWork ? '💼 Ish kuni' : '🏖️ Dam kuni'}</span>
+      </div>
+    `;
+  }).join('');
+
+  const workCount = modalWorkDays.size;
+  const restCount = 7 - workCount;
+  setElText('modalWorkDaysCount', workCount);
+  setElText('modalRestDaysCount', restCount);
+
+  updateWorkIncomeLivePreview();
+}
+
+window.toggleModalCalendarDay = function(dateStr) {
+  if (modalWorkDays.has(dateStr)) {
+    modalWorkDays.delete(dateStr);
+  } else {
+    modalWorkDays.add(dateStr);
+  }
+  renderModalCalendar();
+  triggerHaptic('light');
+};
+
+function setModalWorkDaysPreset(count) {
+  const dateInput = document.getElementById('workIncomeWeekDate');
+  if (!dateInput) return;
+  const monday = getMondayDate(dateInput.value);
+  const days = getWeek7Days(monday);
+  modalWorkDays.clear();
+  for (let i = 0; i < count; i++) {
+    if (days[i]) modalWorkDays.add(days[i].dateStr);
+  }
+  renderModalCalendar();
+  triggerHaptic('light');
+}
+
+function updateWorkIncomeLivePreview() {
+  const amountEl = document.getElementById('workIncomeAmount');
+  const hoursEl = document.getElementById('workIncomeHours');
+  const ordersEl = document.getElementById('workIncomeOrders');
+
   const amount = Number(amountEl ? amountEl.value : 0) || 0;
-  const startTime = (startEl && startEl.value) ? startEl.value : "09:00";
-  const endTime = (endEl && endEl.value) ? endEl.value : "18:00";
+  const hours = Number(hoursEl ? hoursEl.value : 0) || 0;
+  const orders = Number(ordersEl ? ordersEl.value : 0) || 0;
+
+  const workCount = modalWorkDays.size;
+  const restCount = 7 - workCount;
 
   setElText('liveIncomeTotalSum', formatSom(amount));
+  setElText('liveIncomeDaysRatio', `${workCount} kun ish / ${restCount} kun dam`);
+  setElText('liveIncomeTotalHours', `${hours} soat`);
   setElText('liveIncomeOrdersCount', `${orders} ta`);
 
-  const perOrder = orders > 0 ? Math.round(amount / orders) : 0;
-  setElText('liveIncomeOrderRate', formatSom(perOrder) + "/ta");
+  const hourlyRate = hours > 0 ? Math.round(amount / hours) : 0;
+  setElText('liveIncomeHourlyRate', hourlyRate > 0 ? `${formatSom(hourlyRate)}/soat` : "0 so'm/soat");
 
-  const durationStr = calculateWorkDuration(startTime, endTime);
-  setElText('liveIncomeWorkDuration', `${durationStr} (${startTime} — ${endTime})`);
+  const perOrder = orders > 0 ? Math.round(amount / orders) : 0;
+  setElText('liveIncomeOrderRate', perOrder > 0 ? `${formatSom(perOrder)}/ta` : "0 so'm/ta");
 }
 
 function resetWorkIncomeModal() {
@@ -1380,90 +1791,100 @@ function resetWorkIncomeModal() {
   const editIdInput = document.getElementById('editWorkIncomeId');
   if (editIdInput) editIdInput.value = '';
 
-  const dateInput = document.getElementById('workIncomeDate');
-  if (dateInput) {
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.value = today;
-  }
-  const startInput = document.getElementById('workIncomeStartTime');
-  if (startInput) startInput.value = "09:00";
-  const endInput = document.getElementById('workIncomeEndTime');
-  if (endInput) endInput.value = "18:00";
-
-  const titleEl = document.getElementById('workIncomeModalTitleText');
-  if (titleEl) titleEl.textContent = "Daromad va Buyurtmalar Kiritish";
-  const submitBtn = document.getElementById('workIncomeSubmitBtn');
-  if (submitBtn) submitBtn.textContent = "💾 Daromadni saqlash";
-
-  const updateHint = setupDateInputEnhancements('workIncomeDate', 'workIncomeDateDisplayHint', 'workIncomeDateTodayBtn', 'workIncomeDateYesterdayBtn');
-  if (updateHint) updateHint();
-
-  updateWorkIncomeLivePreview();
+  const thisMonday = getMondayDate(new Date());
+  selectWeekDate(toIsoDate(thisMonday), false);
 }
 
-function initWorkIncomeForm() {
-  const form = document.getElementById('workIncomeForm');
-  if (!form) return;
+// Daromadni saqlash (oddiy submit yoki ketma-ket oldingi haftaga o'tish bilan)
+function saveCurrentWorkIncome(options = { closeModal: true, stepToPrev: false }) {
+  const dateInput = document.getElementById('workIncomeWeekDate');
+  if (!dateInput) return false;
 
-  const dateInput = document.getElementById('workIncomeDate');
-  const startInput = document.getElementById('workIncomeStartTime');
-  const endInput = document.getElementById('workIncomeEndTime');
-  const ordersInput = document.getElementById('workIncomeOrders');
-  const amountInput = document.getElementById('workIncomeAmount');
+  const editId = document.getElementById('editWorkIncomeId').value;
+  const monday = getMondayDate(dateInput.value);
+  const startDate = toIsoDate(monday);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  const endDate = toIsoDate(sunday);
 
-  if (dateInput && !dateInput.value) {
-    const today = new Date().toISOString().split('T')[0];
-    dateInput.value = today;
+  const amount = Number(document.getElementById('workIncomeAmount').value) || 0;
+  const totalHours = Number(document.getElementById('workIncomeHours').value) || 0;
+  const orders = Number(document.getElementById('workIncomeOrders').value) || 0;
+  const note = document.getElementById('workIncomeNote').value.trim();
+
+  if (amount <= 0) {
+    showToast("Iltimos, 7 kunda topilgan daromad summasini kiriting!");
+    return false;
   }
 
-  setupDateInputEnhancements('workIncomeDate', 'workIncomeDateDisplayHint', 'workIncomeDateTodayBtn', 'workIncomeDateYesterdayBtn');
-
-  [ordersInput, amountInput, startInput, endInput].forEach(inp => {
-    if (inp) {
-      inp.addEventListener('input', updateWorkIncomeLivePreview);
-      inp.addEventListener('change', updateWorkIncomeLivePreview);
+  const days = getWeek7Days(monday);
+  const workDays = [];
+  const restDays = [];
+  days.forEach(d => {
+    if (modalWorkDays.has(d.dateStr)) {
+      workDays.push(d.dateStr);
+    } else {
+      restDays.push(d.dateStr);
     }
   });
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const editId = document.getElementById('editWorkIncomeId').value;
-    const date = dateInput.value;
-    const startTime = (startInput && startInput.value) ? startInput.value : "09:00";
-    const endTime = (endInput && endInput.value) ? endInput.value : "18:00";
-    const orders = Number(ordersInput.value) || 0;
-    const amount = Number(amountInput.value) || 0;
-    const note = document.getElementById('workIncomeNote').value.trim();
-    const durationStr = calculateWorkDuration(startTime, endTime);
+  if (editId) {
+    const item = (appState.workIncomes || []).find(i => i.id === Number(editId));
+    if (item) {
+      const diffAmount = amount - (item.amount || 0);
+      item.startDate = startDate;
+      item.endDate = endDate;
+      item.amount = amount;
+      item.totalHours = totalHours;
+      item.ordersCount = orders;
+      item.workDays = workDays;
+      item.restDays = restDays;
+      item.workDaysCount = workDays.length;
+      item.restDaysCount = restDays.length;
+      item.note = note;
 
-    if (amount <= 0) {
-      showToast("Iltimos, topilgan daromad summasini kiriting!");
-      return;
-    }
-
-    if (editId) {
-      const item = (appState.workIncomes || []).find(i => i.id === Number(editId));
-      if (item) {
-        const diffAmount = amount - item.amount;
-        item.date = date;
-        item.startTime = startTime;
-        item.endTime = endTime;
-        item.ordersCount = orders;
-        item.amount = amount;
-        item.note = note;
-
-        appState.balance += diffAmount;
-        appState.monthlyIncome += diffAmount;
-        showToast("Daromad ma'lumotlari muvaffaqiyatli yangilandi!", 'success');
+      appState.balance += diffAmount;
+      appState.monthlyIncome += diffAmount;
+      if (diffAmount > 0) {
+        appState.cumulativeEarnings = (appState.cumulativeEarnings || getCumulativeEarnings()) + diffAmount;
       }
+      showToast("Haftalik daromad ma'lumotlari yangilandi!", 'success');
+    }
+  } else {
+    // Agar ushbu sanaga allaqachon yozuv mavjud bo'lsa, uni dublikat qilmasdan yangilash
+    const existingIndex = (appState.workIncomes || []).findIndex(i => i.startDate === startDate);
+    if (existingIndex !== -1) {
+      const item = appState.workIncomes[existingIndex];
+      const diffAmount = amount - (item.amount || 0);
+      item.startDate = startDate;
+      item.endDate = endDate;
+      item.amount = amount;
+      item.totalHours = totalHours;
+      item.ordersCount = orders;
+      item.workDays = workDays;
+      item.restDays = restDays;
+      item.workDaysCount = workDays.length;
+      item.restDaysCount = restDays.length;
+      item.note = note;
+
+      appState.balance += diffAmount;
+      appState.monthlyIncome += diffAmount;
+      if (diffAmount > 0) {
+        appState.cumulativeEarnings = (appState.cumulativeEarnings || getCumulativeEarnings()) + diffAmount;
+      }
+      showToast("Mavjud hafta ma'lumotlari yangilandi!", 'success');
     } else {
       const newItem = {
         id: Date.now(),
-        date,
-        startTime,
-        endTime,
-        ordersCount: orders,
+        startDate,
+        endDate,
         amount,
+        totalHours,
+        ordersCount: orders,
+        workDays,
+        restDays,
+        workDaysCount: workDays.length,
+        restDaysCount: restDays.length,
         note,
         createdAt: Date.now()
       };
@@ -1473,106 +1894,322 @@ function initWorkIncomeForm() {
 
       appState.balance += amount;
       appState.monthlyIncome += amount;
+      appState.cumulativeEarnings = (appState.cumulativeEarnings || getCumulativeEarnings()) + amount;
 
       appState.transactions.unshift({
         id: Date.now() + 1,
         type: 'income',
-        title: `Ish daromadi (${orders} ta buyurtma)`,
-        tag: 'Ish daromadi',
-        time: `Bugun • ${startTime} — ${endTime} (${durationStr}) • Qo'shildi`,
+        title: `Haftalik ish daromadi (${orders} ta buyurtma, ${workDays.length} ish kuni)`,
+        tag: 'Haftalik daromad',
+        time: `${formatDateUz(startDate)} — ${formatDateUz(endDate)} • ${totalHours} soat`,
         amount: amount,
         icon: '💰',
         color: 'var(--color-income)',
         bg: 'rgba(16, 185, 129, 0.15)'
       });
 
-      showToast(`+${formatSom(amount)} yangi ish daromadi saqlandi!`, 'success');
+      showToast(`+${formatSom(amount)} yangi haftalik daromad saqlandi!`, 'success');
     }
+  }
 
-    saveState();
-    renderAll();
+  saveState();
+  renderAll();
+  triggerHaptic('success');
+
+  if (options.stepToPrev) {
+    const curMon = getMondayDate(startDate);
+    curMon.setDate(curMon.getDate() - 7);
+    const prevMonStr = toIsoDate(curMon);
+    if (prevMonStr < MIN_WORK_INCOME_DATE) {
+      showToast("7-Sentabr 2026-yil eng boshlang'ich hafta hisoblanadi. Undan oldingi davr mavjud emas.", 'info');
+      selectWeekDate(MIN_WORK_INCOME_DATE, false);
+    } else {
+      selectWeekDate(prevMonStr, false);
+      showToast(`Oldingi haftaga o'tildi (${formatDateUz(prevMonStr)})`, 'info');
+    }
+  } else if (options.closeModal) {
     closeAllModals();
     resetWorkIncomeModal();
-    triggerHaptic('success');
+  }
+  return true;
+}
+
+function initWorkIncomeForm() {
+  const form = document.getElementById('workIncomeForm');
+  if (!form) return;
+
+  const dateInput = document.getElementById('workIncomeWeekDate');
+  const prevWeekBtn = document.getElementById('workIncomePrevWeekBtn');
+  const nextWeekBtn = document.getElementById('workIncomeNextWeekBtn');
+  const pastSelect = document.getElementById('workIncomePastWeeksSelect');
+  const saveAndPrevBtn = document.getElementById('workIncomeSaveAndPrevBtn');
+
+  const sel5Btn = document.getElementById('calSelect5DaysBtn');
+  const sel6Btn = document.getElementById('calSelect6DaysBtn');
+  const selAllBtn = document.getElementById('calSelectAllBtn');
+  const clearBtn = document.getElementById('calClearAllBtn');
+  const autoHoursBtn = document.getElementById('hoursAutoCalcBtn');
+
+  // Stepper: 1 hafta orqaga
+  if (prevWeekBtn) {
+    prevWeekBtn.addEventListener('click', () => {
+      const curMon = getMondayDate(dateInput ? dateInput.value : new Date());
+      curMon.setDate(curMon.getDate() - 7);
+      const targetStr = toIsoDate(curMon);
+      if (targetStr < MIN_WORK_INCOME_DATE) {
+        showToast("7-Sentabr 2026-yildan oldingi davrga o'tib bo'lmaydi!", 'warning');
+        return;
+      }
+      selectWeekDate(targetStr);
+      triggerHaptic('light');
+    });
+  }
+
+  // Stepper: 1 hafta oldinga
+  if (nextWeekBtn) {
+    nextWeekBtn.addEventListener('click', () => {
+      const curMon = getMondayDate(dateInput ? dateInput.value : new Date());
+      const maxMon = toIsoDate(getMondayDate(new Date()));
+      curMon.setDate(curMon.getDate() + 7);
+      const targetStr = toIsoDate(curMon);
+      if (targetStr > maxMon) {
+        showToast("Bugungi kundan keyingi haftaga o'tib bo'lmaydi!", 'warning');
+        return;
+      }
+      selectWeekDate(targetStr);
+      triggerHaptic('light');
+    });
+  }
+
+  // 7-Sentabrdan bugungacha bo'lgan haftalar tanlanganda
+  if (pastSelect) {
+    pastSelect.addEventListener('change', (e) => {
+      if (e.target.value) {
+        selectWeekDate(e.target.value);
+        triggerHaptic('light');
+      }
+    });
+  }
+
+  // Sana o'zgartirilganda (kalendar picker orqali)
+  if (dateInput) {
+    dateInput.addEventListener('change', () => {
+      let monStr = toIsoDate(getMondayDate(dateInput.value));
+      const maxMon = toIsoDate(getMondayDate(new Date()));
+      if (monStr < MIN_WORK_INCOME_DATE) {
+        monStr = MIN_WORK_INCOME_DATE;
+        showToast("Faqat 7-Sentabr 2026-yildan boshlab kiritish mumkin!", 'warning');
+      } else if (monStr > maxMon) {
+        monStr = maxMon;
+        showToast("Bugungi kundan keyingi haftani tanlab bo'lmaydi!", 'warning');
+      }
+      selectWeekDate(monStr, true);
+    });
+  }
+
+  // 7 kunlik kalendar preset tugmalari
+  if (sel5Btn) sel5Btn.addEventListener('click', () => setModalWorkDaysPreset(5));
+  if (sel6Btn) sel6Btn.addEventListener('click', () => setModalWorkDaysPreset(6));
+  if (selAllBtn) selAllBtn.addEventListener('click', () => setModalWorkDaysPreset(7));
+  if (clearBtn) clearBtn.addEventListener('click', () => setModalWorkDaysPreset(0));
+
+  if (autoHoursBtn) {
+    autoHoursBtn.addEventListener('click', () => {
+      const hoursInp = document.getElementById('workIncomeHours');
+      const calcHours = modalWorkDays.size * 8;
+      if (hoursInp) hoursInp.value = calcHours;
+      updateWorkIncomeLivePreview();
+      triggerHaptic('light');
+      showToast(`${modalWorkDays.size} ish kuni uchun 8 soatdan = ${calcHours} soat belgilandi!`);
+    });
+  }
+
+  // Quick Amount chips
+  document.querySelectorAll('.amount-quick-chips button[data-add]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const addVal = Number(btn.getAttribute('data-add')) || 0;
+      const amtInput = document.getElementById('workIncomeAmount');
+      if (amtInput) {
+        amtInput.value = (Number(amtInput.value) || 0) + addVal;
+        updateWorkIncomeLivePreview();
+        triggerHaptic('light');
+      }
+    });
   });
+
+  // Quick Hours chips
+  document.querySelectorAll('.amount-quick-chips button[data-hour]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const hVal = Number(btn.getAttribute('data-hour')) || 0;
+      const hoursInput = document.getElementById('workIncomeHours');
+      if (hoursInput) {
+        hoursInput.value = hVal;
+        updateWorkIncomeLivePreview();
+        triggerHaptic('light');
+      }
+    });
+  });
+
+  ['workIncomeAmount', 'workIncomeHours', 'workIncomeOrders'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', updateWorkIncomeLivePreview);
+      el.addEventListener('change', updateWorkIncomeLivePreview);
+    }
+  });
+
+  // Ketma-ket haftalarni kiritish: Saqlab, oldingi haftaga o'tish
+  if (saveAndPrevBtn) {
+    saveAndPrevBtn.addEventListener('click', () => {
+      saveCurrentWorkIncome({ closeModal: false, stepToPrev: true });
+    });
+  }
+
+  // Standart saqlash
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveCurrentWorkIncome({ closeModal: true, stepToPrev: false });
+  });
+
+  // 7-Sentabr 2026 dan oldingi barcha eski yozuvlarni tozalash
+  if (appState && appState.workIncomes) {
+    appState.workIncomes = appState.workIncomes.filter(i => (i.startDate || '') >= MIN_WORK_INCOME_DATE);
+  }
+
+  // Dastlabki yuklashda dropdown va chipslarni darhol to'ldirish
+  populatePastWeeksDropdown(toIsoDate(getMondayDate(new Date())));
+  renderQuickWeeksChips(toIsoDate(getMondayDate(new Date())));
 }
 
 function renderWorkIncomes() {
   const container = document.getElementById('incomesListContainer');
   if (!container) return;
 
-  const incomes = appState.workIncomes || [];
+  const curMonStr = toIsoDate(getMondayDate(new Date()));
+
+  // Faqat 7.09.2026 sentabrdan boshlab bugungacha bo'lgan haftalarni ko'rsatish
+  const incomes = (appState.workIncomes || []).filter(item => {
+    const sDate = item.startDate || '';
+    return sDate >= MIN_WORK_INCOME_DATE && sDate <= curMonStr;
+  });
+
+  // Yangidan eskisiga qarab (eng yangi hafta tepada) xronologik tartiblash
+  incomes.sort((a, b) => {
+    const da = new Date(a.startDate || 0).getTime();
+    const db = new Date(b.startDate || 0).getTime();
+    return db - da;
+  });
 
   const totalAmount = incomes.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+  const totalHours = incomes.reduce((sum, item) => sum + (Number(item.totalHours) || 0), 0);
   const totalOrders = incomes.reduce((sum, item) => sum + (Number(item.ordersCount) || 0), 0);
-  const totalDays = incomes.length;
-  const avgPerOrder = totalOrders > 0 ? Math.round(totalAmount / totalOrders) : 0;
+  const totalWorkDays = incomes.reduce((sum, item) => sum + (Number(item.workDaysCount || (item.workDays ? item.workDays.length : 0)) || 0), 0);
+  const totalRestDays = incomes.reduce((sum, item) => sum + (Number(item.restDaysCount || (item.restDays ? item.restDays.length : 0)) || 0), 0);
+  const latestWeeklyIncome = incomes.length > 0 ? (Number(incomes[0].amount) || 0) : 0;
 
   setElText('heroTotalIncomeAmount', formatSom(totalAmount));
+  setElText('heroWeeklyIncomeAmount', formatSom(latestWeeklyIncome));
+  setElText('heroTotalHoursCount', `${totalHours} soat`);
   setElText('heroTotalOrdersCount', `${totalOrders} ta`);
-  setElText('heroAvgPerOrder', formatSom(avgPerOrder));
-  setElText('incomeSessionsCount', `${totalDays} ta ish kuni`);
+  setElText('heroWorkRestDaysRatio', `${totalWorkDays} ish / ${totalRestDays} dam`);
+  setElText('incomeSessionsCount', `${incomes.length} ta hafta`);
 
   setElText('kpiTotalIncome', formatSom(totalAmount));
+  setElText('kpiWeeklyIncome', formatSom(latestWeeklyIncome));
+  setElText('kpiTotalHours', `${totalHours} soat`);
   setElText('kpiTotalOrders', `${totalOrders} ta`);
-  setElText('kpiAvgPerOrder', formatSom(avgPerOrder));
-  setElText('kpiTotalDays', `${totalDays} kun`);
-  setElText('incomesStreamCountBadge', `${incomes.length} ta yozuv`);
+  setElText('kpiTotalWorkDays', `${totalWorkDays} kun`);
+  setElText('kpiTotalRestDays', `${totalRestDays} kun`);
+  setElText('incomesStreamCountBadge', `${incomes.length} ta hafta (7-Sen — Bugun)`);
 
   if (incomes.length === 0) {
     container.innerHTML = `
-      <div class="empty-incomes-box">
-        <div style="font-size: 2rem; margin-bottom: 8px;">💰</div>
-        Hozircha kiritilgan ish daromadlari yo'q.<br>
-        <strong>"+ Yangi daromad kiritish"</strong> tugmasini bosib birinchi daromadni kiriting!
+      <div class="empty-incomes-box" style="text-align: center; padding: 36px 16px; background: var(--bg-surface-elevated); border: 1px dashed var(--border-subtle); border-radius: var(--radius-lg);">
+        <div style="font-size: 2.2rem; margin-bottom: 10px;">📅</div>
+        <div style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">7-Sentabr 2026-yildan bugungacha kiritilgan haftalik daromadlar yo'q</div>
+        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 14px;">
+          <strong>"+ Haftalik daromad kiritish"</strong> tugmasini bosib birinchi haftalik hisobotni saqlang!
+        </div>
       </div>
     `;
     return;
   }
 
   container.innerHTML = incomes.map(item => {
-    const rateOrder = item.ordersCount > 0 ? Math.round(item.amount / item.ordersCount) : 0;
-    const formattedDate = formatDateUz(item.date);
-    const durationStr = calculateWorkDuration(item.startTime || '09:00', item.endTime || '18:00');
+    const offset = getWeekOffset(item.startDate);
+    const relativeBadge = getWeekRelativeText(offset);
+    const workCount = item.workDaysCount || (item.workDays ? item.workDays.length : 0);
+    const restCount = item.restDaysCount || (7 - workCount);
+    const hourlyRate = (item.totalHours && item.totalHours > 0) ? Math.round(item.amount / item.totalHours) : 0;
+    const perOrderRate = (item.ordersCount && item.ordersCount > 0) ? Math.round(item.amount / item.ordersCount) : 0;
+
+    // 7 kunlik polosa ko'rinishi
+    const monday = getMondayDate(item.startDate);
+    const weekDays = getWeek7Days(monday);
+    const workSet = new Set(item.workDays || []);
+
+    const stripHtml = weekDays.map(d => {
+      const isWork = workSet.has(d.dateStr);
+      return `
+        <div class="strip-day-chip ${isWork ? 'work' : 'rest'}" title="${d.dayName} (${d.dateStr}) — ${isWork ? 'Ish kuni' : 'Dam olish kuni'}">
+          <strong>${d.dayShort}</strong>
+          <span>${isWork ? '💼 Ish' : '🏖️ Dam'}</span>
+        </div>
+      `;
+    }).join('');
 
     return `
-      <div class="income-work-card" id="income-item-${item.id}">
-        <div class="income-card-left">
-          <div class="income-card-date">
-            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
-              <line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-            <span>${formattedDate}</span>
+      <div class="income-week-card" id="income-item-${item.id}">
+        <div class="income-week-header">
+          <div class="income-week-title-wrap">
+            <div class="week-icon-badge">📅</div>
+            <div>
+              <div class="income-week-range">
+                ${formatDateUz(item.startDate)} — ${formatDateUz(item.endDate)}
+                <span class="income-week-tag ${offset === 0 ? 'is-current' : ''}">${relativeBadge}</span>
+              </div>
+              <div class="income-week-sub">7 kunlik hisobot davri</div>
+            </div>
           </div>
-          <div class="income-card-time">
-            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-            <span>⏰ ${item.startTime || '--:--'} — ${item.endTime || '--:--'}</span>
-            ${durationStr ? `<span class="income-duration-badge">⏱️ ${durationStr}</span>` : ''}
+          <div class="income-week-sum-wrap">
+            <div class="income-week-label">7 kunda topgan pul</div>
+            <div class="income-week-amount">+${formatSom(item.amount)}</div>
           </div>
         </div>
 
-        <div class="income-card-center">
-          <span class="income-pill-badge income-pill-orders">📦 ${item.ordersCount || 0} ta buyurtma</span>
-          ${rateOrder > 0 ? `<span class="income-pill-badge income-pill-rate">🎯 ${formatSom(rateOrder)}/ta</span>` : ''}
-          ${item.note ? `<span class="income-pill-badge" style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">💬 ${item.note}</span>` : ''}
+        <div class="income-week-days-strip">
+          ${stripHtml}
         </div>
 
-        <div class="income-card-right">
-          <div class="income-card-amount">+${formatSom(item.amount)}</div>
-          <div class="income-card-actions">
-            <button class="btn-icon-action" onclick="editWorkIncome(${item.id})" title="Tahrirlash">
+        <div class="income-week-metrics-bar">
+          <div class="income-metric-chip work-chip">
+            <span>💼 Ishlangan: <strong>${workCount} kun</strong></span>
+          </div>
+          <div class="income-metric-chip rest-chip">
+            <span>🏖️ Dam olingan: <strong>${restCount} kun</strong></span>
+          </div>
+          <div class="income-metric-chip hours-chip">
+            <span>⏰ Ish soati: <strong>${item.totalHours || 0} soat</strong></span>
+            ${hourlyRate > 0 ? `<span>(${formatSom(hourlyRate)}/soat)</span>` : ''}
+          </div>
+          <div class="income-metric-chip orders-chip">
+            <span>📦 Buyurtmalar: <strong>${item.ordersCount || 0} ta</strong></span>
+            ${perOrderRate > 0 ? `<span>(${formatSom(perOrderRate)}/ta)</span>` : ''}
+          </div>
+        </div>
+
+        ${item.note ? `<div class="income-week-note">💬 ${item.note}</div>` : ''}
+
+        <div class="income-week-footer">
+          <span class="income-week-timestamp">Qayd etildi: ${new Date(item.createdAt || item.id).toLocaleDateString()}</span>
+          <div class="income-week-actions">
+            <button class="btn btn-sm btn-icon-action" onclick="editWorkIncome(${item.id})" title="Tahrirlash">
               <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
               </svg>
             </button>
-            <button class="btn-icon-action delete" onclick="deleteWorkIncome(${item.id})" title="O'chirish">
+            <button class="btn btn-sm btn-icon-action delete" onclick="deleteWorkIncome(${item.id})" title="O'chirish">
               <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
                 <polyline points="3 6 5 6 21 6"/>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -1589,22 +2226,18 @@ window.editWorkIncome = function(id) {
   const item = (appState.workIncomes || []).find(i => i.id === id);
   if (!item) return;
 
+  selectWeekDate(item.startDate, false);
+
   document.getElementById('editWorkIncomeId').value = item.id;
-  document.getElementById('workIncomeDate').value = item.date;
-  document.getElementById('workIncomeStartTime').value = item.startTime || "09:00";
-  document.getElementById('workIncomeEndTime').value = item.endTime || "18:00";
-  document.getElementById('workIncomeOrders').value = item.ordersCount;
   document.getElementById('workIncomeAmount').value = item.amount;
+  document.getElementById('workIncomeHours').value = item.totalHours || 40;
+  document.getElementById('workIncomeOrders').value = item.ordersCount || 0;
   document.getElementById('workIncomeNote').value = item.note || '';
 
-  document.getElementById('workIncomeModalTitleText').textContent = "Daromadni Tahrirlash";
-  document.getElementById('workIncomeSubmitBtn').textContent = "O'zgarishlarni saqlash";
+  modalWorkDays.clear();
+  (item.workDays || []).forEach(d => modalWorkDays.add(d));
 
-  const hintEl = document.getElementById('workIncomeDateDisplayHint');
-  if (hintEl) {
-    hintEl.innerHTML = `📅 Tanlangan sana: <strong>${formatDateUz(item.date)}</strong>`;
-  }
-
+  renderModalCalendar();
   updateWorkIncomeLivePreview();
   openModal(document.getElementById('workIncomeModal'));
 };
@@ -1618,7 +2251,7 @@ window.deleteWorkIncome = function(id) {
   appTrash.unshift({
     id: Date.now(),
     type: 'work_income',
-    title: `Ish daromadi: +${formatSom(item.amount)} (${item.ordersCount} ta buyurtma)`,
+    title: `Haftalik daromad: +${formatSom(item.amount)} (${item.ordersCount || 0} ta buyurtma, ${item.workDaysCount || 0} ish kuni)`,
     deletedAt: Date.now(),
     expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000),
     data: item
@@ -1634,18 +2267,31 @@ window.deleteWorkIncome = function(id) {
   saveState();
   renderAll();
   triggerHaptic('warning');
-  showToast("Daromad yozuvi Chiqindi qutisiga ko'chirildi (1 hafta saqlanadi)!", 'danger');
+  showToast("Haftalik daromad Chiqindi qutisiga ko'chirildi (1 hafta saqlanadi)!", 'danger');
 };
 
 // ==========================================
 // UI NI CHIZISH (RENDER)
 // ==========================================
 
+function getCumulativeEarnings() {
+  const workIncomesTotal = (appState.workIncomes || []).reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+  const baseline = Math.max(appState.cumulativeEarnings || 0, workIncomesTotal, (appState.monthlyIncome || 0));
+  appState.cumulativeEarnings = baseline;
+  return appState.cumulativeEarnings;
+}
+
 function renderAll() {
   // 1. Yuqori kartochkalar
   document.getElementById('balanceDisplay').textContent = formatSom(appState.balance);
   document.getElementById('totalIncomeDisplay').textContent = formatSom(appState.monthlyIncome);
   document.getElementById('totalExpenseDisplay').textContent = formatSom(appState.monthlyExpense);
+
+  // 1.1 Yangi ko'rsatkich: Jami Ishlab Topilgan Umumiy Pul (Cumulative Lifetime Earnings)
+  const cumulativeEl = document.getElementById('cumulativeEarningsDisplay');
+  if (cumulativeEl) {
+    cumulativeEl.textContent = formatSom(getCumulativeEarnings());
+  }
 
   // Qarzlar qoldig'i (berilgan va olingan)
   const lentRemaining = appState.debts
@@ -2138,41 +2784,174 @@ window.applyCalcToExpense = function(category) {
   openModal(expModal);
 };
 
-// Scroll to calculator
+// ==========================================
+// SPA TAB-BASED NAVIGATSIYA & OYNALAR ALMASHINISHI
+// 1. Asosiy (Dashboard)
+// 2. Daromadlar
+// 3. Xarajatlar
+// 4. Qarzlar
+// 5. Kalkulyator
+// ==========================================
+
+let currentActiveTab = 'dashboard';
+
+window.switchTab = function(tabName) {
+  if (!tabName) return;
+  triggerHaptic('light');
+  currentActiveTab = tabName;
+
+  // 1. Barcha tab viewlarni yashirish va tanlangan oynani faollashtirish
+  const views = document.querySelectorAll('.tab-view');
+  views.forEach(v => v.classList.remove('active'));
+
+  const tabMap = {
+    dashboard: 'tabDashboard',
+    incomes: 'tabIncomes',
+    expenses: 'tabExpenses',
+    debts: 'tabDebts',
+    calculator: 'tabCalculator'
+  };
+
+  const targetId = tabMap[tabName] || `tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`;
+  const targetView = document.getElementById(targetId);
+  if (targetView) {
+    targetView.classList.add('active');
+  }
+
+  // 2. Drawer menyudagi faol tabni belgilash
+  document.querySelectorAll('.drawer-nav-item').forEach(item => {
+    const itemTab = item.getAttribute('data-tab');
+    item.classList.toggle('active', itemTab === tabName);
+  });
+
+  // 3. Headerdagi joriy oyna yorlig'ini (badge) yangilash
+  const namesUz = {
+    dashboard: 'Asosiy',
+    incomes: 'Daromadlar',
+    expenses: 'Xarajatlar',
+    debts: 'Qarzlar',
+    calculator: 'Kalkulyator'
+  };
+  const badge = document.getElementById('currentTabBadge');
+  if (badge) {
+    badge.textContent = namesUz[tabName] || tabName;
+  }
+
+  // 4. Sahifani yuqoriga o'tkazish
+  window.scrollTo({ top: 0, behavior: 'instant' });
+};
+
+// Eski kodlar va havolalar bilan to'liq moslik uchun yordamchilar
 function scrollToCalculator() {
   triggerHaptic('light');
-  const calc = document.getElementById('calculatorWidget');
-  if (calc) {
-    calc.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    calc.classList.remove('highlight-pulse');
-    void calc.offsetWidth;
-    calc.classList.add('highlight-pulse');
-    setTimeout(() => calc.classList.remove('highlight-pulse'), 1800);
-  }
-  document.querySelectorAll('.sec-nav-pill').forEach(pill => {
-    pill.classList.toggle('active', pill.getAttribute('onclick')?.includes('calculatorWidget'));
-  });
+  switchTab('calculator');
 }
 
 const scrollToCalcBtn = document.getElementById('scrollToCalcBtn');
 if (scrollToCalcBtn) {
-  scrollToCalcBtn.addEventListener('click', scrollToCalculator);
+  scrollToCalcBtn.addEventListener('click', () => switchTab('calculator'));
 }
 
-// Bo'limlarga silliq o'tish (Tahlil, Qarzlar, Tarix, Kalkulyator)
 window.scrollToSection = function(sectionId) {
   triggerHaptic('light');
-  const target = document.getElementById(sectionId);
-  if (target) {
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    target.classList.remove('highlight-pulse');
-    void target.offsetWidth;
-    target.classList.add('highlight-pulse');
-    setTimeout(() => target.classList.remove('highlight-pulse'), 1800);
+  if (sectionId === 'incomeSection') {
+    switchTab('incomes');
+  } else if (sectionId === 'analysisSection') {
+    switchTab('expenses');
+  } else if (sectionId === 'debtSection') {
+    switchTab('debts');
+  } else if (sectionId === 'calculatorWidget') {
+    switchTab('calculator');
+  } else if (sectionId === 'historySection') {
+    switchTab('dashboard');
+    const target = document.getElementById('historySection');
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    const target = document.getElementById(sectionId);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  document.querySelectorAll('.sec-nav-pill').forEach(pill => {
-    pill.classList.toggle('active', pill.getAttribute('onclick')?.includes(sectionId));
-  });
+};
+
+// ==========================================
+// GAMBURGER YON MENYU (SIDEBAR / DRAWER) BOSHQARUVI
+// ==========================================
+
+window.openDrawer = function(e) {
+  if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+  triggerHaptic('light');
+  const drawer = document.getElementById('appDrawer');
+  const overlay = document.getElementById('drawerOverlay');
+  if (drawer) drawer.classList.add('active');
+  if (overlay) overlay.classList.add('active');
+
+  const drawerBadge = document.getElementById('drawerTrashCountBadge');
+  if (drawerBadge) drawerBadge.textContent = (typeof appTrash !== 'undefined' && appTrash) ? appTrash.length : 0;
+
+  updateDrawerThemeDisplay();
+};
+
+window.closeDrawer = function(e) {
+  if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+  const drawer = document.getElementById('appDrawer');
+  const overlay = document.getElementById('drawerOverlay');
+  if (drawer) drawer.classList.remove('active');
+  if (overlay) overlay.classList.remove('active');
+};
+
+window.toggleDrawer = function(e) {
+  if (e) {
+    if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    if (typeof e.preventDefault === 'function') e.preventDefault();
+  }
+  const drawer = document.getElementById('appDrawer');
+  if (drawer && drawer.classList.contains('active')) {
+    closeDrawer(e);
+  } else {
+    openDrawer(e);
+  }
+};
+
+function updateDrawerThemeDisplay() {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+  const iconEl = document.getElementById('drawerThemeIcon');
+  const textEl = document.getElementById('drawerThemeText');
+  if (iconEl) iconEl.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+  if (textEl) textEl.textContent = currentTheme === 'dark' ? 'Kunduzgi rejimga o\'tish' : 'Tungi rejimga o\'tish';
+}
+
+window.toggleThemeFromDrawer = function() {
+  triggerHaptic('light');
+  const themeBtn = document.getElementById('themeToggleBtn');
+  if (themeBtn) {
+    themeBtn.click();
+  } else {
+    const root = document.documentElement;
+    const current = root.getAttribute('data-theme') || 'dark';
+    const newTheme = current === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', newTheme);
+    appState.theme = newTheme;
+    localStorage.setItem('theme', newTheme);
+    updateThemeMeta(newTheme);
+    saveState();
+  }
+  updateDrawerThemeDisplay();
+  closeDrawer();
+};
+
+window.openTrashFromDrawer = function() {
+  closeDrawer();
+  renderTrash();
+  openModal(document.getElementById('trashModal'));
+};
+
+window.openResetFromDrawer = function() {
+  closeDrawer();
+  openModal(document.getElementById('resetConfirmModal'));
+};
+
+window.openAboutAppModal = function() {
+  closeDrawer();
+  openModal(document.getElementById('aboutAppModal'));
 };
 
 // Kompyuter va noutbuk jismoniy klaviaturasi (Numpad) qo'llab-quvvatlash
@@ -2214,88 +2993,40 @@ function initKeyboardSupport() {
   });
 }
 
-// Mobil qurilmalar uchun pastki tezkor navigatsiya paneli (Bottom Dock - 6 ta asosiy funksiya)
-function initMobileBottomBar() {
-  const expenseModal = document.getElementById('expenseModal');
-  const debtModal = document.getElementById('debtModal');
-  const resetConfirmModal = document.getElementById('resetConfirmModal');
-  const workIncomeModal = document.getElementById('workIncomeModal');
-
-  const mobileIncomeBtn = document.getElementById('mobileIncomeBtn') || document.getElementById('mobileIncBtn');
-  const mobileExpBtn = document.getElementById('mobileExpBtn');
-  const mobileLendBtn = document.getElementById('mobileLendBtn');
-  const mobileBorrowBtn = document.getElementById('mobileBorrowBtn');
-  const mobileCalcBtn = document.getElementById('mobileCalcBtn');
-  const mobileResetBtn = document.getElementById('mobileResetBtn');
-  const mobileDebtBtn = document.getElementById('mobileDebtBtn');
-  const mobileTopBtn = document.getElementById('mobileTopBtn');
-
-  // 1. Daromadlarim
-  if (mobileIncomeBtn) {
-    mobileIncomeBtn.addEventListener('click', () => {
-      triggerHaptic('light');
-      resetWorkIncomeModal();
-      openModal(workIncomeModal);
-    });
+// Yon menyu (Drawer) tugmalarini ulash
+function initNavigationEvents() {
+  const drawerToggleBtn = document.getElementById('drawerToggleBtn');
+  if (drawerToggleBtn) {
+    drawerToggleBtn.onclick = function(e) {
+      toggleDrawer(e);
+    };
   }
 
-  // 2. Xarajatlarim
-  if (mobileExpBtn) {
-    mobileExpBtn.addEventListener('click', () => {
-      triggerHaptic('light');
-      const customGroup = document.getElementById('customCatGroup');
-      if (customGroup) customGroup.style.display = 'none';
-      openModal(expenseModal);
-    });
+  const drawerCloseBtn = document.getElementById('drawerCloseBtn');
+  if (drawerCloseBtn) {
+    drawerCloseBtn.onclick = function(e) {
+      closeDrawer(e);
+    };
   }
 
-  // 3. Qarz berish
-  if (mobileLendBtn) {
-    mobileLendBtn.addEventListener('click', () => {
-      triggerHaptic('light');
-      prepareDebtModal('lent');
-      openModal(debtModal);
-    });
+  const drawerOverlay = document.getElementById('drawerOverlay');
+  if (drawerOverlay) {
+    drawerOverlay.onclick = function(e) {
+      closeDrawer(e);
+    };
   }
 
-  // 4. Qarz olish
-  if (mobileBorrowBtn) {
-    mobileBorrowBtn.addEventListener('click', () => {
-      triggerHaptic('light');
-      prepareDebtModal('borrowed');
-      openModal(debtModal);
-    });
-  }
-
-  // 5. Kalkulyator
-  if (mobileCalcBtn) {
-    mobileCalcBtn.addEventListener('click', () => {
-      scrollToCalculator();
-    });
-  }
-
-  // 6. Statistikani 0 ga tushirish
-  if (mobileResetBtn) {
-    mobileResetBtn.addEventListener('click', () => {
-      triggerHaptic('warning');
-      openModal(resetConfirmModal);
-    });
-  }
-
-  // Moslik uchun eski tugmalar
-  if (mobileDebtBtn) {
-    mobileDebtBtn.addEventListener('click', () => {
-      triggerHaptic('light');
-      prepareDebtModal('lent');
-      openModal(debtModal);
-    });
-  }
-  if (mobileTopBtn) {
-    mobileTopBtn.addEventListener('click', () => {
-      triggerHaptic('light');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }
+  // Drawer ichidagi asosiy sahifalar tugmalari
+  document.querySelectorAll('.drawer-nav-item').forEach(item => {
+    item.onclick = function(e) {
+      if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+      const tab = item.getAttribute('data-tab');
+      if (tab) {
+        switchTab(tab);
+        closeDrawer(e);
+      }
+    };
+  });
 }
 
 // ==========================================
@@ -2309,6 +3040,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initForms();
   initFilters();
   initKeyboardSupport();
-  initMobileBottomBar();
+  initNavigationEvents();
   renderAll();
 });
